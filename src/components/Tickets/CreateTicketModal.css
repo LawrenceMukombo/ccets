@@ -1,0 +1,161 @@
+/* CreateTicketModal.css */
+
+.ticket-modal {
+    width: 700px;
+    max-width: 95vw;
+}
+
+.modal-tabs {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s;
+    margin-bottom: -2px;
+    /* overlap border */
+}
+
+.tab-btn:hover {
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.tab-btn.active {
+    color: #2c3e50;
+    border-bottom-color: #3498db;
+    font-weight: 600;
+}
+
+.tab-pane {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-group-row {
+    display: flex;
+    gap: 16px;
+}
+
+.form-group-row .form-group {
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.form-group select,
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-group select:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.equipment-info-card {
+    background-color: #f8fbff;
+    border: 1px solid #cce5ff;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 10px;
+}
+
+.equipment-info-card h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1em;
+    color: #0056b3;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    font-size: 0.9em;
+}
+
+.priority-options {
+    display: flex;
+    gap: 12px;
+}
+
+.priority-radio {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #eee;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+}
+
+.priority-radio:hover {
+    background-color: #f0f0f0;
+}
+
+/* Priority Colors when selected */
+.priority-radio.low input:checked+span,
+.priority-radio.low:has(input:checked) {
+    background-color: #e8f5e9;
+    border-color: #4caf50;
+    color: #2e7d32;
+}
+
+.priority-radio.medium input:checked+span,
+.priority-radio.medium:has(input:checked) {
+    background-color: #fff8e1;
+    border-color: #ffc107;
+    color: #ff8f00;
+}
+
+.priority-radio.high input:checked+span,
+.priority-radio.high:has(input:checked) {
+    background-color: #ffebee;
+    border-color: #ef5350;
+    color: #c62828;
+}
+
+.priority-radio.critical input:checked+span,
+.priority-radio.critical:has(input:checked) {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+    color: #fff;
+}
+
+.required {
+    color: red;
+}

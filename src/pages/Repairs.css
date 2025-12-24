@@ -1,0 +1,371 @@
+/* Repairs.css */
+
+/* Global Layout */
+.repairs-container {
+    min-height: calc(100vh - 56px);
+    background: #f8fafc;
+    padding: 0;
+    transition: background 0.3s;
+}
+
+.repairs-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
+    padding: 16px 20px;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.repairs-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.header-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.create-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.create-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Sticky Header Container */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #f8fafc;
+    padding-bottom: 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.repairs-controls {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    /* Removed sticky from here since parent is now sticky */
+}
+
+.tabs-bar {
+    display: flex;
+    gap: 8px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.tab-btn.active {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.filters-row {
+    display: flex;
+    gap: 12px;
+}
+
+.search-box input {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    min-width: 250px;
+}
+
+.filters-row select {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Content Area */
+.repairs-content-area {
+    padding: 24px;
+}
+
+/* Grid View */
+.repairs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.repair-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.repair-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.repair-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.ref-number {
+    font-weight: 700;
+    color: #3b82f6;
+    font-size: 13px;
+    font-family: monospace;
+}
+
+.repair-details h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.equipment-type {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.fault-desc {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.repair-meta {
+    margin-top: auto;
+    font-size: 12px;
+    color: #94a3b8;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.view-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.repair-card:hover .view-btn {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-new {
+    background: #3b82f6;
+    /* Blue 500 */
+    color: white;
+}
+
+.status-assigned {
+    background: #8b5cf6;
+    /* Violet 500 */
+    color: white;
+}
+
+.status-in-progress {
+    background: #6366f1;
+    /* Indigo 500 */
+    color: white;
+}
+
+.status-resolved {
+    background: #10b981;
+    /* Emerald 500 */
+    color: white;
+}
+
+.status-escalated {
+    background: #ef4444;
+    /* Red 500 */
+    color: white;
+}
+
+.status-closed {
+    background: #000000 !important;
+    /* Pure Black */
+    color: white !important;
+    border: 1px solid #333;
+}
+
+
+
+.status-on-hold {
+    background: #f59e0b;
+    /* Amber 500 */
+    color: white;
+}
+
+/* Grouped View */
+/* ... */
+/* Mini Cards */
+/* ... */
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+}
+
+.status-dot.status-new {
+    background: #3b82f6;
+}
+
+.status-dot.status-assigned {
+    background: #8b5cf6;
+}
+
+.status-dot.status-in-progress {
+    background: #6366f1;
+}
+
+.status-dot.status-resolved {
+    background: #10b981;
+}
+
+.status-dot.status-escalated {
+    background: #ef4444;
+}
+
+.status-dot.status-closed {
+    background: #000000;
+}
+
+.status-dot.status-on-hold {
+    background: #f59e0b;
+}
+
+.mini-desc {
+    font-size: 12px;
+    /* ... */
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 8px 0 4px 0;
+}
+
+/* Dark Mode */
+body.dark .repairs-container {
+    background: #0f172a;
+}
+
+body.dark .repairs-controls {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark .tab-btn {
+    color: #94a3b8;
+}
+
+body.dark .tab-btn:hover {
+    background: #334155;
+    color: white;
+}
+
+body.dark .tab-btn.active {
+    background: #1e40af;
+    color: white;
+}
+
+body.dark .repair-card,
+body.dark .group-section {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark .repair-details h3,
+body.dark .group-header h3 {
+    color: white;
+}
+
+body.dark .equipment-type,
+body.dark .mini-desc,
+body.dark .repair-meta {
+    color: #94a3b8;
+}
+
+body.dark .search-box input,
+body.dark .filters-row select {
+    background: #334155;
+    color: white;
+    border-color: #475569;
+}

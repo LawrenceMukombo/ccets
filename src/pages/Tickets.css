@@ -1,0 +1,427 @@
+/* Global Font & Variables */
+:root {
+    --primary-blue: #0078D4;
+    --primary-dark: #0063B1;
+    --bg-light: #f5f5f5;
+    /* Updated Dark Mode Variables to lighter greys */
+    --bg-dark: #0f172a;
+    --bg-dark-surface: #1e293b;
+    --bg-dark-input: #334155;
+    --text-light: #333;
+    --text-dark: #f1f5f9;
+    --header-bg: linear-gradient(90deg, #1e3c72 0%, #bcc9e8 100%);
+}
+
+body {
+    font-family: 'Ubuntu', sans-serif;
+}
+
+/* Light/Dark Mode Base */
+.tickets-container {
+    min-height: calc(100vh - 56px);
+    background: var(--bg-light);
+    padding: 0;
+    transition: background 0.3s;
+}
+
+.tickets-container.dark {
+    background: var(--bg-dark);
+    --text-light: var(--text-dark);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+}
+
+.tickets-header {
+    background: var(--header-bg);
+    padding: 16px 20px;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tickets-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: white !important;
+    /* Force white text */
+    margin: 0 0 2px 0;
+}
+
+.header-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 0;
+    font-weight: 400;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.849);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.849);
+}
+
+/* Filters Bar */
+.filters-bar {
+    background: white;
+    padding: 12px 32px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    min-height: 56px;
+    scrollbar-width: thin;
+}
+
+.filters-bar::-webkit-scrollbar {
+    height: 4px;
+}
+
+.filter-item {
+    flex: 0 0 auto;
+}
+
+.search-item {
+    flex: 0 0 200px;
+}
+
+.search-item input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.filters-bar select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #444;
+    background: white;
+    cursor: pointer;
+    max-width: 140px;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.filter-spacer {
+    flex: 1;
+    min-width: 10px;
+}
+
+/* Create Button */
+.create-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #0078D4;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.create-button:hover {
+    background: #0063B1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.results-count-bar {
+    padding: 8px 32px;
+    font-size: 12px;
+    color: #666;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+}
+
+/* Tickets Table Container */
+.tickets-table-container {
+    background: white;
+    margin: 0;
+    height: calc(100vh - 165px);
+    overflow-y: auto;
+    overflow-x: auto;
+    position: relative;
+}
+
+.tickets-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 1400px;
+}
+
+/* Sticky Headers */
+.tickets-table thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 10;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e0e0e0;
+    border-top: 1px solid #eee;
+    white-space: nowrap;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.02);
+}
+
+.tickets-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+}
+
+.tickets-table th.sortable:hover {
+    background: #eef1f5;
+    color: #0078D4;
+}
+
+.tickets-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+    color: #333;
+    vertical-align: middle;
+}
+
+.tickets-table tbody tr:hover {
+    background-color: #f0f7ff;
+}
+
+/* Styles for Columns */
+.ticket-ref {
+    font-family: 'Ubuntu', monospace;
+    font-weight: 500;
+    color: #0078D4;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+/* Status Badges - Unified Palette */
+.status-new {
+    background: #dbeafe;
+    /* Blue-100 */
+    color: #1e40af;
+    /* Blue-800 */
+}
+
+.status-assigned {
+    background: #ede9fe;
+    /* Violet-100 */
+    color: #5b21b6;
+    /* Violet-800 */
+}
+
+.status-in-progress {
+    background: #e0e7ff;
+    /* Indigo-100 */
+    color: #3730a3;
+    /* Indigo-800 */
+}
+
+.status-escalated {
+    background: #fee2e2;
+    /* Red-100 */
+    color: #991b1b;
+    /* Red-800 */
+}
+
+.status-resolved {
+    background: #d1fae5;
+    /* Emerald-100 */
+    color: #065f46;
+    /* Emerald-800 */
+}
+
+.status-closed {
+    background: #f1f5f9;
+    /* Slate-100 */
+    color: #475569;
+    /* Slate-800 */
+}
+
+.status-on-hold {
+    background: #fef3c7;
+    /* Amber-100 */
+    color: #92400e;
+    /* Amber-800 */
+}
+
+/* Fault Info */
+.fault-info {
+    max-width: 250px;
+}
+
+.fault-title {
+    font-weight: 600;
+    color: #333;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.fault-description {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Dropdown */
+.actions-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: #999;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.actions-btn:hover {
+    background: #eee;
+    color: #333;
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    z-index: 100;
+    min-width: 140px;
+    text-align: left;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 13px;
+    cursor: pointer;
+    color: #333;
+}
+
+.dropdown-item:hover {
+    background: #f5f5f5;
+}
+
+.dropdown-item-danger {
+    color: #d32f2f;
+}
+
+.dropdown-item-danger:hover {
+    background: #ffebee;
+}
+
+/* Dark Mode Overrides - REFINED TO GREY */
+body.dark .tickets-container .filters-bar,
+body.dark .tickets-container .tickets-table-container,
+body.dark .tickets-table thead th,
+body.dark .tickets-table td {
+    background: var(--bg-dark-surface);
+    color: var(--text-dark);
+    border-color: #555;
+}
+
+body.dark .tickets-container .filters-bar select,
+body.dark .tickets-container .search-item input {
+    background: var(--bg-dark-input);
+    color: #f0f0f0;
+    border-color: #666;
+}
+
+body.dark .tickets-table tbody tr:hover {
+    background-color: #505050;
+}
+
+body.dark .ticket-ref {
+    color: #90caf9;
+}
+
+body.dark .fault-title {
+    color: white;
+}
+
+body.dark .fault-description {
+    color: #ccc;
+}
+
+body.dark .results-count-bar {
+    background: var(--bg-dark);
+    border-color: #555;
+    color: #bbb;
+}
+
+body.dark .dropdown-menu {
+    background: var(--bg-dark-surface);
+    border-color: #666;
+}
+
+body.dark .dropdown-item {
+    color: #f0f0f0;
+}
+
+body.dark .dropdown-item:hover {
+    background: #505050;
+}
+
+body.dark .selected-row {
+    background-color: #1a3e66 !important;
+}

@@ -1,0 +1,190 @@
+"name","label","province_key"
+1,"Abau",12
+2,"Aitape/ Raihu",24
+3,"Aitape/Lumi",24
+4,"Aitape/Raihu",24
+5,"Aitepe/Lumi",24
+6,"Alexishafen",22
+7,"Alotau",14
+8,"Alotau Urban",14
+9,"Ambunti",23
+10,"Ambunti/Drekikir",23
+11,"Analimp/Souh Whai",31
+12,"Anglimp/ South Whagi",31
+13,"Anglimp/SouthWaghi",31
+14,"Angoram",23
+15,"Angram",23
+16,"Arawa District",29
+17,"Bogia",22
+18,"Bulolo",21
+19,"Central Bougainville",29
+20,"Central Boungainville",29
+21,"Chuave",19
+22,"Daulo",20
+23,"Dei",18
+24,"Delta",10
+25,"Delta Fly",10
+26,"DREKIKIER",23
+27,"Erave/Kagua",16
+28,"Esaala",14
+29,"Etep",21
+30,"Finschafen",21
+31,"Finshafen",21
+32,"GAZELLE",27
+33,"Goilala",12
+34,"Goroka",20
+35,"GULF",10
+36,"Gulf",11
+37,"Gumine",19
+38,"Hagen",18
+39,"Hagen Hospital",18
+40,"Henganofi",20
+41,"Hiri/Koiairi",12
+42,"Hiri/Koiari",12
+43,"Huon",21
+44,"Huon Gulf",21
+45,"Ialibu",16
+46,"Ialibu/Pangia",16
+47,"Ijivitari",15
+48,"Imbonggo",16
+49,"Imbonggu",16
+50,"Jimi",31
+51,"Kabwum",21
+52,"Kagua/Eave",16
+53,"Kagua/Erave",16
+54,"Kainantu",20
+55,"Kainatu",20
+56,"Kairuku",12
+57,"Kairuku-Hiri",12
+58,"Kanadep",17
+59,"Kandep",17
+60,"Karamui/Nomane",19
+61,"Karimui/Nomane",19
+62,"Karmui/Nomane",19
+63,"Kavieng",26
+64,"KAVINENG",26
+65,"Kerema",11
+66,"Kerowagi",19
+67,"Keroweagi",19
+68,"Kiriwina-Goodenough",14
+69,"Kokopo",27
+70,"Komo/Magarima",30
+71,"Komo/Mgarima",30
+72,"KomoMagarima",30
+73,"Kompiam",17
+74,"Konos",26
+75,"Koroba /Kopiago",30
+76,"Koroba Kopiago",30
+77,"Koroba/ Kopiago",30
+78,"Korobo/Kopiago",30
+79,"Kreowagi",19
+80,"Krobo/Kopiago",30
+81,"Kundiawa /Gembolg",19
+82,"Kundiawa/Gembolg",19
+83,"Kundiawa/Gembplg",19
+84,"Lae",21
+85,"Laigam",17
+86,"Laigamp",17
+87,"Laigamp/Pogera",17
+88,"Laigamp/POREGERA",17
+89,"Laigamp/Porgera",17
+90,"Laigap/PORGERA",17
+91,"Lasigamp",17
+92,"Liagamp/Porgera",17
+93,"Liagamp/Porhera",17
+94,"Liagap/Porgera",17
+95,"Lorengau",25
+96,"Lufa",20
+97,"Madang",22
+98,"Madang Town",22
+99,"manus",25
+100,"Maprik",23
+101,"Markham",21
+102,"Mendi",16
+103,"Mendi/Munihu",16
+104,"Mendi/Munlhi",16
+105,"Mendi/Munlhu",16
+106,"Menyamya",21
+107,"Middle Fly",10
+108,"Middle Ramu",22
+109,"Moresby North East",13
+110,"Moresby South",13
+111,"Mt Hagen",18
+112,"Mt. Hagen",18
+113,"Mul",18
+114,"Mul Bayer",18
+115,"Mul/Baiyer",18
+116,"Mul/Bayer",18
+117,"Mutzing",21
+118,"Namatanai",26
+119,"Nawae",21
+120,"Nawaeb",21
+121,"New Ireland",26
+122,"Nipa Kutubu",16
+123,"Nipa/Kubutu",16
+124,"Nipa/Kutubu",16
+125,"Norh Whagi",31
+126,"North Bougainville",29
+127,"North East",13
+128,"North Fly",10
+129,"North Waghi",31
+130,"North West",13
+131,"North Whagi",31
+132,"North/Whagi",31
+133,"NorthWaghi",31
+134,"Obura/Wonenara",20
+135,"Okapa",20
+136,"Pomio",27
+137,"Popondetta",15
+138,"Rabaul",27
+139,"Rai Coast",22
+140,"Rigo",12
+141,"Samarai-Murua",14
+142,"Siasi",21
+143,"SIGMIL/ KOLAMEL",31
+144,"Simberi",26
+145,"SinaSina/Yogomul",19
+146,"Sine Sine/Yogmulg",19
+147,"Sine Sine/Yogomulg",19
+148,"SineSine /Yogomulg",19
+149,"Sohe",15
+150,"South Bougainville",29
+151,"South Fly",10
+152,"SOUTH FLYT",10
+153,"Sumkar",22
+154,"Talasea",28
+155,"Tambul /Nebilyer",18
+156,"Tambul/ Nebilyer",18
+157,"Tambul/Nebilyer",18
+158,"Tambul/Neilyer",18
+159,"Tari",30
+160,"Tari/Pori",30
+161,"Tawae",21
+162,"Tawae/Siassi",21
+163,"Telefomin",24
+164,"Tewae",21
+165,"Unggai/Benna",20
+166,"Usino Bundi",22
+167,"UsinoBundi",22
+168,"Vanimo Green",24
+169,"Wabag",17
+170,"Wapenamand",17
+171,"Wapenamanda",17
+172,"Wau",21
+173,"Wau-Waria",21
+174,"Wewak",23
+175,"Wewalk",23
+176,"Wosera Gawa",23
+177,"Wosera Gawi",23
+178,"Yangoru",23
+179,"Yangoru  Saussia",23
+180,"Yangoru Saussia",23
+181,"Gazelle",27
+182,"KOMO/MAGARIMA",30
+183,"kOROBO/KOPIAGO",30
+184,"TARI/PORI",30
+185,"Manus",25
+186,"KAVIENG",26
+187,"kavieng",26
+188,"MIDDLE FLY",10
+189,"Central District",32

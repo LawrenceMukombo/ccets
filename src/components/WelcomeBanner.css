@@ -1,0 +1,113 @@
+.welcome-banner {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    border-radius: 0;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.welcome-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.welcome-emoji {
+    font-size: 24px;
+    animation: wave 1.5s ease-in-out infinite;
+}
+
+@keyframes wave {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(20deg);
+    }
+
+    75% {
+        transform: rotate(-10deg);
+    }
+}
+
+.welcome-text {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.welcome-text strong {
+    font-weight: 600;
+    color: white;
+}
+
+.user-role {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 400;
+}
+
+.user-location {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+}
+
+.welcome-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.welcome-datetime {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
+    border-radius: 6px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.datetime-icon {
+    font-size: 18px;
+}
+
+.datetime-text {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .welcome-banner {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .welcome-datetime {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -1,0 +1,6 @@
+CREATE TABLE facilities_staging_5 AS SELECT * FROM facilities WHERE 1=0;
+\copy facilities_staging_5 (facility_id, facility_name, facility_code, region_id, province_id, district_id, gps_coordinates, level, type, is_functioning, ownership, population_number, children_number, transport_mode, power_source, created_at, updated_at, geom, latitude, longitude, address, city, postalcode, email, phone, land_phone, haveinternet, roadtype, distancefromparent, timetoparent, days_open, working_from, working_to, recieve_mode, haveimmservice, typeimmservice, numimmperweek, havecovid19service, coveragex1, coveragex2, coveragex3, coveragex4, individualsx1, individualsx2, individualsx3, individualsx4, number_icepack, other_service, other_services, is_suitable, is_suitable_reason, havegen, maintance, vac_num, total_staff, prof_staff, nurses, drivers, other_staff, completerstaffsign, is_deleted, delete_reason, other_code, item_counter, country, parentid, zone, powersource, completerstaffname) FROM 'c:/ccets_png/backend/facilities.dat';
+
+UPDATE facilities f SET gps_coordinates = s.gps_coordinates, latitude = s.latitude, longitude = s.longitude FROM facilities_staging_5 s WHERE f.facility_id = s.facility_id AND s.gps_coordinates IS NOT NULL;
+
+DROP TABLE facilities_staging_5;

@@ -1,0 +1,270 @@
+/* Dashboard.css - Fixed Layout "No Scroll" */
+.dashboard-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8fafc;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    /* Prevent body scroll */
+    color: #334155;
+}
+
+/* Header */
+.dashboard-header {
+    flex-shrink: 0;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    z-index: 20;
+}
+
+.header-title-section h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.header-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.date-inputs {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.date-inputs input {
+    border: none;
+    background: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #475569;
+    outline: none;
+    border: 1px solid transparent;
+}
+
+.date-inputs input:focus {
+    border-color: #3b82f6;
+}
+
+/* Cards Row - Clickable Filter */
+.cards-row {
+    flex-shrink: 0;
+    padding: 16px 24px;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.compact-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 140px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.compact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.compact-card.selected {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.card-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.card-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Tabs Navigation */
+.tabs-nav {
+    flex-shrink: 0;
+    padding: 0 24px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    gap: 24px;
+}
+
+.tab-button {
+    padding: 12px 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.tab-button:hover {
+    color: #334155;
+}
+
+.tab-button.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+}
+
+/* Main Content Area - Scrollable internally if needed */
+.dashboard-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: white;
+}
+
+.tab-panel {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    /* Each tab manages its own overflow */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tab 1: Analytics Layout */
+.analytics-layout {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    /* Split vertically */
+    gap: 16px;
+    padding: 16px 24px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.analytics-top {
+    display: flex;
+    gap: 16px;
+    min-height: 0;
+    /* Important for grid item scrolling */
+}
+
+.analytics-bottom {
+    display: flex;
+    gap: 16px;
+    min-height: 0;
+}
+
+.chart-container {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    /* Flexbox fix */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.chart-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.chart-actions select {
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 12px;
+    color: #475569;
+}
+
+/* Tab 2: Map Layout */
+.map-full-container {
+    height: 100%;
+    width: 100%;
+}
+
+/* Tab 3: Tickets Layout */
+.tickets-list-container {
+    height: 100%;
+    overflow: auto;
+    padding: 0;
+}
+
+/* Loading */
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}

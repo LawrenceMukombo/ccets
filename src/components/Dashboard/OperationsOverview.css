@@ -1,0 +1,257 @@
+.ops-overview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0;
+    width: 100%;
+}
+
+.ops-loading,
+.ops-error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    font-size: 1.2rem;
+    color: #64748b;
+}
+
+.ops-error {
+    color: #ef4444;
+}
+
+/* KPI Row */
+.ops-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.ops-kpi-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Left align for cleaner look with border */
+    text-align: left;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.ops-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Accents */
+.ops-kpi-card.active-tickets {
+    border-left: 4px solid #3b82f6;
+}
+
+.ops-kpi-card.new-tickets {
+    border-left: 4px solid #8b5cf6;
+}
+
+.ops-kpi-card.avg-response {
+    border-left: 4px solid #f59e0b;
+}
+
+.ops-kpi-card.avg-resol {
+    border-left: 4px solid #10b981;
+}
+
+.ops-kpi-card.sla-comp {
+    border-left: 4px solid #ec4899;
+}
+
+.ops-kpi-card.affected-fac {
+    border-left: 4px solid #ef4444;
+}
+
+.ops-kpi-card.data-qual {
+    border-left: 4px solid #06b6d4;
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.kpi-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+.kpi-sub {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: auto;
+}
+
+/* Charts Row */
+.ops-charts-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.ops-chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ops-chart-container.extended {
+    flex: 2;
+}
+
+.ops-chart-container h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    color: #334155;
+    font-weight: 600;
+}
+
+/* Bottom Row */
+.ops-bottom-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.ops-list-container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    flex: 1;
+    min-width: 300px;
+}
+
+.ops-list-container h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    color: #334155;
+    font-weight: 600;
+}
+
+.ops-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ops-table th,
+.ops-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.ops-table th {
+    font-weight: 600;
+    color: #64748b;
+}
+
+.ops-table tr:last-child td {
+    border-bottom: none;
+}
+
+.workload-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.workload-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.workload-bar-fill {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 4px;
+}
+
+.badge-critical {
+    background: #fef2f2;
+    color: #ef4444;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-high {
+    background: #fff7ed;
+    color: #f97316;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.interactive-row:hover {
+    background-color: #e2e8f0;
+    transition: background-color 0.2s;
+}
+
+.ops-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    border-radius: 12px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e2e8f0;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

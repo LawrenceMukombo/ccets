@@ -1,0 +1,68 @@
+PNG CCETS DATABASE DIAGNOSTIC REPORT
+Expected: 4 Regions, 22 Provinces
+=============================================================
+
+REGIONS:
+------------------------------------------------------------
+Total Regions: 4 (Expected: 4)
+
+1. Southern (ID: 1)
+2. Islands (ID: 2)
+3. Highlands (ID: 3)
+4. MOMASE (ID: 4)
+
+PROVINCES:
+------------------------------------------------------------
+Total Provinces: 32 (Expected: 22)
+
+1. National Capital District (ID: 1, Region: Southern)
+2. Bougainville (ID: 2, Region: Islands)
+3. Chimbu (ID: 3, Region: Highlands)
+4. Eastern Highlands (ID: 4, Region: Highlands)
+5. Enga (ID: 5, Region: Highlands)
+6. East New Britain (ID: 6, Region: Islands)
+7. East Sepik (ID: 7, Region: MOMASE)
+8. Hela (ID: 8, Region: Highlands)
+9. Jiwaka (ID: 9, Region: Highlands)
+10. Western (ID: 10, Region: Southern)
+11. Gulf (ID: 11, Region: Southern)
+12. Central (ID: 12, Region: Southern)
+13. National Capital District (ID: 13, Region: Southern)
+14. Milne Bay (ID: 14, Region: Southern)
+15. Northern Oro (ID: 15, Region: Southern)
+16. Southern Highlands (ID: 16, Region: Highlands)
+17. Enga (ID: 17, Region: Highlands)
+18. Western Highlands (ID: 18, Region: Highlands)
+19. Chimbu (ID: 19, Region: Highlands)
+20. Eastern Highlands (ID: 20, Region: Highlands)
+21. Morobe (ID: 21, Region: MOMASE)
+22. Madang (ID: 22, Region: MOMASE)
+23. East Sepik (ID: 23, Region: MOMASE)
+24. West Sepik (ID: 24, Region: MOMASE)
+25. Manus (ID: 25, Region: Islands)
+26. New Ireland (ID: 26, Region: Islands)
+27. East New Britain (ID: 27, Region: Islands)
+28. West New Britain (ID: 28, Region: Islands)
+29. Bougainville (ID: 29, Region: Islands)
+30. Hela (ID: 30, Region: Highlands)
+31. Jiwaka (ID: 31, Region: Highlands)
+32. Western Province (ID: 32, Region: Southern)
+
+ISSUES FOUND:
+------------------------------------------------------------
+Found 10 issue(s):
+1. Province count is 32, should be 22
+2. Duplicate province "National Capital District": IDs 1, 13
+3. Duplicate province "Bougainville": IDs 2, 29
+4. Duplicate province "Chimbu": IDs 3, 19
+5. Duplicate province "Eastern Highlands": IDs 4, 20
+6. Duplicate province "Enga": IDs 5, 17
+7. Duplicate province "East New Britain": IDs 6, 27
+8. Duplicate province "East Sepik": IDs 7, 23
+9. Duplicate province "Hela": IDs 8, 30
+10. Duplicate province "Jiwaka": IDs 9, 31
+
+SUMMARY:
+Regions: 4 (Expected: 4)
+Provinces: 32 (Expected: 22)
+Issues: 10

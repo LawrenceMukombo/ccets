@@ -1,0 +1,488 @@
+/* Reports.css Updates for Interactivity */
+
+/* Basic Layout resets kept from previous, adding new interactive styles */
+.reports-container {
+    padding: 0;
+    background: #f8fafc;
+    min-height: calc(100vh - 64px);
+    overflow-x: hidden;
+}
+
+.reports-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
+    color: white;
+    padding: 24px 32px;
+    /* No margin-bottom here to allow sticky */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-header-shadow {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    width: 100%;
+}
+
+.reports-content {
+    max-width: 100%;
+    margin: 0;
+    padding: 32px;
+}
+
+/* INTERACTIVE Metric Cards */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.metric-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 2px solid transparent;
+    /* Prepare for border transition */
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Card Hover Effects */
+.metric-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card:active {
+    transform: translateY(-2px) scale(1.01);
+}
+
+/* Active State Styling */
+.metric-card.active {
+    background: #f8fafc;
+    border-color: currentColor;
+    /* Will take color from specific metric class */
+    transform: translateY(-4px);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Specific Colors for Active/Hover Borders */
+.metric-primary.active {
+    border-color: #3b82f6;
+}
+
+.metric-success.active {
+    border-color: #10b981;
+}
+
+.metric-info.active {
+    border-color: #8b5cf6;
+}
+
+.metric-warning.active {
+    border-color: #ef4444;
+}
+
+.metric-icon {
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.metric-primary .metric-icon {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.metric-success .metric-icon {
+    background: #f0fdf4;
+    color: #10b981;
+}
+
+.metric-info .metric-icon {
+    background: #f5f3ff;
+    color: #8b5cf6;
+}
+
+.metric-warning .metric-icon {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-label {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 0 4px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+}
+
+.metric-subtitle {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* Drill Down Section */
+.drill-down-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: #334155;
+    font-size: 18px;
+}
+
+.close-btn-small {
+    padding: 6px 12px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.close-btn-small:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.drill-down-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Tech Table Interactive */
+.tech-row-interactive {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tech-row-interactive:hover {
+    background: #f8fafc;
+}
+
+/* Charts Layout */
+.charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.chart-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.chart-header {
+    margin-bottom: 24px;
+}
+
+.chart-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+/* Table Styles from previous (just simpler) */
+.tech-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tech-table th {
+    background: #f8fafc;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tech-table td {
+    padding: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    color: #334155;
+}
+
+.tech-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.tech-avatar {
+    width: 32px;
+    height: 32px;
+    background: #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.rank-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.rank-top {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.rank-mid {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* Loading Box */
+.loading-box {
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #64748b;
+    gap: 16px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Controls */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.reports-header h1 {
+    font-size: 28px;
+    margin: 0 0 8px 0;
+    color: white;
+}
+
+.header-subtitle {
+    color: #94a3b8;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    /* Allow items to wrap if screen is narrow */
+    align-items: center;
+    justify-content: flex-end;
+    /* Keep align to right */
+}
+
+.date-range-select {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+}
+
+.date-range-select option {
+    background: #1e293b;
+    color: white;
+}
+
+/* Custom Date Input for Visibility */
+.date-input-custom {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    font-family: inherit;
+    font-size: 13px;
+    color-scheme: light;
+    /* Crucial for native picker contrast */
+    cursor: text;
+    width: 140px;
+}
+
+.date-input-custom::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    cursor: pointer;
+    filter: none;
+    /* Ensure black icon */
+}
+
+.date-input-custom::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.export-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    background: #3b82f6;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.export-button:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+/* Dark Mode Overrides */
+body.dark .reports-container {
+    background: #0f172a;
+}
+
+body.dark .metric-card,
+body.dark .drill-down-section,
+body.dark .chart-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark .metric-value,
+body.dark .section-header h3,
+body.dark .chart-header h3,
+body.dark .tech-table td,
+body.dark .tech-name {
+    color: white;
+}
+
+body.dark .metric-card.active {
+    background: #1e293b;
+    border-color: currentColor;
+}
+
+body.dark .tech-table th {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark .tech-table tr:hover {
+    background: #334155;
+}
+
+/* Tabs Navigation */
+.tabs-navigation {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0px;
+}
+
+.tab-btn {
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: -2px;
+    /* Pull down to overlap border */
+}
+
+.tab-btn:hover {
+    color: #3b82f6;
+    background: transparent;
+}
+
+.tab-btn.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+}
+
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+}

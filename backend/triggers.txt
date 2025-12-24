@@ -1,0 +1,121 @@
+[
+  {
+    "trigger_name": "set_ticket_reference",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION generate_ticket_reference()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "set_ticket_reference_number",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION generate_ticket_reference()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "trg_audit_tickets",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION audit_trigger_fn()",
+    "action_orientation": "ROW",
+    "action_timing": "AFTER"
+  },
+  {
+    "trigger_name": "trg_audit_tickets",
+    "event_manipulation": "DELETE",
+    "action_statement": "EXECUTE FUNCTION audit_trigger_fn()",
+    "action_orientation": "ROW",
+    "action_timing": "AFTER"
+  },
+  {
+    "trigger_name": "trg_audit_tickets",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION audit_trigger_fn()",
+    "action_orientation": "ROW",
+    "action_timing": "AFTER"
+  },
+  {
+    "trigger_name": "trg_compute_ticket_reference",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION compute_ticket_reference()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "trg_generate_ticket_reference",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION generate_ticket_reference()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "trg_ticket_audit",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION fn_audit_tickets()",
+    "action_orientation": "ROW",
+    "action_timing": "AFTER"
+  },
+  {
+    "trigger_name": "trg_ticket_audit",
+    "event_manipulation": "DELETE",
+    "action_statement": "EXECUTE FUNCTION fn_audit_tickets()",
+    "action_orientation": "ROW",
+    "action_timing": "AFTER"
+  },
+  {
+    "trigger_name": "trg_ticket_audit",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION fn_audit_tickets()",
+    "action_orientation": "ROW",
+    "action_timing": "AFTER"
+  },
+  {
+    "trigger_name": "trg_ticket_audit_log",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION log_ticket_activity()",
+    "action_orientation": "ROW",
+    "action_timing": "AFTER"
+  },
+  {
+    "trigger_name": "trg_ticket_audit_log",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION log_ticket_activity()",
+    "action_orientation": "ROW",
+    "action_timing": "AFTER"
+  },
+  {
+    "trigger_name": "trg_ticket_sla",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION update_ticket_timing_metrics()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "trg_ticket_sla",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION update_ticket_timing_metrics()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "trigger_update_ticket_timing",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION update_ticket_timing_metrics()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "trigger_update_ticket_timing",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION update_ticket_timing_metrics()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  },
+  {
+    "trigger_name": "update_tickets_updated_at",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION update_updated_at_column()",
+    "action_orientation": "ROW",
+    "action_timing": "BEFORE"
+  }
+]

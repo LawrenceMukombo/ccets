@@ -1,0 +1,423 @@
+.chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+}
+
+.chart-header {
+    margin-bottom: 20px;
+}
+
+.chart-header h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.chart-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.legend-label {
+    font-size: 13px;
+    color: #475569;
+    font-weight: 500;
+}
+
+.chart-content {
+    min-height: 300px;
+}
+
+.chart-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 12px;
+}
+
+.chart-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.bars-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.bar-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.bar-row:hover {
+    background-color: #f8fafc;
+}
+
+.bar-label {
+    min-width: 140px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.province-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.province-total {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.bar-track {
+    flex: 1;
+    height: 40px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.bar-stack {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+.bar-segment {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: filter 0.2s;
+    cursor: pointer;
+    position: relative;
+}
+
+.bar-segment:hover {
+    filter: brightness(1.1);
+}
+
+.bar-value {
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.bar-tooltip {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    min-width: 180px;
+    animation: fadeIn 0.2s;
+}
+
+.tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 13px;
+}
+
+.tooltip-row span:first-child {
+    font-size: 10px;
+}
+
+.tooltip-row span:nth-child(2) {
+    flex: 1;
+    color: #64748b;
+}
+
+.tooltip-row strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.tooltip-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 6px 0;
+}
+
+.tooltip-total {
+    font-weight: 600;
+}
+
+.tooltip-total span {
+    color: #1e293b !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Vertical Layout Support */
+.bars-container.vertical {
+    flex-direction: row;
+    align-items: flex-end;
+    height: 500px;
+    /* Increased size as requested */
+    padding-bottom: 80px;
+    /* More space for rotated labels */
+    padding-top: 20px;
+    gap: 12px;
+    /* Slightly more gap if possible */
+}
+
+.bar-column {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    flex: 1;
+    min-width: 45px;
+    /* Wider columns */
+    transition: background-color 0.2s;
+    border-radius: 8px 8px 0 0;
+}
+
+.bar-column:hover {
+    background-color: #f8fafc;
+}
+
+.bar-track-vertical {
+    width: 32px;
+    /* Wider bars for labels */
+    background: #f1f5f9;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    flex-direction: column;
+    /* Stack top-down */
+    justify-content: flex-end;
+    /* Start from bottom */
+    overflow: hidden;
+    position: relative;
+    transition: height 0.5s ease-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Slight depth */
+}
+
+/* Override previous bar segment for vertical context if needed */
+.bar-track-vertical .bar-segment {
+    width: 100%;
+    /* Fill the width */
+    transition: height 0.5s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.bar-value-vertical {
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    z-index: 2;
+}
+
+.bar-label-vertical {
+    position: absolute;
+    bottom: -80px;
+    /* Move below the chart */
+    left: 50%;
+    transform: translateX(-50%) rotate(-45deg);
+    /* Rotate text */
+    transform-origin: top center;
+    width: 140px;
+    text-align: right;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 12px;
+}
+
+.bar-label-vertical .province-name {
+    font-size: 12px;
+    /* Slightly larger text */
+    font-weight: 600;
+    color: #334155;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bar-label-vertical .province-total {
+    font-size: 11px;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.tooltip-header {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+/* Previous horizontal styles kept for compatibility */
+.bars-container:not(.vertical) {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .chart-container {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .chart-header h3 {
+        color: #f1f5f9;
+    }
+
+    .chart-subtitle,
+    .legend-label {
+        color: #94a3b8;
+    }
+
+    .bar-row:hover {
+        background-color: #334155;
+    }
+
+    .province-name {
+        color: #e2e8f0;
+    }
+
+    .province-total {
+        background: #334155;
+        color: #cbd5e1;
+    }
+
+    .bar-track {
+        background: #334155;
+    }
+
+    .bar-tooltip {
+        background: #1e293b;
+        border-color: #475569;
+    }
+
+    .tooltip-row span:nth-child(2) {
+        color: #94a3b8;
+    }
+
+    .tooltip-row strong,
+    .tooltip-total span {
+        color: #f1f5f9 !important;
+    }
+
+    .tooltip-divider {
+        background: #475569;
+    }
+
+    .bar-column:hover {
+        background-color: #334155;
+    }
+
+    .bar-label-vertical .province-name {
+        color: #e2e8f0;
+    }
+
+    .bar-label-vertical .province-total {
+        background: #334155;
+        color: #cbd5e1;
+    }
+
+    .bar-track-vertical {
+        background: #334155;
+    }
+
+    .tooltip-header {
+        color: #f1f5f9;
+        border-bottom-color: #334155;
+    }
+}
