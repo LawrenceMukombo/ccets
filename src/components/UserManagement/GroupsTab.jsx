@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../../context/TenantContext';
 import './GroupsTab.css';
 
 const GroupsTab = () => {
+    const { tenantCode } = useTenant();
     const [groups, setGroups] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,7 +21,7 @@ const GroupsTab = () => {
     const fetchGroups = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/groups', {
+            const response = await fetch(`/api/${tenantCode}/groups`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -34,7 +36,7 @@ const GroupsTab = () => {
     const fetchUsers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/users', {
+            const response = await fetch(`/api/${tenantCode}/users`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -132,6 +134,7 @@ const GroupsTab = () => {
 
 // Create Group Modal
 const CreateGroupModal = ({ onClose, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [formData, setFormData] = useState({ group_name: '', description: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -143,7 +146,7 @@ const CreateGroupModal = ({ onClose, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/groups', {
+            const response = await fetch(`/api/${tenantCode}/groups`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -205,6 +208,7 @@ const CreateGroupModal = ({ onClose, onSuccess }) => {
 
 // Edit Group Modal
 const EditGroupModal = ({ group, onClose, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [formData, setFormData] = useState({
         group_name: group.group_name,
         description: group.description || ''
@@ -218,7 +222,7 @@ const EditGroupModal = ({ group, onClose, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/groups/${group.group_id}`, {
+            const response = await fetch(`/api/${tenantCode}/groups/${group.group_id}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -243,7 +247,7 @@ const EditGroupModal = ({ group, onClose, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/groups/${group.group_id}`, {
+            await fetch(`/api/${tenantCode}/groups/${group.group_id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -300,6 +304,7 @@ const EditGroupModal = ({ group, onClose, onSuccess }) => {
 
 // Manage Members Modal
 const ManageMembersModal = ({ group, users, onClose, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -310,7 +315,7 @@ const ManageMembersModal = ({ group, users, onClose, onSuccess }) => {
     const fetchMembers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/groups/${group.group_id}`, {
+            const response = await fetch(`/api/${tenantCode}/groups/${group.group_id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -325,7 +330,7 @@ const ManageMembersModal = ({ group, users, onClose, onSuccess }) => {
     const addMember = async (userId) => {
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/groups/${group.group_id}/members`, {
+            await fetch(`/api/${tenantCode}/groups/${group.group_id}/members`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -343,7 +348,7 @@ const ManageMembersModal = ({ group, users, onClose, onSuccess }) => {
     const removeMember = async (userId) => {
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/groups/${group.group_id}/members/${userId}`, {
+            await fetch(`/api/${tenantCode}/groups/${group.group_id}/members/${userId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

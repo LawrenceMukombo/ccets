@@ -1,0 +1,415 @@
+X,Y,osm_id,osm_type,completeness,amenity,healthcare,name,operator,source,speciality,operator_type,operational_status,opening_hours,beds,staff_doctors,staff_nurses,health_amenity_type,dispensing,wheelchair,emergency,insurance,water_source,electricity,is_in_health_area,is_in_health_zone,url,addr_housenumber,addr_street,addr_postcode,addr_city,changeset_id,changeset_version,changeset_timestamp,uuid
+,,"1181523148",way,12.5,doctors,doctor,,,,general,,,,,,,,,,,,,,,,,,,,,137265941,1,2023/06/13 03:34:59+00,b6aea749a2884bcd82f7f27ae9a76ba0
+,,"793402380",way,18.75,hospital,hospital,Laloki Psychiatric Hospital,NDOH,,,government,,,,,,,,,,,,,,,,,,,,83765633,2,2020/04/19 09:21:46+00,de114f2b25c34d87b394c257d76f3cd4
+,,"1339092363",way,12.5,clinic,clinic,Usino Health Centre,,,,,,,,,,,,,,,,,,,,,,,,159782175,1,2024/11/30 17:37:50+00,ff5c1d13550644499d5b886e163092dd
+,,"931451010",way,15.625,hospital,hospital,Braun Memorial Hospital Butaweng,Evangelical Lutheran Church of Papua New Guinea,,,,,,,,,,,,,,,,,,,,,,,103070361,2,2021/04/16 15:58:35+00,dc0396c35ac84a83adae84f98dc754c3
+149.837026319885,-9.95154693441256,"7678256285",node,9.375,hospital,,Rabaraba Hospital,,,,,,,,,,,,,,,,,,,,,,,,124678524,2,2022/08/09 10:31:26+00,b8341fb9a6564d729b2c81d3096b7f3e
+147.184192270765,-9.44523572628353,"12823476974",node,9.375,,optometrist,Star Optical Clinic,,,,,,,,,,,,,,,,,,,,,,,,166027646,1,2025/05/09 13:08:24+00,a68e85698e0e465c9ebf4aed0d603c21
+,,"793415663",way,12.5,hospital,hospital,Wabag General Hospital,,,,,,,,,,,,,,,,,,,,,,,,152186038,4,2024/06/03 06:47:14+00,219f85a57edb44d8be66b87c55de0951
+,,"704167593",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,102234668,2,2021/04/03 12:45:32+00,e84bdda5c37c4d13b743f37429e3a365
+,,"1033537369",way,12.5,hospital,hospital,Amfar Health Centre,,,,,,,,,,,,,,,,,,,,,,,,117642570,1,2022/02/20 15:03:39+00,fc6ef6ea3cc2495f9fbbe3215fae7ddc
+,,"1077905243",way,15.625,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,,,,,,,,,,,,,Mt Hagen,146630739,2,2024/01/24 13:48:08+00,bcc6a794a57748bc90298c66729124f4
+,,"935265270",way,12.5,clinic,clinic,Busamang Aid Post,,,,,,,,,,,,,,,,,,,,,,,,103613095,1,2021/04/26 07:15:27+00,07b35eed44414b23977e782bb50f2d84
+144.228790460182,-5.85826413328027,"11545588297",node,12.5,pharmacy,pharmacy,Melpa Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,146620334,1,2024/01/24 09:09:54+00,0f1a7692f942425c9684028c40980a46
+147.205758237078,-9.43589292173021,"12828944892",node,12.5,pharmacy,pharmacy,Gordons Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,166122903,1,2025/05/11 19:06:05+00,1dfe497439c845ae85b96badf942dd0d
+152.169643839857,-4.19679155156183,"693086419",node,15.625,clinic,clinic,Diabetic Centre,,approximation,,,,,,,,,,,,,,,,,,,,,,83433513,3,2020/04/12 16:59:05+00,cacdf48b224c493db5c6aa9751303abf
+,,"925586451",way,12.5,clinic,clinic,Wasu Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102242380,1,2021/04/03 15:59:15+00,e77ac4d6bd814a9598594055f490d56c
+143.652706948932,-6.12791054510546,"8226773620",node,12.5,dentist,dentist,Dentistry,,,,,,,,,,,,,,,,,,,,,,,,95841476,2,2020/12/15 03:04:06+00,b0c191478b9642babb7bc7b3ba54a759
+,,"925067076",way,12.5,clinic,clinic,Imane Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102172733,1,2021/04/02 07:53:14+00,bbfda2854de8461db0d4ec33bd5d985c
+,,"1236980077",way,12.5,clinic,clinic,Keu Health Post,,,,,,,,,,,,,,,,,,,,,,,,145918283,2,2024/01/05 11:37:41+00,850b14ca5c4f49b98e8451663510627f
+,,"1241730211",way,12.5,clinic,clinic,Asaroka Health Centre,,,,,,,,,,,,,,,,,,,,,,,,146524689,1,2024/01/21 19:05:35+00,1c2633d043d64199bf1c7b42b485f0a8
+143.453975042174,-6.21747403036153,"8740807706",node,15.625,,clinic,Pomberal Health Centre,,,general,,,,,,,,,,,,,,,,,,,,Nipa,126131971,2,2022/09/13 12:29:15+00,89fd8af5b1144fa99ab3cee72e1cad7a
+,,"1236565190",way,12.5,clinic,clinic,Damar Health Post,,,,,,,,,,,,,,,,,,,,,,,,145835395,1,2024/01/03 11:30:02+00,d5ab2cf9605443a996cc61e151f1d656
+145.39570074745,-6.07320605404351,"11482786372",node,12.5,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,145843156,2,2024/01/03 14:53:59+00,b3a6985daf4c4179ac1ab9ff014ba9a5
+,,"1049086580",way,12.5,hospital,hospital,Miak Health Centre,,,,,,,,,,,,,,,,,,,,,,,,119309908,1,2022/04/04 16:42:09+00,fe5fc36ba0b94c3fb7ac4e2b9acedfeb
+,,"215658507",way,12.5,clinic,clinic,,,Bing,,,,,,,,,,,,,,,,,,,,,,91351779,16,2020/09/23 08:57:49+00,c3b89ee674104b919d8d5528de02dff1
+,,"1265675983",way,28.125,clinic,clinic,Medical Centre,Simberi Gold Company Limited,,"general;emergency;internal;vaccination;infectious_diseases",private,,Mo-Fr 08:00-17:00,,,,,,,,,,,,,,,,,Pikiput Mining Camp,149474471,2,2024/04/02 10:58:21+00,5ff69694ab8449e8b9e8d192142328a3
+147.00179417872,-6.72752365112498,"7408262703",node,15.625,pharmacy,pharmacy,Seeto Kui Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,164373540,4,2025/04/01 12:48:04+00,b6be7d731f214add82b7acfe803c8f4d
+,,"1340087407",way,12.5,hospital,hospital,Kotna District Hospital,,,,,,,,,,,,,,,,,,,,,,,,159920768,1,2024/12/04 14:11:00+00,d2daefd294ce46ca9c03e7fd933418de
+,,"1382759412",way,12.5,doctors,doctor,Vanuga Medical Centre & Pharmaceuticals,,,,,,,,,,,,,,,,,,,,,,,,165674053,1,2025/05/01 12:36:51+00,827e5d8b2ed14e7aa51319625babb08c
+,,"1240167428",way,12.5,clinic,clinic,Koglai Health Post,,,,,,,,,,,,,,,,,,,,,,,,146324446,1,2024/01/16 13:43:00+00,6eabfb6f57de46339df60788e6bf27c2
+,,"1054204073",way,12.5,clinic,clinic,Usino Health Centre,,,,,,,,,,,,,,,,,,,,,,,,159782175,2,2024/11/30 17:37:50+00,8b1d9a967b5a46d1b280d03f35e3da99
+142.907329445421,-3.58819472172095,"2080652995",node,12.5,clinic,clinic,Albinama Health Centre,,,,,,,,,,,,,,,,,,,,,,,,88836029,2,2020/08/02 10:41:24+00,2b708e4081124677afdc8507b7ea2400
+,,"1236980090",way,12.5,clinic,clinic,Laswara Health Post,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,8aec0c6af8934bd7adc4f4a879b3f978
+,,"1413353075",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,168668606,1,2025/07/08 21:12:33+00,288adcdc99394c53a249a6e388752621
+,,"1237828630",way,18.75,hospital,hospital,Wangoi Health Centre,Catholic Church,,,religious,,,,,,,,,,,,,,,,,,,,146000381,1,2024/01/07 17:44:26+00,93382433319c4eb7814703b18651aa05
+,,"1351251820",way,12.5,hospital,hospital,Kaugia Health Centre,,,,,,,,,,,,,,,,,,,,,,,,161352534,1,2025/01/14 17:03:12+00,3fd81ce7a463478fba6df3618aabc856
+,,"1064525411",way,15.625,clinic,clinic,Laurabada Clinic,LTMC,,,,,,,,,,,,,,,,,,,,,,,121611400,1,2022/05/28 10:54:28+00,24e377792a4541fb88a346b79e8b8c44
+,,"1124645748",way,12.5,clinic,clinic,Pumani Sub-Health Centre,,,,,,,,,,,,,,,,,,,,,,,,130455673,1,2022/12/24 12:55:43+00,7750d9dee2f74e1eb6fbd95c30a2a9d0
+,,"369637551",way,18.75,hospital,hospital,Tari Provincial Hospital,Hela Provincial Health Authority,,,government,,,,,,,,,,,,,,,,,,,,165754478,7,2025/05/03 11:28:48+00,636a4d7540894c0ea0eec201901a8cf5
+147.183045123496,-9.44268536460493,"12823500736",node,12.5,pharmacy,pharmacy,Chemcare Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,166027646,1,2025/05/09 13:08:24+00,5525de38092948ee8414a0a19d5f2e84
+,,"1236565170",way,12.5,clinic,clinic,Gon Health Post,,,,,,,,,,,,,,,,,,,,,,,,145835395,1,2024/01/03 11:30:02+00,98bed4a55a464270b67102d3acd5961a
+,,"1236400274",way,12.5,hospital,hospital,Okapa Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145810475,1,2024/01/02 18:45:25+00,6fd81f470e6145aba8d1c67c764a1016
+,,"1286786036",way,12.5,clinic,clinic,Mulitaka Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160254313,2,2024/12/13 16:57:14+00,100cbf56fe074e4fbb59d68eaa22ce85
+,,"369792282",way,9.375,hospital,hospital,,,,,,,,,,,,,,,,,,,,,,,,,83715060,2,2020/04/17 15:33:16+00,d53c1fe7ac454366b05e5a47189d0dc3
+,,"1374704676",way,12.5,clinic,clinic,West Taraka Urban Clinic,,,,,,,,,,,,,,,,,,,,,,,,164507288,1,2025/04/04 13:01:55+00,d19e772f810d4b1498885bfacc5f3373
+,,"1236335637",way,12.5,clinic,clinic,Movi Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145805663,1,2024/01/02 16:29:49+00,74024ae7a5b4443e957943dd02371f35
+,,"360576386",way,12.5,hospital,hospital,Kavieng General Hospital,,,,,,,,,,,,,,,,,,,,,,,,115753896,4,2022/01/04 12:53:51+00,7b41b92909584dbea6bfabf810cd0dfe
+,,"1340087419",way,12.5,hospital,hospital,Kuruk Health Centre,,,,,,,,,,,,,,,,,,,,,,,,159920768,1,2024/12/04 14:11:00+00,1f565268a42a48b886b70d2bfca2185f
+,,"849142521",way,12.5,clinic,clinic,Pomio Health Centre,,,,,,,,,,,,,,,,,,,,,,,,91145407,1,2020/09/19 10:03:57+00,8c7f326aed1c4f6ab179155450ba0fbd
+147.199955277873,-9.47587175002079,"4600874790",node,12.5,hospital,hospital,2K Hospital,,,,,,,,,,,,,,,,,,,,,,,,106702267,3,2021/06/21 08:47:04+00,5d0e40dcf66b46d7b59250658802e2b6
+142.942088443511,-3.69151592756989,"1576406133",node,9.375,pharmacy,pharmacy,,,,,,,,,,,,,,,,,,,,,,,,,95054805,3,2020/11/30 15:51:45+00,4fe167fe9bae4b8bb01669fba6918c49
+146.992166557097,-6.71411763518924,"7410450763",node,15.625,pharmacy,pharmacy,Chemcare Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,83640886,1,2020/04/16 09:58:51+00,d88b4c80ad304e17b9475fed51cca8da
+145.413960891152,-6.17817966828409,"4524003490",node,12.5,clinic,clinic,Lapilo Clinic,,,,,,,,,,,,,,,,,,,,,,,,85329107,2,2020/05/17 09:59:41+00,9f83364597d24617b949838b93a2905f
+,,"793284072",way,12.5,hospital,hospital,Magarima Hospital,,,,,,,,,,,,,,,,,,,,,,,,83753347,1,2020/04/18 19:11:21+00,dbe8ee967f524efe863d80ff7a01e8b9
+,,"832912734",way,12.5,hospital,hospital,Maprik District Hospital,,,,,,,,,,,,,,,,,,,,,,,,160640074,2,2024/12/26 14:34:44+00,fef8a81a12d6466bb5d525f9d3311498
+,,"793433485",way,12.5,hospital,hospital,Wau Health Centre,,,,,,,,,,,,,,,,,,,,,,,,89981853,2,2020/08/26 16:14:26+00,55356f6bb3644a289ea346bc5786fdd9
+143.399148845878,-6.09238317795226,"7633924885",node,9.375,clinic,,Towan Aid Post,,,,,,,,,,,,,,,,,,,,,,,,86848903,1,2020/06/19 02:54:20+00,954268e0c8614ee6b688efb0947bdf20
+143.958086587453,-5.88150824042785,"7244804126",node,12.5,clinic,clinic,Tambul Clinic,,,,,,,,,,,,,,,,,,,,,,,,81501567,1,2020/02/26 11:52:14+00,476dc0afcb814b21886df1f1a89c6cb0
+,,"1380051380",way,12.5,hospital,hospital,Amanab Health Centre,,,,,,,,,,,,,,,,,,,,,,,,165296014,1,2025/04/22 17:04:02+00,437888602dd642a9a8c92e434cb300af
+,,"1354877502",way,18.75,hospital,hospital,Saiho District Health Centre,Oro Provincial Health Authority,,,public,,,,,,,,,,,,,,,,,,,,161847803,1,2025/01/28 08:30:57+00,a328232b3abe4a94b86069fa66cde99c
+,,"925066216",way,15.625,hospital,hospital,Wantoat Health Centre,Dept. of Health,,,,,,,,,,,,,,,,,,,,,,,102172590,1,2021/04/02 07:50:59+00,f0054e3be6774faf9fb77b8f067ab606
+,,"896291688",way,12.5,hospital,hospital,St. Mary's Hospital,,,,,,,,,,,,,,,,,,,,,,,,97650448,1,2021/01/17 19:42:35+00,efeff9cf77594656b23ca98f77b6dcac
+147.184800042564,-9.44654984106307,"12823476996",node,12.5,dentist,dentist,Blue Sky Medical and Dental Clinic,,,,,,,,,,,,,,,,,,,,,,,,166027646,1,2025/05/09 13:08:24+00,03ee41a3748140dfbc5e0ba56180eb8b
+,,"1348461604",way,12.5,clinic,clinic,Togoba Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160981905,1,2025/01/04 11:38:30+00,7f18330fab32438093d398d3d671351e
+,,"800772894",way,12.5,clinic,clinic,Amaira Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98413030,3,2021/01/30 12:48:50+00,3df819c2d0954d5e86954b24d33da9ce
+,,"1236980089",way,12.5,clinic,clinic,Memaugl Health Post,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,4b34b326046849ea8d80ac77c9dea4b7
+144.627311734604,-5.80439062409894,"5370968797",node,15.625,hospital,hospital,Mariaquin Banz Health Center,Catholic Health Services,,,,,,,,,,,,,,,,,,,,,,,55870750,1,2018/01/29 19:49:16+00,f3e1e7b86f19489a9483d6b5612918c9
+,,"1043085040",way,12.5,clinic,clinic,Bunabun Health Centre,,,,,,,,,,,,,,,,,,,,,,,,118831523,1,2022/03/23 17:30:43+00,365823c999d8482aadeafbdbeeeae2bd
+,,"901927261",way,18.75,hospital,hospital,Ulamona Health Centre,Catholic Church,,,religious,,,,,,,,,,,,,,,,,,,,98408808,1,2021/01/30 10:49:48+00,7e670bf1793741589f8d8134ab71c145
+,,"1374748534",way,12.5,clinic,clinic,Situm Health Centre,,,,,,,,,,,,,,,,,,,,,,,,164512697,1,2025/04/04 14:41:35+00,871170c149494fc39c5cef4cb75359b9
+,,"791730370",way,15.625,pharmacy,pharmacy,Huon Gulf Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,164323588,2,2025/03/31 10:38:33+00,29c2ce5f04994411ba0bf1ab38e9156a
+,,"854258866",way,12.5,clinic,clinic,Yasubi Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98413455,2,2021/01/30 13:00:32+00,400231d400d74ab9a99eb6fd87b3cd68
+,,"325336722",way,15.625,clinic,clinic,Gordons Clinic,,,,,,,,,,,,,,,,,,,,,,,Port Moresby,166148904,2,2025/05/12 11:59:32+00,7c1bb8d48ab04a11af48130a92b8242d
+,,"840977654",way,9.375,,blood_donation,Blood Bank,,,,,,,,,,,,,,,,,,,,,,,,164375040,2,2025/04/01 13:21:00+00,1ac778c2aa324c92bd44ec47dffcf355
+,,"1296144980",way,12.5,hospital,hospital,Laiagam District Hospital,,,,,,,,,,,,,,,,,,,,,,,,153176481,1,2024/06/25 21:34:31+00,0c67f560d696409eb3d8eb36494fa8e5
+,,"1382759430",way,15.625,clinic,clinic,PIH Medical Centre Goroka,Pacific International Hospitals,,,,,,,,,,,,,,,,,,,,,,,165674053,1,2025/05/01 12:36:51+00,1a76fe944d8840cbb9022bc635ddadf9
+,,"1340087413",way,12.5,clinic,clinic,Lumusa Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160987187,2,2025/01/04 14:07:23+00,f16b10afc15d431387bcaabb48bf19f3
+,,"355816606",way,9.375,clinic,,Manipur Health Centre,,,,,,,,,,,,,,,,,,,,,,,,32171422,1,2015/06/23 21:28:45+00,fc68746f4add4667b6a7641c402fb550
+,,"868154351",way,12.5,hospital,hospital,Kandep District Hospital,,,,,,,,,,,,,,,,,,,,,,,,153043201,5,2024/06/22 19:32:59+00,068e4e470008414382f8d84ae74813d5
+,,"169538009",way,15.625,hospital,hospital,ANGAU Hospital,,,,,,,,,,,,,yes,,,,,,,,,,,164408087,8,2025/04/02 08:15:40+00,f72abe1f0eec4e3a82646420593b984c
+,,"1346396486",way,12.5,hospital,hospital,Yangoru Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160642979,1,2024/12/26 15:45:54+00,6c0efdeaa84e4e6cae3b02bc5981b16f
+,,"958121706",way,9.375,,alternative,Ten Z Medical Centre,,,,,,,,,,,,,,,,,,,,,,,,106945684,1,2021/06/25 08:11:37+00,8ad8eb5b339043e9b04dd921a7ad8871
+,,"586147713",way,15.625,hospital,hospital,Porgera District Hospital,,DigitalGlobe,,,,,,,,,,,,,,,,,,,,,,160255802,2,2024/12/13 17:36:56+00,5b15e9ecd2dd4b4098e6d86324f92a5d
+,,"1236980083",way,12.5,clinic,clinic,Keramugl Health Post,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,2b1375bac94848d4b1eaac801372b2e7
+,,"1342190756",way,12.5,hospital,hospital,Sopas District Hospital,,,,,,,,,,,,,,,,,,,,,,,,160215801,1,2024/12/12 16:49:34+00,77e324612daa481f812705d756aeb0ea
+143.848518265349,-6.48452875772546,"3736807760",node,9.375,clinic,,Sumbura Health Center,,,,,,,,,,,,,,,,,,,,,,,,33922457,1,2015/09/10 01:15:52+00,b94a28abc89646c1aee181f8cd0823b7
+,,"1020776143",way,12.5,hospital,hospital,Lorengau Hospital,,,,,,,,,,,,,,,,,,,,,,,,116095429,1,2022/01/13 08:01:54+00,696baee651fe41e2afcd5479cc6ca280
+,,"925101543",way,12.5,clinic,clinic,Bibuai Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102180737,1,2021/04/02 09:37:56+00,7f7cc3a93b824205bfbc67746e60dbc1
+,,"944064661",way,12.5,,clinic,,Health Dept.,,general,,,,,,,,,,,,,,,,,,,,,104852290,1,2021/05/18 00:10:59+00,3cc115ee6a9a4270878f5921f32f3ce2
+143.590016431984,-6.07462661899336,"8099220986",node,15.625,,clinic,Topa Health Centre,Health Dept.,,general,,,,,,,,,,,,,,,,,,,,,93828110,1,2020/11/10 03:11:31+00,50ef3d33cb9249a0a5d6ce8c1c7958ae
+145.394287726213,-6.07428120076358,"12802018430",node,12.5,pharmacy,pharmacy,Highlands Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,165668207,1,2025/05/01 10:13:50+00,9c41d701f995434aa0e81ba8984a31d7
+,,"901988327",way,12.5,clinic,clinic,Balam Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,99394534,2,2021/02/16 16:24:43+00,27946fdc823444afaccafac835d26866
+,,"1174566440",way,18.75,hospital,hospital,Yampu Catholic Mission Health Centre,Catholic Church,,,religious,,,,,,,,,,,,,,,,,,,,152281830,2,2024/06/05 10:42:58+00,8f9dec432f3940149d812ed898f0f131
+149.990442472964,-2.50756321949365,"4425007865",node,12.5,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,Umbukul,101648715,2,2021/03/24 12:58:41+00,9aa06f63e52345118eebc4583a55ce19
+,,"1053410473",way,12.5,hospital,hospital,Josephstaal Health Centre,,,,,,,,,,,,,,,,,,,,,,,,119967374,1,2022/04/20 18:25:15+00,193d94610ca44bef9abbfe3a873183cb
+,,"1236335635",way,12.5,clinic,clinic,Karando Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,145805663,1,2024/01/02 16:29:49+00,5445fb73842e49bdaadcf42ac35c47f0
+,,"779349845",way,15.625,clinic,clinic,Mamal Health Centre,Apostic Church,,,,,,,,,,,,,,,,,,,,,,,156243804,4,2024/09/05 18:30:21+00,b66a2570c6c94c468e07b6c8098a4754
+,,"901936969",way,12.5,clinic,clinic,Kasi Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98414633,2,2021/01/30 13:39:51+00,71a5e6b2036342079767fd3d556478df
+,,"926284135",way,12.5,clinic,clinic,Kabwum Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102347266,1,2021/04/05 16:34:25+00,cc696551f81b43c5963f8d058a11951d
+144.226741420132,-5.85869781295048,"11545579811",node,12.5,pharmacy,pharmacy,New Town Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,146620843,1,2024/01/24 09:25:24+00,f75b8660fea84d8a9a82ece6a9327b36
+,,"800769613",way,12.5,clinic,clinic,Purosa Aid Post,,,,,,,,,,,,,,,,,,,,,,,,98624423,2,2021/02/03 06:58:07+00,a646e0d307df481eafdf3bacdc838528
+146.988512550227,-6.73611887373426,"7407667727",node,9.375,,optometrist,PIH Eyecare,,,,,,,,,,,,,,,,,,,,,,,,83610385,1,2020/04/15 20:14:38+00,b285d59446ab484d9f912d3b2478292b
+,,"1381144474",way,12.5,hospital,hospital,Popondetta General Hospital,,,,,,,,,,,,,,,,,,,,,,,,165423199,1,2025/04/25 12:48:54+00,b32fbc2ceb3947efb6fd72d0baf6a9f5
+,,"828136257",way,12.5,clinic,clinic,Garasa Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98412977,3,2021/01/30 12:47:20+00,6a0b749dfc5e4063a9fc3771a470ba9c
+,,"356033825",way,12.5,hospital,hospital,Manipur Health Centre,,,,,,,,,,,,,,,,,,,,,,,,118187064,3,2022/03/07 08:28:09+00,f34acd40e78b413aa3c5e0ceb1914f0e
+142.827088480513,-5.8427381663939,"6849202685",node,9.375,clinic,,Pureni Health Centre,,,,,,,,,,,,,,,,,,,,,,,,75259751,1,2019/10/04 04:35:18+00,5788d6cf8c304542b10ba66e536aca25
+,,"1051027450",way,12.5,clinic,clinic,Annaberg Health Centre,,,,,,,,,,,,,,,,,,,,,,,,119578972,1,2022/04/11 13:07:46+00,04b52ff3f22c4a7a886e726711fd3355
+,,"1271948641",way,12.5,hospital,hospital,Wewak General Hospital,,,,,,,,,,,,,,,,,,,,,,,,160748156,2,2024/12/29 12:32:56+00,f29161df779a4136944562252b2acc5a
+,,"1341065511",way,12.5,clinic,clinic,Tomba Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,160066324,1,2024/12/08 18:30:05+00,b10d9a79889e46ca8bbfda43b2f4f8ab
+,,"901964954",way,12.5,clinic,clinic,Bubuleta Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98413787,1,2021/01/30 13:10:55+00,673c4a21d30c46b587e7bf16523badc9
+,,"1231641592",way,12.5,clinic,clinic,Wako Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,145180548,1,2023/12/16 11:14:44+00,496352987384479ebaf0c7979ea9c9c0
+,,"791859014",way,9.375,,doctor,Zifasing Aid Post,,,,,,,,,,,,,,,,,,,,,,,,83546942,1,2020/04/14 17:03:45+00,649053ba9fdf4685bbc341cc21413339
+,,"925253405",way,12.5,clinic,clinic,Sialum Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102204528,1,2021/04/02 16:01:05+00,352c383b32f74715838cd974619d93ae
+142.863652018536,-5.8677471670737,"3728939718",node,15.625,clinic,clinic,Hiwinda Sub Health Center,Catholic Church,,,,,,,,,,,,,,,,,,,,,,,95049531,3,2020/11/30 13:58:59+00,edfcee687443474e94a7477f5dce4d92
+,,"1009787503",way,9.375,,laboratory,CPHL,,,,,,,,,,,,,,,,,,,,,,,,114642723,1,2021/12/07 04:57:49+00,0e15654b4afa475289a2d2f5bfec2a96
+,,"1354689667",way,18.75,hospital,hospital,Koroba District Hospital,Hela Provincial Health Authority,,,government,,,,,,,,,,,,,,,,,,,,161826696,1,2025/01/27 16:57:08+00,1f27555e595c42ab84cb4bfec57bdfcb
+147.181186771744,-9.43816374693799,"12823604186",node,12.5,pharmacy,pharmacy,RH Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,166030932,1,2025/05/09 14:25:32+00,aeb264b7a35f48cf863c945802788ea5
+145.716133529699,-6.33341360470499,"8121917252",node,12.5,clinic,clinic,Fomu Aid Post,,,,,,,,,,,,,,,,,,,,,,,,94163824,1,2020/11/15 20:44:12+00,8d40df09176c4064a55e9290cdab5390
+,,"1043844612",way,12.5,hospital,hospital,Mugil Health Centre,,,,,,,,,,,,,,,,,,,,,,,,118923349,1,2022/03/25 18:39:06+00,a87706b4a78b45808b7ca8d8e14ec1df
+,,"880026073",way,18.75,clinic,clinic,Mt. Au Health Center,AusAid Funded,,,government,,,,,,,,,,,,,,,,,,,,148595684,4,2024/03/13 14:05:11+00,02af9a997bf542beba33d42cd3b84570
+,,"1239828410",way,12.5,clinic,clinic,Kangir Health Centre,,,,,,,,,,,,,,,,,,,,,,,,146271112,1,2024/01/15 08:27:58+00,c8b48ec2b2284c8cb434f0362d03cd8d
+,,"1028637521",way,12.5,clinic,clinic,Kabanut Health Centre,,,,,,,,,,,,,,,,,,,,,,,,117078460,1,2022/02/06 13:08:03+00,e35f1ad55ef44e8db854e9edb45bbd86
+,,"1236633828",way,12.5,clinic,clinic,Karilmaril Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,145891941,2,2024/01/04 17:55:56+00,b2f24ef344264b07b900234bbdb4cc56
+147.001994590025,-6.72946305588127,"12718130196",node,12.5,clinic,clinic,Annam Medical Centre,,,,,,,,,,,,,,,,,,,,,,,,164365262,1,2025/04/01 09:23:21+00,38d8843bf28747348cfbd09b3ef142e5
+143.383758582004,-6.02243896199732,"8422193531",node,12.5,hospital,hospital,Hiri Aidpost,,,,,,,,,,,,,,,,,,,,,,,,99242412,1,2021/02/14 09:34:48+00,d0302aedb67f4414bfa676e1d83ee660
+,,"927794185",way,12.5,clinic,clinic,Wagizaring Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102576916,1,2021/04/08 15:53:44+00,30750f2bd625497783e79e16f616aff3
+,,"1236980076",way,12.5,hospital,hospital,Bogo Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,19b88e31e8714b67978ea5967b7004f7
+,,"906797727",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,148595684,2,2024/03/13 14:05:11+00,6d698030b66448c58da262cef84f0187
+,,"901931525",way,12.5,clinic,clinic,Musave Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98417692,2,2021/01/30 15:03:39+00,a2a4c1a3522f4eb08acf0713446efde2
+,,"249171318",way,12.5,hospital,hospital,Alotau General Hospital,,,,,,,,,,,,,,,,,,,,,,,,97310684,10,2021/01/11 13:45:15+00,a5fca48ecadb430ebd0dcfd7c750c9e7
+,,"914945810",way,12.5,hospital,hospital,Komo Hospital,,,,,,,,,,,,,,,,,,,,,,,,100689226,1,2021/03/09 08:00:19+00,a70707a4332a48be828188d6e2eea2a5
+142.935822887069,-3.67147203105398,"1573910972",node,12.5,clinic,clinic,New Health Centre,,,,,,,,,,,,,,,,,,,,,,,,95054805,5,2020/11/30 15:51:45+00,6fd91f7f8fc24d42a7ac1c817baa6078
+,,"791730369",way,15.625,pharmacy,pharmacy,Morobe Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,164323588,4,2025/03/31 10:38:33+00,a73d2f78755a4696a3bc4545a5171b3d
+,,"1236980080",way,12.5,clinic,clinic,Pombomere Health Post,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,c01c549603ba4e1f84514d8f9a8e8b90
+,,"901978597",way,12.5,clinic,clinic,Sinaketa Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,145240261,2,2023/12/18 07:43:14+00,fe9ee075034645318ce2d09ac4db9b1f
+,,"916187024",way,12.5,hospital,hospital,Menyamya Health Centre,,,,,,,,,,,,,,,,,,,,,,,,100900375,1,2021/03/12 10:28:45+00,ccb38be9f3ec4ac1bd78d8b74734792e
+,,"925550337",way,12.5,hospital,hospital,Etep Rural Hospital,,,,,,,,,,,,,,,,,,,,,,,,102239023,1,2021/04/03 14:41:48+00,486016ef2a4f476c8e0bea5445ecab28
+,,"1275742593",way,12.5,clinic,clinic,Wamaian Aid Post,,,,,,,,,,,,,,,,,,,,,,,,160829063,2,2024/12/31 11:46:32+00,ac7fbec85e0a4da0b0de036ca1348182
+150.793469365398,-2.57473084620332,"9392155606",node,15.625,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,115755760,1,2022/01/04 13:41:51+00,193ee30a0024499586af2863f67e5479
+,,"1247473936",way,12.5,pharmacy,pharmacy,City Pharmacy Wewak,,,,,,,,,,,,,,,,,,,,,,,,160745374,4,2024/12/29 11:20:51+00,a0489002c67a46afbd549e697b14c9ce
+,,"1041701028",way,12.5,clinic,clinic,Igos Health Centre,,,,,,,,,,,,,,,,,,,,,,,,118668933,1,2022/03/19 15:09:45+00,d65c12d1632744af8e3a413cec3c4039
+143.212483024013,-9.07228797371991,"4055913593",node,12.5,clinic,clinic,MCH Clinic,,,,,,,,,,,,,,,,,,,,,,,,83470777,2,2020/04/13 10:48:21+00,5b1186c5178c495f97afb2b3019086d9
+,,"958721474",way,15.625,hospital,hospital,Enga Provincial Hospital,Department of Health,,,,,,,,,,,,,,,,,,,,,,,165767070,4,2025/05/03 16:12:58+00,6c24ba0be3964116bf326f4755cbe2df
+,,"414808916",way,9.375,pharmacy,,City Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,39018490,1,2016/05/01 14:57:16+00,3673b15ac25d4f7db1fa49781cee3f7e
+,,"1236565183",way,12.5,clinic,clinic,Mirane Health Post,,,,,,,,,,,,,,,,,,,,,,,,145835395,1,2024/01/03 11:30:02+00,194d4899b3564a5182cfa70e2214fbd2
+146.56080942845,-8.54139314649717,"4369614595",node,18.75,hospital,hospital,"St. Gerard's Hospital, Veifa'a",,,,,,24/7,,,,,,,,,,,,,,,Rarai Road,,,85460906,2,2020/05/19 19:57:12+00,cac5c03098374e04869482a495ea0637
+,,"898529997",way,21.875,hospital,hospital,Pacific International Hospital,Pacific International Hospital,,,private,,,,,,,,,yes,,,,,,,,,,,97985903,1,2021/01/22 16:23:15+00,cb1eedd3e3634980b224f05917568554
+,,"1340087425",way,9.375,hospital,hospital,,,,,,,,,,,,,,,,,,,,,,,,,159920768,1,2024/12/04 14:11:00+00,2c640111b7aa4dd9b42fa73c054e8c94
+,,"1347828874",way,18.75,hospital,hospital,Biwat Health Centre,Catholic Church,,,religious,,,,,,,,,,,,,,,,,,,,160883890,1,2025/01/01 20:15:44+00,768a4589af27428ab990d51631daeaeb
+143.859616072789,-6.5368249603676,"3618755128",node,9.375,clinic,,Yakisu Community Health Center,,,,,,,,,,,,,,,,,,,,,,,,32217730,1,2015/06/26 04:01:14+00,cb2f8560ad6c495abaf559f15c04708f
+,,"554333369",way,18.75,hospital,hospital,CLTC Clinic,Christian Leadership Training Center,,"general;community",,,,,,,,,,,,,,,,,,,,,55588357,1,2018/01/19 20:44:31+00,726518629dae4e0d9b590c18bf500410
+,,"1236365267",way,12.5,clinic,clinic,Boiko Aid Post,,,,,,,,,,,,,,,,,,,,,,,,145809365,1,2024/01/02 18:11:52+00,53e4f486774747dea19a09b5bf0124a0
+144.231322046398,-5.85826513910865,"3490486169",node,12.5,"restaurant;pharmacy",pharmacy,"Mini Nr2 Kaibar;City Pharmacy",,,,,,,,,,,,,,,,,,,,,,,,104666107,2,2021/05/14 04:31:34+00,2ac34509ad1a4804ad78859fdfba9629
+,,"1340306453",way,12.5,clinic,clinic,Kend Aid Post,,,,,,,,,,,,,,,,,,,,,,,,159961502,1,2024/12/05 15:14:22+00,a7baeddff4c34e908ff4100b3ae3a584
+,,"925524257",way,12.5,clinic,clinic,Semo Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102233685,1,2021/04/03 12:15:30+00,d6622614152a44deb965bceda7ac1c9d
+,,"913456000",way,12.5,hospital,hospital,Songura Aid Post,,,,,,,,,,,,,,,,,,,,,,,,100409020,1,2021/03/04 09:36:25+00,43bd0dc9726b4bf8b603c3193a4f17db
+143.437072850605,-6.11795762182012,"7634125985",node,9.375,clinic,,Komya Aid Post,,,,,,,,,,,,,,,,,,,,,,,,86853754,1,2020/06/19 05:17:19+00,13b0bcbcee2a44648730516e1ef71278
+,,"824898927",way,15.625,clinic,clinic,University Clinic,PNG University of Technology,,,,,,,,,,,,,,,,,,,,,,,164498687,5,2025/04/04 09:24:18+00,e0b7faa760744a2781d051aea6612d30
+,,"1354688824",way,18.75,hospital,hospital,Guasopa Health Centre,Milne Bay Health Authority,,,government,,,,,,,,,,,,,,,,,,,,161826533,1,2025/01/27 16:53:04+00,f70f20cd52cd4c83b4d05e2a1108e6de
+142.899904336495,-5.84297906229111,"3884319652",node,15.625,clinic,clinic,Warolo Aid Post,ECPNG Church,,,,,,,,,,,,,,,,,,,,,,,85270142,3,2020/05/15 15:29:03+00,b25f2a22e3f14b0c8bcf7d69f0a43f89
+,,"1237737215",way,12.5,hospital,hospital,Kendine Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,145984926,1,2024/01/07 10:31:01+00,21c1a529916b4bb19885b68bb6093bbf
+,,"908969043",way,12.5,hospital,hospital,Maria Health Center,,,,,,,,,,,,,,,,,,,,,,,,99626986,1,2021/02/20 06:19:34+00,a4a30c2458cc415abc55de3e5c610021
+151.914095537713,-4.33913160633091,"10687208359",node,34.375,clinic,clinic,Mandress Aid Post,Community Vulnerability Assement,,general,community,,,,,,,,,yes,,,,,,,,Mandress,Kokopo east new britain province,Kokopo,133082264,2,2023/02/27 10:57:52+00,d57463bd16ba488abbfd7dc3b2a5435c
+,,"1039667190",way,12.5,hospital,hospital,Hatzfeldhaven Health Centre,,,,,,,,,,,,,,,,,,,,,,,,118406493,1,2022/03/12 17:26:16+00,fa8552ffa29a4c49970c79911ba5d273
+,,"324625960",way,12.5,hospital,hospital,Lihir Hospital,,,,,,,,,,,,,,,,,,,,,,,,88915897,3,2020/08/04 08:27:36+00,868c49ea089b4ea18839091828e4a843
+,,"1340087400",way,12.5,clinic,clinic,Wimbuka Aid Post,,,,,,,,,,,,,,,,,,,,,,,,159920768,1,2024/12/04 14:11:00+00,92c00663c5a44850aadb6bd613e175c1
+,,"901927262",way,12.5,hospital,hospital,Bialla Hospital,,,,,,,,,,,,,,,,,,,,,,,,98408808,1,2021/01/30 10:49:48+00,3d69df92748b4e2584e43f1f8fe8c824
+,,"1236980092",way,12.5,clinic,clinic,Omkolai Health Post,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,f5357cc28c674f63ba2c5f0c879101c7
+,,"901989121",way,12.5,clinic,clinic,Taul Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98417381,1,2021/01/30 14:54:07+00,b73ee7caf2d9471aafd8d7fb36bdd585
+,,"793403158",way,12.5,hospital,hospital,Madang General Hospital,,,,,,,,,,,,,,,,,,,,,,,,110830779,2,2021/09/07 05:08:59+00,efbadcda423a4b3baf5997188559c842
+143.874298149664,-6.48760441327596,"7561873785",node,9.375,clinic,,Katiloma Clinic - temporary,,,,,,,,,,,,,,,,,,,,,,,,85814644,1,2020/05/27 07:39:09+00,f5a41e3b5cc94d2192f90cf96eab6abe
+142.936960059873,-3.67406405079134,"1576406135",node,9.375,pharmacy,pharmacy,,,,,,,,,,,,,,,,,,,,,,,,,95054805,3,2020/11/30 15:51:45+00,906589061d944ccfb54d6c2bee301d44
+147.188584639485,-9.44673415911387,"12822691802",node,12.5,pharmacy,pharmacy,NHC Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,166015180,1,2025/05/09 07:49:41+00,e515221ff24f4845a2c9d2728c9cce7e
+,,"901974446",way,12.5,clinic,clinic,Naramko Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98414921,1,2021/01/30 13:47:49+00,858872732e0649d5a130524d1652a420
+150.44672729783,-10.3055396835015,"2581127831",node,9.375,pharmacy,pharmacy,,,,,,,,,,,,,,,,,,,,,,,,,83471311,2,2020/04/13 10:56:41+00,2dd4d34de45e491d946923860684bc68
+142.998149797058,-5.82610805140251,"3884319650",node,12.5,clinic,,Itipu Aid Post,United Church,,,,,,,,,,,,,,,,,,,,,,,35839766,2,2015/12/09 06:37:22+00,785aee033c8c431487519a0324b80db6
+,,"1374134055",way,12.5,clinic,clinic,Buimo Road Clinic,,,,,,,,,,,,,,,,,,,,,,,,164416715,1,2025/04/02 11:31:51+00,872efacfa04c4c2392d68cba4c3173e8
+,,"1130834115",way,12.5,clinic,clinic,Yandime Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,145891941,2,2024/01/04 17:55:56+00,cc0504d9d6fa4b078c2476e108505ce0
+,,"1132172588",way,12.5,clinic,clinic,Kuwe Aid Post,,,,,,,,,,,,,,,,,,,,,,,,131298400,1,2023/01/15 13:26:20+00,372d0c17a2f343868c100dbd0b65031c
+147.179372927897,-9.44259685170741,"12823604159",node,12.5,dentist,dentist,Lamana Dental Clinic,,,,,,,,,,,,,,,,,,,,,,,,166030932,1,2025/05/09 14:25:32+00,7060e92e81f94c48979bcae7a73cdd1f
+,,"944064659",way,12.5,,clinic,,,,general,,,,,,,,,,,,,,,,,,,,Pangia,104852290,1,2021/05/18 00:10:59+00,d66a51cd92054f71a5a2d7d88a56c8d9
+,,"638358486",way,15.625,hospital,hospital,Daru General Hospital,,,,,,,,,,,,,yes,,,,,,,,,,,83470777,2,2020/04/13 10:48:21+00,1acd2bb96e2243e3ad0021da0bac2bd4
+152.178131355011,-4.19835201047565,"693078094",node,18.75,clinic,clinic,Rabaul Town Clinic,,approximation,,,,Mo-Su 08:00-16:00,,,,,,,,,,,,,,,,,,136332386,6,2023/05/20 11:00:35+00,d3816a34bc8d4a909093e1fd0aa0d685
+,,"1077021711",way,28.125,hospital,hospital,Ialibu Base Hospital,PNG Department of Health,,"general;vaccination;emergency",government,,,,,,,,,yes,,,,,,,,,,Ialibu,165705220,2,2025/05/02 07:21:11+00,1b50b27c045f49ebac644e3c9e74b81c
+145.413855279172,-6.17794681901393,"4524018092",node,12.5,dentist,dentist,Lapilo Dentist,,,,,,,,,,,,,,,,,,,,,,,,85329316,2,2020/05/17 10:06:40+00,e04f5ac2098b46c4a3a61ada2f60de54
+,,"1236639061",way,12.5,clinic,clinic,Kupau Health Post,,,,,,,,,,,,,,,,,,,,,,,,145847258,1,2024/01/03 16:46:51+00,255dee861dd844d5b3ee6a4e68cfafab
+,,"332805190",way,12.5,clinic,clinic,Rebiamul Clinic,,,,,,,,,,,,,,,,,,,,,,,,83433124,2,2020/04/12 16:45:21+00,ecbb2c5484844650b0eda0d50d432111
+,,"1347828865",way,12.5,hospital,hospital,Timbunke Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160883890,1,2025/01/01 20:15:44+00,a955969c24ca4f6cb1f2615bde5bc456
+,,"1224715871",way,12.5,clinic,clinic,Porea Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,144129215,1,2023/11/17 09:08:53+00,9516fd7cf4bb49e7af92ffdaaac24b2d
+,,"944078685",way,15.625,,clinic,Pomberal Health Centre,,,general,,,,,,,,,,,,,,,,,,,,Nipa,104852967,1,2021/05/18 01:07:24+00,8bea6597bb21409f947fb1efe53f84ed
+,,"1235849844",way,12.5,clinic,clinic,Mun Sub-Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145739724,1,2023/12/31 16:23:45+00,b33d68964e784daeb09c45114cc5bd71
+,,"781538515",way,12.5,clinic,clinic,Yokopinyam Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160546231,2,2024/12/23 16:54:08+00,605ef6ba7c9a4ccca74471d9799d7839
+143.204331455539,-9.09059866029762,"4043161891",node,12.5,clinic,clinic,Bamu TB Treatment Point,,,,,,,,,,,,,,,,,,,,,,,,83470777,2,2020/04/13 10:48:21+00,f55d9cf73af6441f8192bc2e9d10e775
+,,"925941650",way,12.5,clinic,clinic,Indagen Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102283281,1,2021/04/04 18:24:03+00,d0085872dba54e9d908535f574645094
+,,"878584776",way,12.5,hospital,hospital,Sindeni Health Centre,,,,,,,,,,,,,,,,,,,,,,,,94938760,1,2020/11/28 11:10:33+00,e0b4a99a2aac43d09980c9ef3c8b38c7
+,,"1340044474",way,12.5,clinic,clinic,Ogelbeng Health Centre,,,,,,,,,,,,,,,,,,,,,,,,159914134,1,2024/12/04 11:02:04+00,dd2f7c56730640b1a52348cce19058b5
+,,"899444819",way,12.5,clinic,clinic,Bitokara Day Clinic,,,,,,,,,,,,,,,,,,,,,,,,98054523,1,2021/01/24 12:04:33+00,58b71fa65eac4fe98218e26ddc9f3e2d
+142.941321080275,-3.67862866762158,"1363482791",node,12.5,clinic,clinic,Ilahita Health Centre,,,,,,,,,,,,,,,,,,,,,,,,95054805,4,2020/11/30 15:51:45+00,6120c4325f49440f9f8b013833d8a6c9
+147.181038160601,-9.43834890317908,"4605004490",node,12.5,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,166030932,3,2025/05/09 14:25:32+00,b8181184c9b3465990b2e52fddd089ff
+,,"1236980091",way,12.5,clinic,clinic,Womatne Health Post,,,,,,,,,,,,,,,,,,,,,,,,146005846,2,2024/01/07 20:49:00+00,cc169c47afd1453ea43227b9d3de3ac6
+,,"1296703723",way,12.5,clinic,clinic,Tsak Poketamanda Health Centre,,,,,,,,,,,,,,,,,,,,,,,,161106173,2,2025/01/07 18:09:45+00,9680d067848547ae99459849d44e2c9a
+147.181733439469,-9.43782604005912,"12823639417",node,12.5,clinic,clinic,Diamond International Medicentre,,,,,,,,,,,,,,,,,,,,,,,,166030932,1,2025/05/09 14:25:32+00,3066d36407e745e8abb782908edee8e8
+,,"1340087414",way,9.375,hospital,hospital,,,,,,,,,,,,,,,,,,,,,,,,,159920768,1,2024/12/04 14:11:00+00,94524acbffe2492eb8e1d20a6aa44e30
+145.02876382529,-6.0051820482866,"11498185211",node,12.5,clinic,clinic,Mai Health Centre,,,,,,,,,,,,,,,,,,,,,,,,146006186,1,2024/01/07 21:00:25+00,997e8334bb494d7b92a2ea5799c50bc6
+154.673018748567,-5.43059671840999,"2064246374",node,15.625,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,96963919,2,2021/01/05 09:02:44+00,f3934f839a53402d9cdebfb487cd2b11
+,,"1236980079",way,12.5,clinic,clinic,Du Health Post,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,9e01b41e2f8b4889ae4c358f416d0f93
+,,"1240986998",way,12.5,clinic,clinic,Norba Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,146439252,1,2024/01/19 11:18:11+00,56047c802a4b41a09d302b3fe075f8e5
+,,"793437780",way,18.75,hospital,hospital,Yagaum Rural Hospital,Lutheran Health Services,,,religious,,,,,,,,,,,,,,,,,,,,161826195,3,2025/01/27 16:45:17+00,ac83ed281b77446da5faa6f14dceaf1b
+,,"835279530",way,12.5,hospital,hospital,Namatanai Hospital,,,,,,,,,,,,,,,,,,,,,,,,89983047,2,2020/08/26 16:50:30+00,426cc41fa8fe451f9425c730cc33a725
+,,"1236980093",way,12.5,hospital,hospital,Tsigmil Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,75f1eb9d0e724f4da083dc19d0bfa793
+,,"1348461598",way,12.5,clinic,clinic,Paiakona Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160981905,1,2025/01/04 11:38:30+00,482c756204744d8b9828a2fc9724e4d8
+,,"564767189",way,12.5,hospital,hospital,Wabia Sub Health Center,,,,,,,,,,,,,,,,,,,,,,,,89936134,2,2020/08/25 21:51:34+00,16a86c6230fc400bae3b48b635d79c87
+145.853375459501,-5.50642913752526,"2563991468",node,12.5,clinic,clinic,Songum Aid Post,,,,,,,,,,,,,,,,,,,,,,,,117648617,3,2022/02/20 17:48:50+00,296be6fb7a6640b9a532cfba3d3a5597
+145.774416590501,-7.96479121453604,"2905135545",node,15.625,hospital,hospital,Kerema Public Hospital,,survey,,,,,,,,,,,,,,,,,,,,,,85007371,2,2020/05/11 07:43:36+00,1ddd3ff36e9b4aaaabf68e4ee5d061b0
+147.001890486788,-6.72754100166455,"12718442531",node,12.5,clinic,clinic,Seeto Kui Clinic,,,,,,,,,,,,,,,,,,,,,,,,164373540,1,2025/04/01 12:48:04+00,9f3957978aa646d5ba9939a1c278e5a3
+145.804604266238,-5.22505283894199,"4972822122",node,12.5,doctors,doctor,Natu Clinic,,,,,,,,,,,,,,,,,,,,,,,,83433759,2,2020/04/12 17:07:20+00,ab7fb15eb34d4b6cbc2e0b31255a62bc
+,,"922520378",way,12.5,hospital,hospital,Koge Health Centre,,,,,,,,,,,,,,,,,,,,,,,,146038220,2,2024/01/08 17:48:27+00,8a3bd25e26304c2b86e90f3ffa981fec
+,,"369945750",way,12.5,hospital,hospital,Erave Hospital,,,,,,,,,,,,,,,,,,,,,,,,84329815,2,2020/04/29 10:23:57+00,1c060d016a854605848c59df6d0fd372
+,,"891164628",way,34.375,hospital,hospital,Topa Health Center,Health Department,,general,government,,,,,,,,,no,,,,,,,,Mendi - Kandep Road,"675",Mendi,96796185,1,2021/01/02 07:02:29+00,e74248f1db6040f99792d5302a3886f7
+,,"1349008074",way,12.5,hospital,hospital,Yaibos Health Centre,,,,,,,,,,,,,,,,,,,,,,,,161061371,1,2025/01/06 14:49:40+00,d57f370a4bef4efa9361cf1509baded7
+,,"925920445",way,12.5,clinic,clinic,Yalumet Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102280255,1,2021/04/04 16:53:51+00,0cc42b47cb764b2a9f0ab09d8532e404
+,,"1028919060",way,12.5,hospital,hospital,Palie Health Centre,,,,,,,,,,,,,,,,,,,,,,,,117111736,1,2022/02/07 10:08:23+00,3df1a999df6844bf829427d0389386d8
+,,"1349087360",way,12.5,clinic,clinic,Lakopenda Sub-Health Centre,,,,,,,,,,,,,,,,,,,,,,,,161073486,1,2025/01/06 20:25:21+00,1fbe38c35ecb4e90ad20eadbabd47861
+,,"1236980073",way,12.5,clinic,clinic,Bokolma Health Post,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,f5916f0f731c46f1819c820a9294253e
+,,"1236980088",way,12.5,hospital,hospital,Goglme Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,05b78ad7f3fe43928ed0dda09802cd7b
+147.189962875824,-9.44601775784963,"12822681289",node,12.5,pharmacy,pharmacy,RH Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,166015180,1,2025/05/09 07:49:41+00,0022550375c24cbd95509076b35e7d08
+,,"870604060",way,12.5,clinic,clinic,Enipa Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160546231,2,2024/12/23 16:54:08+00,05ebd9de10cc43b3bbb3e7670cbd0390
+,,"1028829933",way,12.5,hospital,hospital,Lipek Health Centre,,,,,,,,,,,,,,,,,,,,,,,,117100000,1,2022/02/07 02:58:42+00,e5693512ecdb4f0c8b918977a6d2385d
+,,"1374704682",way,12.5,clinic,clinic,West Taraka Urban Clinic,,,,,,,,,,,,,,,,,,,,,,,,164507288,1,2025/04/04 13:01:55+00,127c98e7aaf34faaba4eee82d51bdf01
+147.186949497814,-9.45444324691965,"12823179555",node,12.5,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,166020410,1,2025/05/09 10:07:47+00,5827143e38e44980a8f65e508df235de
+,,"1053665599",way,12.5,clinic,clinic,Sangapi Aid Post,,,,,,,,,,,,,,,,,,,,,,,,120008876,1,2022/04/21 16:22:47+00,2c938aaa7e1c4ae2ac3d6220e28f785e
+,,"865117365",way,12.5,clinic,clinic,Alkena Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98412843,2,2021/01/30 12:43:57+00,83e86a6781fa46ee8a7a19c92e799390
+147.184868857989,-9.44551316727856,"12823476986",node,9.375,,optometrist,Vision Care Optical,,,,,,,,,,,,,,,,,,,,,,,,166027646,1,2025/05/09 13:08:24+00,ccdcafd0bfd04f688cc793a2faa6e67f
+,,"1245764535",way,15.625,clinic,clinic,PNGDF Taurama Health Center,Papua New Guinea Defence Force,,,,,,,,,,,,,,,,,,,,,,,147009434,1,2024/02/03 06:58:24+00,fdfd46dacd314cdfbc107c05e4746084
+147.184631147215,-9.44658093792384,"12823476995",node,12.5,pharmacy,pharmacy,Tali's Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,166027646,1,2025/05/09 13:08:24+00,d67b1bdb838a4e3bbbd9af9d8f400f57
+142.956546723571,-5.90747638228777,"3512091081",node,12.5,clinic,clinic,Dauli Aid Post,,,,,,,,,,,,,,,,,,,,,,,,83767458,3,2020/04/19 10:22:44+00,724f22a398cb414eabd5a34dcce6546e
+142.990577082817,-5.89949546936208,"3509875630",node,12.5,clinic,,Wabia Sub Health Center,United Church,,,,,,,,,,,,,,,,,,,,,,,35839599,3,2015/12/09 06:19:46+00,80b5162f45a84712aabc440ecb795b6a
+142.853520476894,-5.82148576707843,"3728940236",node,15.625,clinic,clinic,Warete Sub Health Center,ECPNG Church,,,,,,,,,,,,,,,,,,,,,,,85780287,3,2020/05/26 16:28:23+00,db2c61746ca041e3a4dcebc57708b72a
+142.938445416934,-5.78320016704794,"3884319651",node,12.5,clinic,,Paijaka Aid Post (Closed),United Church,,,,,,,,,,,,,,,,,,,,,,,35839766,2,2015/12/09 06:37:22+00,884a318df2a14dc5926d4a765ed3bb9a
+146.988469634883,-6.73614276215829,"7407667723",node,12.5,dentist,dentist,PIH Dental Care,,,,,,,,,,,,,,,,,,,,,,,,83610385,1,2020/04/15 20:14:38+00,1586b66957ba4b699c7f2fda84156b9e
+,,"1237542122",way,12.5,hospital,hospital,Nomane Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145959998,1,2024/01/06 14:48:13+00,e647f8a95b574e9e9e8628ad81928335
+147.18382564632,-9.44602220025831,"4597725789",node,12.5,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,106816264,3,2021/06/23 06:52:48+00,5caefabf353f4b3da80a0c8f364d2d12
+,,"919718186",way,12.5,clinic,clinic,Boac Health Centre,,,,,,,,,,,,,,,,,,,,,,,,101389319,1,2021/03/20 14:31:01+00,f466779a0f704a2aa3955d762a44dae0
+,,"1274994369",way,18.75,hospital,hospital,Inauaia Health Center,,,medicina_familiar_i_comunitariamedicina_general,,,,,,,,,,,,,,,,,,,,Inauaia,150358438,1,2024/04/22 17:28:28+00,d239a1838975438c8f5fa8bebb85b0c8
+,,"1289435460",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,160536615,2,2024/12/23 12:37:33+00,0b7e2e6eb22745f7aa8af62a46ad05ac
+,,"901939012",way,12.5,clinic,clinic,Monokam Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,160254313,4,2024/12/13 16:57:14+00,24002f3a6b8942edb72685663f89189e
+143.373272569676,-6.09467303008023,"7633868185",node,9.375,clinic,,Karinja Health Center,,,,,,,,,,,,,,,,,,,,,,,,86847708,1,2020/06/19 01:58:19+00,75f7bbfbedc847868359b5b8efc6804b
+,,"1239443443",way,12.5,clinic,clinic,Segima Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,146221390,1,2024/01/13 17:11:00+00,df448cd6a6334eeabbeec166a7460520
+,,"564630240",way,12.5,clinic,clinic,Andira Clinic,,,,,,,,,,,,,,,,,,,,,,,,149257070,3,2024/03/28 08:49:02+00,0e8f309775c34ecba266c4562a0d85f8
+,,"894197760",way,12.5,clinic,clinic,Vatukele Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98416480,2,2021/01/30 14:30:51+00,84380219d41046299ae1eaff924fe2b1
+,,"1337382900",way,12.5,clinic,clinic,Bituri Health Centre,,,,,,,,,,,,,,,,,,,,,,,,159536982,1,2024/11/24 14:55:27+00,ed4b11dc0151422dbbd7bd3516dc4e16
+,,"1289811580",way,12.5,clinic,clinic,Tambitanis Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,160254313,2,2024/12/13 16:57:14+00,124a8c629be44a9d82e6b12b3b5636eb
+,,"840667508",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,112211399,2,2021/10/07 11:09:37+00,4000abc5daa9461bbd29d3b908340308
+,,"940388526",way,12.5,clinic,clinic,Gasmata Health Centre,,,,,,,,,,,,,,,,,,,,,,,,104313535,1,2021/05/07 11:15:38+00,7ababf8c4e1340b495bd8ab69f9faf2d
+146.470420661007,-6.51171152117425,"7523250080",node,12.5,clinic,clinic,Nowa Aid Post,,,,,,,,,,,,,,,,,,,,,,,,85270234,1,2020/05/15 15:31:11+00,42a371382f4a4ab19deb84352d80250d
+,,"891135377",way,31.25,hospital,hospital,Munihiu Health Centre,Health Department,,general,government,,,,,,,,,yes,,,,,,,,,"675",Mendi,96795091,1,2021/01/02 05:36:49+00,2afbd976e663454685e704775a43d124
+,,"893309139",way,12.5,clinic,clinic,Baia Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98416420,3,2021/01/30 14:29:27+00,f1be1f05b03847cabcfeaa7634b6b05e
+,,"1222991682",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,143942265,2,2023/11/12 17:37:59+00,2b50b360d65c4ae4b068b2b1084179ea
+,,"944064662",way,9.375,,clinic,,,,general,,,,,,,,,,,,,,,,,,,,,104852290,1,2021/05/18 00:10:59+00,92996f556ca04623bf67dfaecee4d649
+,,"793391367",way,12.5,hospital,hospital,Kiunga District Hospital,,,,,,,,,,,,,,,,,,,,,,,,83764832,1,2020/04/19 08:51:54+00,a533c6cc91ce4b27a5a756dd4e05dceb
+,,"1269280236",way,12.5,clinic,clinic,Hakwange Aid Post,,,,,,,,,,,,,,,,,,,,,,,,162562915,2,2025/02/16 09:22:17+00,e27f9050e27c4928982120d90052b22a
+,,"793404010",way,21.875,hospital,hospital,Port Moresby General Hospital,NDOH,,,public,,,,,,,,,yes,,,,,,,,,,,110439115,4,2021/08/30 06:09:23+00,ea2071f8f0ca461d929f397c5ef2e64a
+,,"1240794737",way,18.75,hospital,hospital,Minj Health Center,Jiwaka Provincial Health Department,,"internal;clinic;general",,,,,,,,,,,,,,,,,,,,,146413142,1,2024/01/18 16:51:16+00,7b99bb97de174706b173573038d58a0f
+142.927068073024,-3.6856701368396,"1576406112",node,6.25,pharmacy,,,,,,,,,,,,,,,,,,,,,,,,,,10328520,2,2012/01/08 08:35:24+00,7cf1827b6a134fc0af5d9f11b9fc1e5a
+,,"599686304",way,12.5,clinic,clinic,Primary Health Clinic,,,,,,,,,,,,,,,,,,,,,,,,60004549,1,2018/06/20 09:32:52+00,0aa0c0a90f454187b72299d62ad47d8b
+,,"232395392",way,25,hospital,hospital,Lae International Hospital,,,,,,,,,,,,,yes,,,,,,,PO Box 1026,Marsina Street,,Lae,117211164,4,2022/02/09 16:55:54+00,7b21c1dd358843d4a8a1aac5c39f563e
+143.653186561432,-6.12771692314215,"8226773621",node,12.5,,rehabilitation,AIDS/HIV,Department of Health,,,,,,,,,,,,,,,,,,,,,,,95788854,1,2020/12/14 07:11:18+00,49657ee976a54a17961100e92bd20769
+,,"387790842",way,9.375,hospital,,Karati Health Centre,,,,,,,,,,,,,,,,,,,,,,,,89935967,2,2020/08/25 21:44:01+00,2853e5c6fc2941bba0eb56b2ff7c9801
+144.829211078753,-7.49541804786432,"3888595176",node,12.5,hospital,hospital,Baimuru Health Centre,,,,,,,,,,,,,,,,,,,,,,,,83805284,2,2020/04/20 07:51:48+00,5545c80408724b318ffff53879b4567b
+,,"793414949",way,18.75,hospital,hospital,Kundiawa General Hospital,NDOH,,,public,,,,,,,,,,,,,,,,,,,,110591940,2,2021/09/02 04:02:50+00,42229aae8a904c6bb3744bb5744342bc
+147.216905665385,-9.45113775958413,"3975063786",node,15.625,clinic,clinic,ISOS Airways Clinic,S.O.S. International,,,,,,,,,,,,,,,,,,,,,,,152628101,5,2024/06/13 11:06:51+00,eea3b554a57f442193cc0e872b96e1a7
+145.799237752731,-5.49293033392141,"2563989779",node,12.5,clinic,clinic,Ileg Health Centre,,,,,,,,,,,,,,,,,,,,,,,,83783288,2,2020/04/19 19:24:11+00,678f15c75b4048bd989f4e198ba8bda0
+142.841341990678,-5.7654203063982,"3838208491",node,9.375,clinic,,ECPNG Karita Aid Post,,,,,,,,,,,,,,,,,,,,,,,,35839766,2,2015/12/09 06:37:22+00,b4a505837e154b8cb7dc4de50bf58b1a
+,,"791730368",way,15.625,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,164323588,2,2025/03/31 10:38:33+00,8936f3a39c8040f18872bf965975b3be
+,,"1370707923",way,18.75,hospital,hospital,Rumginae Rural Hospital,Evangelical Church of Papua New Guinea,,,religious,,,,,,,,,,,,,,,,,,,,164004117,1,2025/03/23 20:08:22+00,a67eaf53189944c681a7f27efdb7d73b
+146.825862892612,-2.38240204291674,"4004364085",node,15.625,clinic,clinic,Mbuke Aid Post,Manus Provincial Health Authorities,,,,,,,,,,,,,,,,,,,,,,,85296482,2,2020/05/16 09:27:15+00,77e84afffcab4c77b1eee44c6fae590c
+,,"926787669",way,12.5,clinic,clinic,Dinangat Aidpost,,,,,,,,,,,,,,,,,,,,,,,,102419228,1,2021/04/06 15:54:49+00,09fd12c1e19d4a84859a90600402df90
+143.007869116702,-5.86258835712749,"3884319648",node,15.625,clinic,clinic,Andawale Aid Post,United Church,,,,,,,,,,,,,,,,,,,,,,,83473417,3,2020/04/13 11:28:25+00,96533bdbc974446990c6e9b406b3467c
+150.447218896452,-10.3065555701662,"2540248393",node,9.375,pharmacy,pharmacy,,,,,,,,,,,,,,,,,,,,,,,,,93049850,3,2020/10/26 08:51:28+00,d816ea7bcf4b41a6b71240d0eae16636
+144.428732294664,-5.79122516878431,"12103895887",node,12.5,clinic,clinic,Kindeng Health Centre,,,,,,,,,,,,,,,,,,,,,,,,155091072,1,2024/08/11 08:49:30+00,993c9d00ce5244418c9bf47ab942c67d
+143.211876928595,-9.07728325273521,"4055913614",node,12.5,clinic,clinic,Bomana TB Treatment Point,,,,,,,,,,,,,,,,,,,,,,,,83470777,2,2020/04/13 10:48:21+00,5a221983bb2949a8844a08b468d3395a
+,,"1354692087",way,18.75,hospital,hospital,Pimaga Rural Hospital,Southern Highlands Provincial Health Authority,,,government,,,,,,,,,,,,,,,,,,,,161826999,1,2025/01/27 17:05:14+00,1c5c19df648a4f4cb972f9f1357881bb
+,,"1125010990",way,12.5,clinic,clinic,Garuahi Sub-Health Centre,,,,,,,,,,,,,,,,,,,,,,,,130524215,1,2022/12/26 16:48:28+00,b6bc06d0395e418a95b320d0e810fad9
+144.964172292702,-7.57692895492255,"3887391276",node,12.5,hospital,hospital,Kapuna Hospital,,,,,,,,,,,,,,,,,,,,,,,,83765011,2,2020/04/19 08:57:39+00,aacefbe1862449c79b27a8b33f7e48e2
+147.001891492616,-6.72953597843886,"12718130197",node,15.625,doctors,doctor,Lae Pathology & Medical Services,,,pathology,,,,,,,,,,,,,,,,,,,,,164365262,1,2025/04/01 09:23:21+00,56d9d7d9f713481cb22dc9fabceed644
+,,"1126619114",way,12.5,hospital,hospital,Chuave Hospital,,,,,,,,,,,,,,,,,,,,,,,,130812000,1,2023/01/03 05:48:35+00,256d27590cf64063bf34c2169a388c3f
+,,"908406823",way,18.75,clinic,clinic,Mumeng Community Health Post,Dept. of Health,,,public,,,,,,,,,,,,,,,,,,,,99527380,1,2021/02/18 13:19:11+00,74c7dc9a71fd4b6f8533b6ec3caf6244
+,,"848564314",way,12.5,clinic,clinic,Vunapaka Health Centre,,,,,,,,,,,,,,,,,,,,,,,,91063754,1,2020/09/17 18:08:51+00,88248b460ea64f9aab23a1cfcd7a8285
+145.801339850228,-5.22319406809422,"1567308068",node,12.5,doctors,doctor,private doctor,,,,,,,,,,,,,,,,,,,,,,,,118134577,3,2022/03/05 17:23:13+00,3c0ce760b03046e0ae0103d801c008fb
+,,"804861445",way,12.5,clinic,clinic,Movi Health Centre,,,,,,,,,,,,,,,,,,,,,,,,131298400,2,2023/01/15 13:26:20+00,9d783805006744b39a0bc52df167f55f
+,,"904483173",way,12.5,clinic,clinic,Sigerehe Health Centre,,,,,,,,,,,,,,,,,,,,,,,,98822794,1,2021/02/06 17:28:47+00,e0176ae4640a4f2db47b9777da26db54
+145.394258641009,-6.07503817043917,"11482904422",node,12.5,pharmacy,pharmacy,Goroka Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,145843156,1,2024/01/03 14:53:59+00,0929eb94be17478a8901acc046913e48
+,,"198745901",way,12.5,hospital,hospital,Kimbe Hospital,,,,,,,,,,,,,,,,,,,,,,,,97605290,3,2021/01/16 13:51:04+00,6eb26a50eb6f421c8dcf7de05d974f7a
+,,"1373681120",way,12.5,clinic,clinic,Lae Wellness Medical Clinic & Diagnostic Centre,,,,,,,,,,,,,,,,,,,,,,,,164373540,1,2025/04/01 12:48:04+00,0eb5bb85a0984c9c8f454297631f04a3
+,,"793463340",way,18.75,clinic,clinic,Obura Health Centre,Evangelical Brotherhood Church (EBC),,,religious,,,,,,,,,,,,,,,,,,,,83773654,1,2020/04/19 13:49:02+00,4cd0427abbe14d858299ffe027692924
+145.803020421814,-5.54800128179011,"2563991701",node,12.5,clinic,clinic,Buan Aid Post,,,,,,,,,,,,,,,,,,,,,,,,117648617,4,2022/02/20 17:48:50+00,96ec0cb52c154db3b23e71cbf2cd6733
+,,"901982423",way,12.5,hospital,hospital,Bulolo District Hospital,,,,,,,,,,,,,,,,,,,,,,,,165374208,2,2025/04/24 11:25:17+00,1d528616e9ba44aaba7fffc545f1c3c1
+146.193291556581,-7.35232337035251,"4274990189",node,12.5,clinic,clinic,Aseki Health center,,,,,,,,,,,,,,,,,,,,,,,,83484482,2,2020/04/13 15:07:47+00,2a54bf7ac2844e1591164234d112372f
+,,"870582965",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,153043010,3,2024/06/22 19:26:52+00,801b064b48fb4064910330f04c2a9594
+,,"1236598009",way,12.5,clinic,clinic,Lopi Medical Clinic,,,,,,,,,,,,,,,,,,,,,,,,145840478,1,2024/01/03 13:48:44+00,1b39173c88ed4d7b8a4174f6d08f9e6d
+,,"705938942",way,12.5,hospital,hospital,Gaubin Hospital,,,,,,,,,,,,,,,,,,,,,,,,110650871,3,2021/09/03 05:08:04+00,98f4b22abb554a53bdb751e7f971c67b
+143.0003692412,-5.8390348739338,"3448188798",node,12.5,clinic,,Hangapo Sub Health Center,United Church,,,,,,,,,,,,,,,,,,,,,,,35839599,3,2015/12/09 06:19:45+00,40d34ea6720c4f2082453e65ab4cd1ea
+151.266508860337,-2.87480524292897,"5987672480",node,25,hospital,hospital,Poliamba Hospital,New Britain palm Oil Limited,,general,,,,,,,,,,yes,,,,,,,,Boluminski Highway,,,63632453,2,2018/10/18 05:46:17+00,fa7c032766eb4aee9ef5092b04bdc1e1
+,,"1289219571",way,12.5,clinic,clinic,Alagula Health Centre,,,,,,,,,,,,,,,,,,,,,,,,161061371,2,2025/01/06 14:49:40+00,644e9fc0eb6140b0918783379c410975
+,,"901202308",way,18.75,hospital,hospital,Valoka Health Centre,Catholic Church,,,religious,,,,,,,,,,,,,,,,,,,,98300527,1,2021/01/28 13:46:29+00,e93969c6ff134883b9a3dda4bb1d8cbe
+143.213035642889,-9.07211840781872,"4043161893",node,12.5,clinic,clinic,DGH TB Treatment Point,,,,,,,,,,,,,,,,,,,,,,,,83470777,3,2020/04/13 10:48:21+00,fc9455147f784c99a66cb6e9e75d890c
+,,"934981709",way,12.5,clinic,clinic,Sagsag Health Centre,,,,,,,,,,,,,,,,,,,,,,,,103572334,1,2021/04/25 12:30:51+00,1f02ccc709b743d5b7f3183b76afe6d2
+,,"1379892577",way,12.5,clinic,clinic,Sarai Aid Post,,,,,,,,,,,,,,,,,,,,,,,,165284131,1,2025/04/22 12:45:45+00,3da4b338428e4aaa97bfc6d028ee17f1
+,,"1236565151",way,12.5,clinic,clinic,Kaulan Health Post,,,,,,,,,,,,,,,,,,,,,,,,145835395,1,2024/01/03 11:30:02+00,ab83b656e67440ca88b42b121ad7a9d4
+,,"925529673",way,12.5,clinic,clinic,Lablab Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102234668,1,2021/04/03 12:45:32+00,bf39eb9038894002af8e64376ceaa226
+,,"901967107",way,12.5,clinic,clinic,Gurney Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98414008,1,2021/01/30 13:17:39+00,48f16b18352b48c09157d9d8a8f69d9f
+147.001827454876,-6.7274278459717,"12718442530",node,12.5,doctors,doctor,Masalohan Medical Services,,,,,,,,,,,,,,,,,,,,,,,,164373540,1,2025/04/01 12:48:04+00,767a6dde8dfc460f8039575d0e583d46
+,,"330738998",way,31.25,hospital,hospital,Mount Hagen Hospital,Department of Health,,"general;paediatrics;vaccination;orthopaedics;gynaecology;emergency;surgery;radiology;intensive;maternity;dermatology",government,,,,,,,,,yes,,,,,,,,Kuminga Road,,Mount Hagen,124752045,6,2022/08/10 23:26:41+00,94f400dc0dd045d9904b0b8ac88af5be
+,,"848936015",way,12.5,hospital,hospital,Warangoi Rural Hospital,,,,,,,,,,,,,,,,,,,,,,,,108198166,2,2021/07/18 16:00:01+00,49329cc06f2c4e5ea87ed1b914a6c634
+,,"1381144486",way,12.5,pharmacy,pharmacy,City Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,165423199,1,2025/04/25 12:48:54+00,7bfce34f068048d1a4dbc38d875f34db
+,,"901962745",way,6.25,clinic,,,,,,,,,,,,,,,,,,,,,,,,,,149828781,2,2024/04/10 16:28:44+00,c562f4b91eaf4abc918bfe85d6ed0768
+143.207100920166,-9.07591046463344,"4029272856",node,12.5,clinic,clinic,Tamati TB Treatment Point,,,,,,,,,,,,,,,,,,,,,,,,83470777,2,2020/04/13 10:48:21+00,548668e79f0347fe859d31fd6c65cd02
+,,"899444820",way,18.75,hospital,hospital,Bitokara Health Center,Catholic Church,,,religious,,,,,,,,,,,,,,,,,,,,159801105,2,2024/12/01 10:43:30+00,2c973387e1e54ac6b368125541621c5d
+,,"1236565196",way,12.5,hospital,hospital,Mingende Rural Hospital,,,,,,,,,,,,,,,,,,,,,,,,145835395,1,2024/01/03 11:30:02+00,d97f05569cb140d69c207650f4521d67
+,,"834616709",way,12.5,hospital,hospital,Balimo Hospital,,,,,,,,,,,,,,,,,,,,,,,,89028808,1,2020/08/06 09:31:58+00,802d1ecc64ee4f969342b3f27b7d9164
+147.18490422962,-9.44628924769341,"12823500717",node,12.5,doctors,doctor,Eric's Medical Services,,,,,,,,,,,,,,,,,,,,,,,,166027646,1,2025/05/09 13:08:24+00,15006f10b35f4e6da95a0e4d6f2896a0
+,,"861105568",way,12.5,clinic,clinic,Sanap Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98414633,3,2021/01/30 13:39:51+00,97755a81f40f4208892d28ec82a3a253
+143.852072276114,-6.39397444769523,"3371581041",node,12.5,hospital,hospital,Kagua District Health Center,,,,,,,,,,,,,,,,,,,,,,,,89938178,5,2020/08/25 23:33:50+00,123bc22b06e542b9839279d907f84e39
+,,"1092306745",way,9.375,hospital,,Piva Health Center,,,,,,,,,,,,,,,,,,,,,,,,146853252,2,2024/01/30 08:34:59+00,11a884119ae24d439b99ae5e5901e8a6
+,,"1354688518",way,18.75,hospital,hospital,Raihu District Hospital,Catholic Church Health Services,,,religious,,,,,,,,,,,,,,,,,,,,161826416,1,2025/01/27 16:50:24+00,33af904eafd8479ea9b609931839679b
+,,"901969740",way,12.5,clinic,clinic,Kaduwaga Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98414222,1,2021/01/30 13:25:25+00,4ea7af429f7e435b9d09f8ae1010956c
+142.84493087016,-5.8939714598946,"3728939724",node,12.5,clinic,clinic,Paikela Aid Post,,,,,,,,,,,,,,,,,,,,,,,,95049531,2,2020/11/30 13:58:59+00,8cab904316044c6383f811f1f1d8323d
+,,"1348524833",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,160995598,1,2025/01/04 17:41:13+00,5097ac79d3174d46b9f3954b3970a9be
+,,"1231641945",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,145180689,1,2023/12/16 11:19:32+00,992d3d6a673f4a6990eff56ff95fdf7d
+,,"921481021",way,12.5,hospital,hospital,Mutzing Health Centre,,,,,,,,,,,,,,,,,,,,,,,,165681808,2,2025/05/01 15:32:16+00,23514d96d1194f17ba6c157fdf56c585
+,,"901985725",way,12.5,clinic,clinic,Akonga Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98416718,1,2021/01/30 14:36:05+00,674c8e2ee83140de92b3f07ff5e22028
+,,"1347663387",way,12.5,clinic,clinic,May River Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160843860,1,2024/12/31 18:10:36+00,12cc55e0897548d68e46433335d34907
+,,"255574512",way,12.5,hospital,hospital,Buka General Hospital,,,,,,,,,,,,,,,,,,,,,,,,101976038,9,2021/03/30 10:20:11+00,d3e08efc19b34acdbba0d546f51977e7
+,,"601281252",way,18.75,hospital,hospital,Nonga General Hospital,NDOH,,,public,,,,,,,,,,,,,,,,,,,,83765681,2,2020/04/19 09:23:23+00,984e18da411e49068d8171c2d6d6435c
+150.163552661921,-5.55720846715008,"8327515764",node,15.625,pharmacy,pharmacy,7-days Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,97605290,1,2021/01/16 13:51:04+00,d0ca7695904c456083931f52e9663f5e
+,,"793391948",way,12.5,hospital,hospital,Nipa District Hospital,,,,,,,,,,,,,,,,,,,,,,,,83764902,1,2020/04/19 08:54:45+00,32f07beedc45400fba7e1a6fb00b3351
+142.830757742446,-5.92213373254828,"3884326344",node,15.625,clinic,clinic,Habono Aid Post,ECPNG Church,,,,,,,,,,,,,,,,,,,,,,,95049531,3,2020/11/30 13:58:59+00,ec4c9b5d15144bff8c8b92fbafe5196c
+,,"901962741",way,12.5,clinic,clinic,Brigiti Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98413455,1,2021/01/30 13:00:32+00,e1ed418e06974d37b72802d81fc334db
+,,"1340044473",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,159914134,1,2024/12/04 11:02:04+00,46bec4cc38474f8d81ab62739d4314fd
+146.579578186036,-8.62956984587319,"4369614596",node,21.875,hospital,hospital,Inauaia Health Centre,,,medicina_familiar_i_comunitariamedicina_general,,,,,,,,,,,,,,,,,,Inauaia Road,,Inauaia,150383058,3,2024/04/23 08:51:36+00,54ff4b0a02264fa9bc256b6f7011c9dc
+,,"204338013",way,12.5,clinic,clinic,Ukarumpa Clinic,,,,,,,,,,,,,,,,,,,,,,,,144310317,5,2023/11/22 04:54:19+00,a0591a60867a4fd698f5a3e998c6f3e7
+155.570336184371,-6.22731337885887,"3618553911",node,12.5,clinic,clinic,Arawa Health Center,,,,,,,,,,,,,,,,,,,,,,,,83433674,2,2020/04/12 17:04:40+00,101a40b568a34ba2a5af7609b3e36dd2
+,,"1134103643",way,12.5,clinic,clinic,Gomgale Health Centre,,,,,,,,,,,,,,,,,,,,,,,,131550681,1,2023/01/21 18:48:13+00,b66dad2f6f0e491dacbc29dc1925a12b
+,,"208410976",way,21.875,hospital,hospital,Goroka Haus Sik,PNG Department of Health,Bing,,public,,,,,,,,,,,,,,,,,,,,165674053,7,2025/05/01 12:36:51+00,3aa911a961044f30af75c1e4032b0b6b
+144.230305321543,-5.8645804002357,"10917202592",node,25,clinic,clinic,PIH - Mount Hagen,Pacific International Hospital,,"general;blood_check;gynaecology;dentist;paediatrics",private,,Mo-Su 09:00-20:00,,,,,,,,,,,,,,,,,,136392065,1,2023/05/22 02:27:17+00,ef073c25ab5e433dbfbbed424fceb5a8
+,,"1342190736",way,18.75,hospital,hospital,Wapenamanda District Hospital,Evangelical Lutheran Church of Papua New Guinea,,,religious,,,,,,,,,,,,,,,,,,,,160398605,2,2024/12/19 15:01:25+00,42d007388f774868bed7ebda7792ea09
+,,"1018212401",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,115742916,1,2022/01/04 08:40:53+00,cdfbe185cc9340b0b38e0f4c244b1215
+144.581915347017,-5.84610601508902,"2266566023",node,21.875,hospital,hospital,Nazarene General Hospital,Nazarene Health Ministries,,"surgery;general;trauma;paediatrics;clinic",,,,,,,,,,yes,,,,,,,,,,,55587900,2,2018/01/19 20:29:43+00,aa27c1c2cdef46b2abce2e0b3f54f3aa
+,,"792630087",way,12.5,clinic,clinic,Wampar Health Centre,,,,,,,,,,,,,,,,,,,,,,,,99606019,2,2021/02/19 16:09:47+00,71c6e2acc2424bee95a12ce725f9e3da
+,,"834620450",way,12.5,hospital,hospital,Kikori Hospital,,,,,,,,,,,,,,,,,,,,,,,,89030112,1,2020/08/06 09:48:30+00,c12c71d47bd94e029ac707fcf3f578ca
+144.882043555561,-6.05979023128109,"11498135894",node,12.5,clinic,clinic,Neregaima Health Centre,,,,,,,,,,,,,,,,,,,,,,,,146005728,1,2024/01/07 20:44:25+00,55b81464c95743f38d9e1f027b6ca9ce
+,,"1126739793",way,12.5,clinic,clinic,Nutuve Health Centre,,,,,,,,,,,,,,,,,,,,,,,,130837605,1,2023/01/03 18:20:11+00,e20be8b052f9430fa526ce9eabfa6225
+,,"1346723869",way,18.75,hospital,hospital,Kapuna Hospital,Gulf Christian Services,,,religious,,,,,,,,,,,,,,,,,,,,160691937,2,2024/12/27 20:40:43+00,6a64687bff9848a98f808bde751be06d
+,,"1374704681",way,12.5,clinic,clinic,Tent City Urban Clinic,,,,,,,,,,,,,,,,,,,,,,,,164507288,1,2025/04/04 13:01:55+00,ac616d1a8dd6440b9a5dd8c5a34f944a
+,,"870582966",way,9.375,hospital,hospital,,,,,,,,,,,,,,,,,,,,,,,,,153043010,3,2024/06/22 19:26:52+00,51d070011faa4b5a866d9c507ab4dcaa
+,,"1229628098",way,12.5,clinic,clinic,Tukusenda Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,160254313,4,2024/12/13 16:57:14+00,221de6805465460eb8356c8378ff1fe0
+,,"809975998",way,12.5,clinic,clinic,Jafa Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,98414082,3,2021/01/30 13:20:05+00,31c6b8b64d454a58bc58e9aaddad0bc0
+,,"355839816",way,9.375,clinic,,,,,,,,,,,,,,,no,,,,,,,,,,,32178674,4,2015/06/24 09:18:30+00,54ec0dcb7e814726809793fec1654e8a
+,,"1236268045",way,12.5,clinic,clinic,Sigimaru Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145792842,1,2024/01/02 10:54:14+00,02ecedbc708e48ef91c1940d6509813c
+,,"1222993698",way,12.5,clinic,clinic,Karato Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,143942358,1,2023/11/12 17:41:06+00,9b52366be58049b79e3094e6678e63e1
+,,"1222993093",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,143942223,1,2023/11/12 17:36:32+00,52c9fcae40f94302bd9022b07545b976
+146.990047695794,-6.72591281697308,"7410500536",node,15.625,pharmacy,pharmacy,Fredi's Pharmacy,,,,,,,,,,,yes,,,,,,,,,,,,,83641889,1,2020/04/16 10:16:40+00,5f7861d053f84ae0afeecdb2790102d5
+,,"1042627844",way,12.5,clinic,clinic,Ariangon Health Centre,,,,,,,,,,,,,,,,,,,,,,,,118778086,1,2022/03/22 13:04:36+00,47519876907a482cad47d0af1f837a7a
+,,"1342473471",way,12.5,hospital,hospital,Kompiam District Hospital,,,,,,,,,,,,,,,,,,,,,,,,161061371,2,2025/01/06 14:49:40+00,52087f8597da4e1d9a33c6be156090f4
+,,"1017886295",way,12.5,hospital,hospital,Lemakot Hospital,,,,,,,,,,,,,,,,,,,,,,,,115720366,1,2022/01/03 17:00:23+00,dfea2355654a491593b472584462584f
+,,"453415025",way,18.75,hospital,centre,Kandep Health Centre,,Bing,general,,,,,,,,,,,,,,,,,,,,,153043122,8,2024/06/22 19:30:28+00,6909c40e67834350bd19a7749caa6c39
+,,"871838396",way,12.5,clinic,clinic,Yambo Health Center,,,,,,,,,,,,,,,,,,,,,,,,160286981,3,2024/12/14 17:41:16+00,613936ac6e444b2a9a96cb2eb469228a
+,,"891572342",way,12.5,hospital,hospital,Gerehu General Hospital,,,,,,,,,,,,,,,,,,,,,,,,96855991,1,2021/01/03 16:59:09+00,f6b796ad68ea440286e07dd3a690a2de
+143.208255275871,-9.07517713192479,"3993343059",node,12.5,clinic,clinic,Callen Services,,,,,,,,,,,,,,,,,,,,,,,,83470777,2,2020/04/13 10:48:21+00,dce3c04bdf6d4cecac451fa2847ab7d0
+142.85812096827,-5.9260047468909,"3884319649",node,15.625,clinic,clinic,Idawi Sub Health Center,ECPNG Church,,,,,,,,,,,,,,,,,,,,,,,85270142,3,2020/05/15 15:29:03+00,36f56ea2e581431d80b81619f84125e3
+,,"925920446",way,12.5,clinic,clinic,Derim Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102280255,1,2021/04/04 16:53:51+00,7cafe58235cd43bc9ff94d58d493a96d
+143.625511193534,-3.55299902647633,"12460675759",node,12.5,pharmacy,pharmacy,Wewak Chemcare Pharmacy,,,,,,,,,,,,,,,,,,,,,,,,160745374,1,2024/12/29 11:20:51+00,d8cad812877e4f7e8a8129c626dbd365
+,,"904483179",way,12.5,clinic,clinic,Kapakamarigi Health Centre,,,,,,,,,,,,,,,,,,,,,,,,98822794,1,2021/02/06 17:28:47+00,39c0568782e547849b325dcdba31619e
+,,"1236980078",way,12.5,clinic,clinic,Goryombar Health Post,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,572a60cff79248a1a9641c1b52893587
+,,"893627108",way,18.75,clinic,clinic,Silanga Health Centre,Catholic Church,,,religious,,,,,,,,,,,,,,,,,,,,97206326,1,2021/01/09 10:34:10+00,76655fc10ec24b27a4ee6cbda000edaf
+,,"1340103743",way,18.75,clinic,clinic,Bonga Community Health Post,Western Highlands Provincial Health Authority,,,government,,,,,,,,,,,,,,,,,,,,160987187,2,2025/01/04 14:07:23+00,69aca1650ee64ba7b2b2cefb903f680c
+,,"355816605",way,9.375,clinic,,,,,,,,,,,,,,,no,,,,,,,,,,,32178674,4,2015/06/24 09:18:31+00,8cb5fe13ac854893a2d023a9b18dd08b
+147.186132429892,-9.45376070854422,"12823179564",node,12.5,clinic,clinic,PIH Medical Centre,,,,,,,,,,,,,,,,,,,,,,,,166020410,1,2025/05/09 10:07:47+00,5ed73427056542769fd1b6f73fc40096
+,,"1236980075",way,12.5,hospital,hospital,Gembogl Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,03df927cb28948c3b4e8ceb3e1a51274
+,,"871998030",way,12.5,hospital,hospital,Onamuga Health Centre,,,,,,,,,,,,,,,,,,,,,,,,94163824,1,2020/11/15 20:44:12+00,11b9b290b72142728fb1afeb83a7faf4
+,,"1369036698",way,12.5,clinic,clinic,Suki Sub-Health Centre,,,,,,,,,,,,,,,,,,,,,,,,163810804,1,2025/03/19 10:37:34+00,a62efbe3f9944ca4a98179e9ef6fa845
+,,"919096741",way,18.75,hospital,hospital,Lombrum Naval Hospital,Dept. of Defense,,,government,,,,,,,,,,,,,,,,,,,,101316567,1,2021/03/19 09:50:12+00,3e58c555242b4860ad89fea9e412115a
+142.816969260269,-5.77164965301773,"6687077886",node,12.5,clinic,clinic,Hedimari Health Centre,,,,,,,,,,,,,,,,,,,,,,,,85780287,2,2020/05/26 16:28:23+00,ee4cd5a883794c7b8e5baf58d699ecf7
+,,"1342473479",way,12.5,clinic,clinic,Landor Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160254313,1,2024/12/13 16:57:14+00,91fb4874ae6047d1b0c5dd3a17ba22a4
+,,"777213895",way,18.75,hospital,hospital,Mendi Provincial Hospital,Southern Highlands Provincial Health Authority,,,government,,,,,,,,,,,,,,,,,,,,161827114,7,2025/01/27 17:07:01+00,85a81295b00f41f9b9736f7bce040ab5
+,,"790745983",way,12.5,hospital,hospital,Kainantu Hospital,,,,,,,,,,,,,,,,,,,,,,,,88391894,3,2020/07/23 08:48:34+00,80c0bd78041a43bd9b51838b00245fd9
+143.209524296012,-9.07069180789858,"4043161892",node,12.5,clinic,clinic,World Vision TB Treatment Point,,,,,,,,,,,,,,,,,,,,,,,,83470777,2,2020/04/13 10:48:21+00,060485e29b5345909dafe5a335288c44
+,,"1370294118",way,12.5,hospital,hospital,Tabubil District Hospital,,,,,,,,,,,,,,,,,,,,,,,,163941143,1,2025/03/22 10:49:58+00,cc193ac079514475b485fcb2dbe40808
+,,"1348524832",way,9.375,clinic,clinic,,,,,,,,,,,,,,,,,,,,,,,,,160995598,1,2025/01/04 17:41:13+00,c4f0d14518ae4595b6bf30860a33338a
+,,"1348778755",way,18.75,clinic,clinic,Kenembo Community Health Post,Western Highlands Provincial Health Authority,,,government,,,,,,,,,,,,,,,,,,,,161035426,1,2025/01/05 20:28:15+00,c8b3299f3d774bb1aa5299c190b5c21d
+,,"1290166646",way,12.5,clinic,clinic,Kaitole Aid Post,,,,,,,,,,,,,,,,,,,,,,,,160536615,2,2024/12/23 12:37:33+00,e4eb6e424a314bb6aa5ff087b721b041
+,,"1236268046",way,12.5,clinic,clinic,Negabo Health Centre,,,,,,,,,,,,,,,,,,,,,,,,145792842,1,2024/01/02 10:54:14+00,0a0dd2f8738a4ebab81da746ff37e97f
+143.754712363621,-6.36735964200548,"3735488353",node,9.375,clinic,,Uma Community Health Post,,,,,,,,,,,,,,,,,,,,,,,,33900054,1,2015/09/09 06:26:23+00,991a98b060b142bfbb7a74dcd5356732
+,,"1382795907",way,12.5,hospital,hospital,Henganofi Health Centre,,,,,,,,,,,,,,,,,,,,,,,,165682159,1,2025/05/01 15:41:42+00,381d36330f1c4ccdb72df032290eebe8
+143.027314461512,-5.92359327334788,"3728979579",node,12.5,clinic,,Tigibi Sub Health Center,United Church,,,,,,,,,,,,,,,,,,,,,,,35839599,2,2015/12/09 06:19:46+00,a9a8973668404def9ceee2e7f8803ea8
+,,"1236980081",way,12.5,clinic,clinic,Keverne Health Sub-Centre,,,,,,,,,,,,,,,,,,,,,,,,145891941,1,2024/01/04 17:55:56+00,4916582301ff4ef288159a1f7e81eeba
+143.992384497048,-5.94782887582184,"3820054574",node,12.5,clinic,clinic,Kiripia Health Centre,,,,,,,,,,,,,,,,,,,,,,,,159812674,3,2024/12/01 16:36:06+00,6967448171144bbcbce2766237483027
+,,"1185639418",way,9.375,,clinic,Sivauna Health Centre,,,,,,,,,,,,,,,,,,,,,,,,138659524,2,2023/07/18 09:40:05+00,e2d0637cdf2a4a2a8ff94ef73ff1d01c
+,,"793414617",way,12.5,hospital,hospital,Tinsley Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160981905,2,2025/01/04 11:38:30+00,faf29951fa31451a94f83c445b636aba
+144.97239276042,-4.27319067115067,"9589811983",node,12.5,hospital,hospital,Bogia Hospital,,,,,,,,,,,,,,,,,,,,,,,,118662859,1,2022/03/19 11:38:29+00,dde9b17bb8c04d36ba659fff15f42bb0
+,,"920148321",way,12.5,hospital,hospital,Vanimo Hospital,,,,,,,,,,,,,,,,,,,,,,,,110605622,3,2021/09/02 08:47:58+00,c10b9be97f614427a205512340465ba1
+,,"908193164",way,12.5,clinic,clinic,Simogu Day Clinic,,,,,,,,,,,,,,,,,,,,,,,,99475181,1,2021/02/17 20:01:28+00,682ac74f9a83432d81d5ff7526efae96
+,,"927245171",way,12.5,clinic,clinic,Mindik Health Centre,,,,,,,,,,,,,,,,,,,,,,,,102495464,1,2021/04/07 16:10:10+00,ed6e0ca5f2db4049aea4d544cfae6802
+,,"1125267393",way,12.5,clinic,clinic,Nube Health Centre,,,,,,,,,,,,,,,,,,,,,,,,130572383,1,2022/12/27 20:14:44+00,5e4e1f31cec541aca32809f1876cd6d3
+145.785898456745,-6.84985861758983,"8432732920",node,12.5,clinic,clinic,Pinji Aid Post,,,,,,,,,,,,,,,,,,,,,,,,99472292,1,2021/02/17 18:54:18+00,4bed15c451de4593866491b24f859924
+,,"1236639048",way,12.5,hospital,hospital,Kerowagi Hospital,,,,,,,,,,,,,,,,,,,,,,,,145847258,1,2024/01/03 16:46:51+00,b28db8102b49432cb6e6d696c63fb07d
+142.737749127348,-9.27516003773232,"3975922855",node,12.5,clinic,clinic,Mabudawan Health Centre,,,,,,,,,,,,,,,,,,,,,,,,98416005,2,2021/01/30 14:18:57+00,944d60b58f534bccb05d7873acbe716c
+145.801955333378,-5.20984496528106,"4972822221",node,12.5,pharmacy,pharmacy,Chemcare,,,,,,,,,,,,,,,,,,,,,,,,83433759,2,2020/04/12 17:07:20+00,2bcd2e7d07a0437c8657ce445b5b3f8f
+147.002789445903,-6.72976648077614,"7406359171",node,12.5,clinic,clinic,GM Flores Hospital,,,,,,,,,,,,,,,,,,,,,,,,164365262,3,2025/04/01 09:23:21+00,35308ec9c7f344e293a0ca4a2fd2135e
+,,"1269281348",way,12.5,clinic,clinic,Kulalongli Aid Post,,,,,,,,,,,,,,,,,,,,,,,,162562915,2,2025/02/16 09:22:17+00,ad85fe6db55f4589a4d48ba956cf8859
+,,"1346397733",way,12.5,hospital,hospital,Angoram District Health Centre,,,,,,,,,,,,,,,,,,,,,,,,160643437,1,2024/12/26 15:54:33+00,36266da9b352438db8c29705a720e2fa
+,,"895509610",way,12.5,clinic,clinic,Kundiawa Urban Clinic,,,,,,,,,,,,,,,,,,,,,,,,145835395,2,2024/01/03 11:30:02+00,90d0bf93d7584a668775a1ce968eab56
+151.188820520221,-10.5833928167239,"2540118237",node,12.5,hospital,hospital,Tubetube Aid Post,,,,,,,,,,,,,,,,,,,,,,,,91413450,3,2020/09/24 07:24:34+00,03f87ddc5d9e48cea1f658b9762a38ef
+,,"871984432",way,12.5,clinic,clinic,Kesevaka Health Centre,,,,,,,,,,,,,,,,,,,,,,,,98619331,2,2021/02/03 05:36:27+00,9bdffc3f14ae481396ebcbcc6f99bbc9
+142.970017196342,-5.82929141440877,"3582377296",node,12.5,clinic,,Hoiebia Aid Post,United Church,,,,,,,,,,,,,,,,,,,,,,,35839599,2,2015/12/09 06:19:45+00,3b53771a726d4529ac772f00b67456f3

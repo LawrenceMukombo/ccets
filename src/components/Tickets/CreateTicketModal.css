@@ -159,3 +159,35 @@
 .required {
     color: red;
 }
+
+.tab-next-btn {
+    background: none;
+    border: 1px solid #3498db;
+    color: #3498db;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-next-btn:hover {
+    background: #3498db;
+    color: white;
+}
+
+.next-footer-btn {
+    padding: 10px 24px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.next-footer-btn:hover {
+    background: #2980b9;
+    transform: translateX(2px);
+}

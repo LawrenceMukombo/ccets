@@ -54,14 +54,22 @@ const sendNotification = async (app, { userId, ticketId, type, message, email, p
     // 1. In-App Notification (Socket.IO)
     const io = app.get('io');
     if (io) {
-        io.to(`user_${userId}`).emit('notification', {
-            id: Date.now(),
-            ticketId,
-            type,
-            message,
-            timestamp: new Date()
-        });
-        console.log(`📡 Socket event emitted to user_${userId}`);
+        try {
+            const tenantStore = require('../middleware/tenantStore');
+            const tenant = tenantStore.getStore();
+            const roomName = tenant && tenant.code ? `${tenant.code}_${userId}` : `user_${userId}`;
+            
+            io.to(roomName).emit('notification', {
+                id: Date.now(),
+                ticketId,
+                type,
+                message,
+                timestamp: new Date()
+            });
+            console.log(`📡 Socket event emitted to ${roomName}`);
+        } catch (err) {
+            console.error('Failed to emit socket event:', err);
+        }
     }
 
     // 2. Email

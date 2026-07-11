@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../../context/TenantContext';
 import './UsersTab.css';
 
 const UsersTab = () => {
+    const { tenantCode } = useTenant();
     const [users, setUsers] = useState([]);
     const [roles, setRoles] = useState([]);
     const [permissionsMatrix, setPermissionsMatrix] = useState({ permissions: [], matrix: {} });
@@ -38,7 +40,7 @@ const UsersTab = () => {
     const fetchUsers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/users', {
+            const response = await fetch(`/api/${tenantCode}/users`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -54,7 +56,7 @@ const UsersTab = () => {
     const fetchRoles = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/permissions/matrix', {
+            const response = await fetch(`/api/${tenantCode}/permissions/matrix`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -68,7 +70,7 @@ const UsersTab = () => {
     const toggleUserStatus = async (userId, currentStatus) => {
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/users/${userId}/status`, {
+            await fetch(`/api/${tenantCode}/users/${userId}/status`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -86,7 +88,7 @@ const UsersTab = () => {
         if (!userToDelete) return;
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/users/${userToDelete.user_id}`, {
+            const response = await fetch(`/api/${tenantCode}/users/${userToDelete.user_id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -474,7 +476,7 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
         setFetchingDetails(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/users/${id}`, {
+            const res = await fetch(`/api/${tenantCode}/users/${id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to load user details');
@@ -515,7 +517,7 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
         setLoadingHistory(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/audit?user_id=${id}&limit=50`, {
+            const res = await fetch(`/api/${tenantCode}/audit?user_id=${id}&limit=50`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -531,8 +533,8 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
         try {
             const token = localStorage.getItem('token');
             const [resRegions, resProvinces] = await Promise.all([
-                fetch('/api/facilities/regions', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('/api/facilities/provinces', { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(`/api/${tenantCode}/facilities/regions`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`/api/${tenantCode}/facilities/provinces`, { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
 
             const regions = await resRegions.json();
@@ -560,7 +562,7 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
             };
 
             // API URL and Method differ for Create vs Update
-            const url = isCreate ? '/api/users' : `/api/users/${user.user_id}`;
+            const url = isCreate ? `/api/${tenantCode}/users` : `/api/${tenantCode}/users/${user.user_id}`;
             const method = isCreate ? 'POST' : 'PUT';
 
             const response = await fetch(url, {

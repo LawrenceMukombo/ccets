@@ -33,7 +33,7 @@ const buildFilters = (req) => {
         values.push(district);
     }
     if (facility && facility !== 'all') {
-        conditions.push(`t.facility_id = $${pIndex++}`); // Assuming facility ID passed
+        conditions.push(`f.facility_name = $${pIndex++}`);
         values.push(facility);
     }
 

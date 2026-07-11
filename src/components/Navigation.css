@@ -1,5 +1,5 @@
 .top-navigation {
-    background: linear-gradient(90deg, #0078D4 0%, #0063B1 100%);
+    background: var(--nav-bg);
     /* Microsoft/Modern Blue */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
@@ -14,13 +14,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 56px;
+    height: 60px;
+    gap: 10px;
 }
 
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-shrink: 0;
+    max-width: 200px;
 }
 
 .brand-icon {
@@ -28,56 +31,76 @@
 }
 
 .brand-text h1 {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     color: white;
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.1;
+    white-space: nowrap;
 }
 
 .brand-text p {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 10px;
+    color: #ffffff;
     margin: 0;
     line-height: 1;
+    white-space: nowrap;
+    opacity: 0.8;
 }
 
 .nav-menu {
     display: flex;
-    gap: 0;
+    gap: 2px;
     flex: 1;
-    justify-content: center;
-    max-width: 900px;
+    min-width: 0;
+    justify-content: flex-start;
+    margin: 0 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    height: 100%;
+}
+
+.nav-menu::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
 .nav-item {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 16px 20px;
+    padding: 0 10px;
     background: transparent;
     border: none;
     border-bottom: 3px solid transparent;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff !important;
+    opacity: 1 !important;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
-    height: 56px;
+    height: 60px;
+    flex-shrink: 0; /* PREVENT DISAPPEARING */
+}
+
+.nav-item * {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+    opacity: 1 !important;
 }
 
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.1);
     color: white;
-    border-bottom-color: rgba(255, 255, 255, 0.3);
+    border-bottom-color: #ffffff;
 }
 
 .nav-item.active {
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    font-weight: 600;
-    border-bottom-color: white;
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff !important;
+    font-weight: 700;
+    border-bottom-color: #ffffff;
 }
 
 .nav-item svg {
@@ -89,7 +112,8 @@
 .nav-user {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .user-info {
@@ -108,7 +132,7 @@
 
 .user-role {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.8);
+    color: #ffffff;
     line-height: 1;
 }
 
@@ -118,49 +142,73 @@
     justify-content: center;
     width: 36px;
     height: 36px;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.2) !important;
     border: none;
-    border-radius: 4px;
-    color: white;
+    border-radius: 6px;
+    color: #ffffff !important;
     cursor: pointer;
     transition: all 0.2s;
 }
 
+.logout-button svg {
+    stroke: #ffffff !important;
+}
+
 .logout-button:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.3) !important;
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
+@media (max-width: 1700px) {
+    .nav-item {
+        padding: 0 8px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 1550px) {
     .nav-item span {
         display: none;
     }
-
+    
     .nav-item {
-        padding: 16px 12px;
+        padding: 0 12px;
     }
 }
 
 @media (max-width: 768px) {
     .nav-container {
-        padding: 0 16px;
-        height: 56px;
+        padding: 0 12px;
+        height: 64px;
     }
 
-    .brand-text p {
-        display: none;
-    }
-
-    .brand-text h1 {
-        font-size: 16px;
-    }
-
-    .user-info {
+    .brand-text {
         display: none;
     }
 
     .nav-menu {
-        gap: 0;
+        gap: 4px;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    .nav-item {
+        padding: 8px 12px;
+        height: auto;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 10px;
+    }
+
+    .nav-item svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .user-info {
+        display: none;
     }
 }
 
@@ -201,7 +249,7 @@
     position: relative;
     margin-right: 20px;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff;
     padding: 8px;
     border-radius: 50%;
     transition: all 0.2s;
@@ -234,10 +282,10 @@
     top: 100%;
     right: -50px;
     width: 300px;
-    background: white;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    background: var(--nav-bg);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 50;
     margin-top: 10px;
     max-height: 400px;
@@ -246,14 +294,14 @@
 
 .notif-item {
     padding: 12px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 13px;
-    color: #334155;
+    color: #ffffff;
     transition: bg 0.2s;
 }
 
 .notif-item:hover {
-    background: #f8fafc;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .notif-item:last-child {
@@ -263,13 +311,13 @@
 .notif-date {
     display: block;
     font-size: 11px;
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.7);
     margin-top: 4px;
 }
 
 .notif-empty {
     padding: 20px;
     text-align: center;
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.5);
     font-size: 13px;
 }

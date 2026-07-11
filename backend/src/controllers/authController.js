@@ -59,7 +59,9 @@ exports.login = async (req, res) => {
                 roleId: user.role_id,
                 regionId: user.assigned_region_id,
                 provinceId: user.assigned_province_id,
-                isNationalAccess: user.is_national_access
+                isNationalAccess: user.is_national_access,
+                tenant_code: req.tenant.code,
+                tenant_id: req.tenant.id
             },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
@@ -231,5 +233,95 @@ exports.getCurrentUser = async (req, res) => {
         console.error('Get current user error:', error);
         console.error('Error stack:', error.stack);
         res.status(500).json({ message: 'Server error fetching user details', error: error.message });
+    }
+};
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const userId = req.user?.user_id || req.user?.userId;
+        const { first_name, last_name, email, phone_number } = req.body;
+
+        if (!userId) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
+        const result = await db.query(`
+            UPDATE users 
+            SET first_name = $1, 
+                last_name = $2, 
+                email = $3, 
+                phone_number = $4,
+                updated_at = NOW()
+            WHERE user_id = $5
+            RETURNING user_id, username, email, first_name, last_name, phone_number
+        `, [first_name, last_name, email, phone_number, userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const updatedUser = result.rows[0];
+
+        // Audit Log
+        await logAudit(userId, 'Update', 'User', userId, 'User updated their own profile', req);
+
+        res.json({
+            success: true,
+            message: 'Profile updated successfully',
+            user: updatedUser
+        });
+
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({ message: 'Server error updating profile', error: error.message });
+    }
+};
+
+exports.changePassword = async (req, res) => {
+    try {
+        const userId = req.user?.user_id || req.user?.userId;
+        const { currentPassword, newPassword } = req.body;
+
+        if (!userId) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
+        // 1. Fetch user to verify current password
+        const userResult = await db.query('SELECT password_hash FROM users WHERE user_id = $1', [userId]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const user = userResult.rows[0];
+
+        // 2. Verify current password
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+        if (!isPasswordValid) {
+            return res.status(401).json({ success: false, message: 'Invalid current password' });
+        }
+
+        // 3. Hash new password
+        const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+        // 4. Update password
+        await db.query(`
+            UPDATE users 
+            SET password_hash = $1, 
+                must_change_password = false,
+                updated_at = NOW()
+            WHERE user_id = $2
+        `, [newPasswordHash, userId]);
+
+        // Audit Log
+        await logAudit(userId, 'ChangePassword', 'User', userId, 'User changed their own password', req);
+
+        res.json({
+            success: true,
+            message: 'Password changed successfully'
+        });
+
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ message: 'Server error changing password', error: error.message });
     }
 };

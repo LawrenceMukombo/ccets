@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTenant } from '../context/TenantContext';
 import './Login.css';
 
 function Login({ onLogin }) {
@@ -8,6 +9,7 @@ function Login({ onLogin }) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { tenantCode, config, loading: configLoading } = useTenant();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,7 +17,7 @@ function Login({ onLogin }) {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch(`/api/${tenantCode}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,6 +42,14 @@ function Login({ onLogin }) {
         }
     };
 
+    if (configLoading || !config) {
+        return (
+            <div className="login-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="spinner"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="login-container">
             <div className="login-background">
@@ -50,10 +60,29 @@ function Login({ onLogin }) {
                 <div className="login-header">
                     <div className="logo-section">
                         <div className="logo-icon">
-                            <img src="/png_emblem.png" alt="PNG Emblem" style={{ width: '80px', height: 'auto' }} />
+                            <img src={config.emblem} alt={`${config.name} Emblem`} style={{ width: '80px', height: 'auto' }} />
                         </div>
                         <h1>Cold Chain Equipment Ticketing System</h1>
-                        <p className="subtitle">National Department of Health • EPI</p>
+                        <p className="subtitle">{config.name} Ministry of Health • EPI</p>
+                        <div style={{ marginTop: '1rem' }}>
+                            <button 
+                                onClick={() => navigate('/switch')}
+                                style={{ 
+                                    background: 'rgba(255,255,255,0.1)', 
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    borderRadius: '20px',
+                                    padding: '4px 12px',
+                                    color: 'rgba(255,255,255,0.8)',
+                                    fontSize: '0.75rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+                                onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                            >
+                                ⇄ Switch Country
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -101,7 +130,7 @@ function Login({ onLogin }) {
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style={{ marginRight: '6px', verticalAlign: 'text-bottom' }}>
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                             </svg>
-                            Forgot your password? Contact your system administrator at <a href="mailto:ict@health.gov.pg">ict@health.gov.pg</a>
+                            Forgot your password? Contact your system administrator at <a href={`mailto:${config.contactEmail}`}>{config.contactEmail}</a>
                         </p>
                     </div>
                 </form>

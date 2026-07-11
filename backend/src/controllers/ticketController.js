@@ -190,13 +190,10 @@ exports.createTicket = async (req, res) => {
         const refreshedTicketRes = await db.query('SELECT * FROM tickets WHERE ticket_id = $1', [newTicketId]);
         const newTicket = refreshedTicketRes.rows[0];
 
-        // Send notifications to relevant users
-        try {
-            await notifyTicketCreation(req.app, newTicket, facilityId);
-        } catch (notifError) {
-            console.error('Error sending notifications:', notifError);
-            // Don't fail ticket creation if notifications fail
-        }
+        // Send notifications in the background (non-blocking)
+        notifyTicketCreation(req.app, newTicket, facilityId).catch(notifError => {
+            console.error('Background notification error:', notifError);
+        });
 
         // Audit Log
         await logAudit(
@@ -220,126 +217,64 @@ exports.createTicket = async (req, res) => {
 async function notifyTicketCreation(app, ticket, facilityId) {
     const { sendNotification } = require('../services/notificationService');
 
-    // Get facility location information
-    const facilityQuery = await db.query(`
-        SELECT facility_name, region, province, district 
-        FROM facilities 
-        WHERE facility_id = $1
-    `, [facilityId]);
+    try {
+        // Get facility location information
+        const facilityQuery = await db.query(`
+            SELECT facility_name, region, province, district 
+            FROM facilities 
+            WHERE facility_id = $1
+        `, [facilityId]);
 
-    if (facilityQuery.rows.length === 0) return;
+        if (facilityQuery.rows.length === 0) return;
 
-    const facility = facilityQuery.rows[0];
-    const ticketUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/tickets/${ticket.ticket_id}`;
+        const facility = facilityQuery.rows[0];
+        const ticketUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/tickets/${ticket.ticket_id}`;
 
-    // 1. Get National Helpdesk Officers
-    const nationalHelpdeskQuery = await db.query(`
-        SELECT DISTINCT u.user_id, u.email, u.phone, u.full_name
-        FROM users u
-        INNER JOIN roles r ON u.role_id = r.role_id
-        WHERE r.role_name = 'National Helpdesk Officer'
-        AND u.is_active = true
-    `);
+        // 1. Fetch all users who need notification in parallel
+        const [nationalQuery, regionalQuery, provincialQuery, adminQuery] = await Promise.all([
+            db.query(`SELECT u.user_id, u.email, u.phone FROM users u INNER JOIN roles r ON u.role_id = r.role_id WHERE r.role_name = 'National Helpdesk Officer' AND u.is_active = true`),
+            db.query(`SELECT u.user_id, u.email, u.phone FROM users u INNER JOIN roles r ON u.role_id = r.role_id INNER JOIN user_location_scope uls ON u.user_id = uls.user_id WHERE r.role_name = 'Regional Manager' AND u.is_active = true AND (uls.region = $1 OR uls.scope_level = 'national')`, [facility.region]),
+            db.query(`SELECT u.user_id, u.email, u.phone FROM users u INNER JOIN roles r ON u.role_id = r.role_id INNER JOIN user_location_scope uls ON u.user_id = uls.user_id WHERE r.role_name = 'Provincial Manager' AND u.is_active = true AND (uls.province = $1 OR uls.region = $2 OR uls.scope_level = 'national')`, [facility.province, facility.region]),
+            db.query(`SELECT u.user_id, u.email, u.phone FROM users u INNER JOIN roles r ON u.role_id = r.role_id WHERE r.role_name = 'Administrator' AND u.is_active = true`)
+        ]);
 
-    // 2. Get Regional Managers for this region
-    const regionalManagersQuery = await db.query(`
-        SELECT DISTINCT u.user_id, u.email, u.phone, u.full_name
-        FROM users u
-        INNER JOIN roles r ON u.role_id = r.role_id
-        INNER JOIN user_location_scope uls ON u.user_id = uls.user_id
-        WHERE r.role_name = 'Regional Manager'
-        AND u.is_active = true
-        AND (uls.region = $1 OR uls.scope_level = 'national')
-    `, [facility.region]);
+        const message = `New ${ticket.priority} priority ticket (#${ticket.ticket_id}) created at ${facility.facility_name} (${facility.province}, ${facility.region}).`;
+        const emailSubject = `New Ticket #${ticket.ticket_id} - ${facility.facility_name}`;
+        const emailHtml = `<h2>New Ticket Created</h2><p><strong>Ticket #:</strong> ${ticket.ticket_id}</p><p><strong>Priority:</strong> ${ticket.priority}</p><p><strong>Facility:</strong> ${facility.facility_name}</p><p><a href="${ticketUrl}" style="background: #003087; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Assign Technician</a></p>`;
 
-    // 3. Get Provincial Managers for this province
-    const provincialManagersQuery = await db.query(`
-        SELECT DISTINCT u.user_id, u.email, u.phone, u.full_name
-        FROM users u
-        INNER JOIN roles r ON u.role_id = r.role_id
-        INNER JOIN user_location_scope uls ON u.user_id = uls.user_id
-        WHERE r.role_name = 'Provincial Manager'
-        AND u.is_active = true
-        AND (uls.province = $1 OR uls.region = $2 OR uls.scope_level = 'national')
-    `, [facility.province, facility.region]);
+        const notificationPromises = [];
 
-    // 4. Get Administrators (in-app only)
-    const administratorsQuery = await db.query(`
-        SELECT DISTINCT u.user_id, u.email, u.phone, u.full_name
-        FROM users u
-        INNER JOIN roles r ON u.role_id = r.role_id
-        WHERE r.role_name = 'Administrator'
-        AND u.is_active = true
-    `);
-
-    // Prepare notification message
-    const message = `New ${ticket.priority} priority ticket (#${ticket.ticket_id}) created at ${facility.facility_name} (${facility.province}, ${facility.region}). Click to assign a technician.`;
-    const emailSubject = `New Ticket #${ticket.ticket_id} - ${facility.facility_name}`;
-    const emailHtml = `
-        <h2>New Ticket Created</h2>
-        <p><strong>Ticket #:</strong> ${ticket.ticket_id}</p>
-        <p><strong>Priority:</strong> ${ticket.priority}</p>
-        <p><strong>Facility:</strong> ${facility.facility_name}</p>
-        <p><strong>Location:</strong> ${facility.district}, ${facility.province}, ${facility.region}</p>
-        <p><strong>Description:</strong> ${ticket.fault_description}</p>
-        <p><a href="${ticketUrl}" style="background: #003087; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 15px;">Assign Technician</a></p>
-    `;
-
-    // Send to National Helpdesk Officers (all channels)
-    for (const user of nationalHelpdeskQuery.rows) {
-        await sendNotification(app, {
-            userId: user.user_id,
-            ticketId: ticket.ticket_id,
-            type: 'ticket_created',
-            message,
-            email: user.email,
-            phone: user.phone,
-            emailSubject,
-            emailHtml
+        // National, Regional, Provincial (Full Notifications)
+        [...nationalQuery.rows, ...regionalQuery.rows, ...provincialQuery.rows].forEach(user => {
+            notificationPromises.push(sendNotification(app, {
+                userId: user.user_id,
+                ticketId: ticket.ticket_id,
+                type: 'ticket_created',
+                message,
+                email: user.email,
+                phone: user.phone,
+                emailSubject,
+                emailHtml
+            }));
         });
-    }
 
-    // Send to Regional Managers (all channels)
-    for (const user of regionalManagersQuery.rows) {
-        await sendNotification(app, {
-            userId: user.user_id,
-            ticketId: ticket.ticket_id,
-            type: 'ticket_created',
-            message,
-            email: user.email,
-            phone: user.phone,
-            emailSubject,
-            emailHtml
+        // Administrators (In-app only)
+        adminQuery.rows.forEach(user => {
+            notificationPromises.push(sendNotification(app, {
+                userId: user.user_id,
+                ticketId: ticket.ticket_id,
+                type: 'ticket_created',
+                message: `New ticket #${ticket.ticket_id} created at ${facility.facility_name}.`,
+                email: null,
+                phone: null
+            }));
         });
-    }
 
-    // Send to Provincial Managers (all channels)
-    for (const user of provincialManagersQuery.rows) {
-        await sendNotification(app, {
-            userId: user.user_id,
-            ticketId: ticket.ticket_id,
-            type: 'ticket_created',
-            message,
-            email: user.email,
-            phone: user.phone,
-            emailSubject,
-            emailHtml
-        });
+        await Promise.all(notificationPromises);
+        console.log(`✅ All ${notificationPromises.length} notifications sent for ticket #${ticket.ticket_id}`);
+    } catch (error) {
+        console.error('Error in background notification task:', error);
     }
-
-    // Send to Administrators (in-app only - no email/SMS/WhatsApp)
-    for (const user of administratorsQuery.rows) {
-        await sendNotification(app, {
-            userId: user.user_id,
-            ticketId: ticket.ticket_id,
-            type: 'ticket_created',
-            message: `New ticket #${ticket.ticket_id} created at ${facility.facility_name}.`,
-            email: null, // No email for admins
-            phone: null  // No SMS/WhatsApp for admins
-        });
-    }
-
-    console.log(`✅ Notifications sent for ticket #${ticket.ticket_id}`);
 }
 
 
@@ -653,13 +588,12 @@ exports.escalateTicket = async (req, res) => {
         const result = await db.query(`
             INSERT INTO ticket_escalations (
                 ticket_id,
-                escalated_by,
+                from_user_id,
                 reason,
-                description,
                 status
-            ) VALUES ($1, $2, $3, $4, 'Pending')
+            ) VALUES ($1, $2, $3, 'pending')
             RETURNING *
-        `, [id, userId, reason, description]);
+        `, [id, userId, reason]);
 
         // Update ticket status if needed
         await db.query(`
@@ -923,13 +857,13 @@ exports.getTicketHistory = async (req, res) => {
         const escalationsRes = await db.query(`
             SELECT e.*, u.first_name, u.last_name
             FROM ticket_escalations e
-            LEFT JOIN users u ON e.escalated_by = u.user_id
+            LEFT JOIN users u ON e.from_user_id = u.user_id
             WHERE e.ticket_id = $1
         `, [id]);
         escalationsRes.rows.forEach(e => {
             events.push({
                 type: 'escalated',
-                timestamp: e.created_at,
+                timestamp: e.escalation_date || e.created_at,
                 user: `${e.first_name} ${e.last_name}`,
                 details: `Escalated: ${e.reason}`
             });
@@ -1016,13 +950,43 @@ exports.getTicketHistory = async (req, res) => {
     }
 };
 
-// Get tickets grouped by province and status for chart
+// Get tickets grouped by the top-level hierarchy (e.g., Province or Region) and status for chart
 exports.getTicketsByProvince = async (req, res) => {
     try {
-        // Ultra-safe simplified query that handles case sensitivity and nulls
-        const result = await db.query(`
+        const tenantCode = req.user?.tenant_code || 'png';
+        
+        // 1. Get the hierarchy from config
+        const configRes = await db.query('SELECT hierarchy FROM tenant_config WHERE tenant_code = $1', [tenantCode.toLowerCase()]);
+        
+        let topLevelId = 'province_id';
+        let topLevelNameField = 'province_name';
+        let topLevelLabel = 'Province';
+        let tableName = 'provinces';
+
+        if (configRes.rows.length > 0 && configRes.rows[0].hierarchy) {
+            const hierarchy = typeof configRes.rows[0].hierarchy === 'string' 
+                ? JSON.parse(configRes.rows[0].hierarchy) 
+                : configRes.rows[0].hierarchy;
+            
+            if (hierarchy && hierarchy.length > 0) {
+                const topLevel = hierarchy[0];
+                topLevelLabel = topLevel.name;
+                topLevelId = `${topLevel.id}_id`;
+                topLevelNameField = `${topLevel.id}_name`;
+                tableName = `${topLevel.id}s`; // Assuming plural table name convention
+                
+                // Special case for "region" as it often doesn't follow the plural 's' if already ending in n? 
+                // Actually 'regions', 'provinces', 'districts' all work.
+            }
+        }
+
+        // 2. Build dynamic query
+        // We fallback to hardcoded if table doesn't exist or other issues, 
+        // but for now let's try to be smart.
+        
+        const query = `
             SELECT 
-                COALESCE(p.province_name, 'Unknown Province') as province,
+                COALESCE(loc.${topLevelNameField}, 'Unknown ${topLevelLabel}') as location,
                 COUNT(CASE WHEN LOWER(t.ticket_status) IN ('open', 'new') THEN 1 END)::int as open,
                 COUNT(CASE WHEN LOWER(t.ticket_status) IN ('in_progress', 'assigned') THEN 1 END)::int as in_progress,
                 COUNT(CASE WHEN LOWER(t.ticket_status) = 'resolved' THEN 1 END)::int as resolved,
@@ -1030,19 +994,24 @@ exports.getTicketsByProvince = async (req, res) => {
                 COUNT(*)::int as total
             FROM tickets t
             LEFT JOIN facilities f ON t.facility_id = f.facility_id
-            LEFT JOIN provinces p ON f.province_id = p.province_id
-            GROUP BY p.province_name
+            LEFT JOIN ${tableName} loc ON f.${topLevelId} = loc.${topLevelId}
+            GROUP BY loc.${topLevelNameField}
             ORDER BY total DESC
             LIMIT 15
-        `);
+        `;
+
+        const result = await db.query(query);
 
         res.json({
             success: true,
-            data: result.rows
+            data: result.rows.map(row => ({
+                ...row,
+                province: row.location // Keep 'province' key for frontend compatibility
+            }))
         });
 
     } catch (error) {
-        console.error('Error fetching tickets by province:', error.message);
+        console.error('Error fetching tickets by hierarchy:', error.message);
         res.status(500).json({
             success: false,
             message: 'Failed to fetch ticket statistics'

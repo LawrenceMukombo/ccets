@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, LayersControl, useMap, ScaleControl } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, LayersControl, useMap, ScaleControl, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-measure/dist/leaflet-measure.css';
@@ -10,6 +10,9 @@ import LocationFilter from '../components/LocationFilter';
 import FacilityPopupContent from '../components/FacilityPopupContent';
 import MapLegend from '../components/MapLegend';
 import DistanceMeasurementTool from '../components/DistanceMeasurementTool';
+import MapBoundsFitter from '../components/MapBoundsFitter';
+import { useTenant } from '../context/TenantContext';
+import { getEffectiveStatus } from '../utils/statusUtils';
 
 // Fix Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -18,6 +21,11 @@ L.Icon.Default.mergeOptions({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+const normalizeString = (str) => {
+    if (!str) return '';
+    return str.toLowerCase().replace(/[-\s]/g, '');
+};
 
 // Measurement control component
 function MeasureControl() {
@@ -119,20 +127,21 @@ function FullscreenControl() {
     return null;
 }
 
-// Reset view control (return to PNG center)
+// Reset view control (return to default center)
 function ResetViewControl() {
     const map = useMap();
+    const { tenantCode, config } = useTenant();
 
     useEffect(() => {
         const resetButton = L.control({ position: 'topleft' });
 
         resetButton.onAdd = function () {
             const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-            div.innerHTML = `<a href="#" title="Reset to PNG view" class="reset-button" style="width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:16px;">🏠</a>`;
+            div.innerHTML = `<a href="#" title="Reset to default view" class="reset-button" style="width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:16px;">🏠</a>`;
 
             div.onclick = function (e) {
                 e.preventDefault();
-                map.setView([-6.314993, 143.95555], 8);
+                map.setView(config?.mapCenter || [0,0], config?.mapZoom || 8);
             };
 
             return div;
@@ -148,13 +157,27 @@ function ResetViewControl() {
     return null;
 }
 
+function RecenterMap({ center, zoom }) {
+    const map = useMap();
+    useEffect(() => {
+        if (center) {
+            map.setView(center, zoom || 8);
+        }
+    }, [center, zoom, map]);
+    return null;
+}
+
 function Map({ tickets: propTickets }) {
     const [rawFacilities, setRawFacilities] = useState([]); // Store all facilities
     const [facilities, setFacilities] = useState([]); // Computed facilities to show
     const [tickets, setTickets] = useState([]);
     const [selectedFacility, setSelectedFacility] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [boundaries, setBoundaries] = useState({}); // Dynamic boundaries object { levelId: geojson }
+    // Initialize to false - fetchData sets it true when it runs
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [statusFilter, setStatusFilter] = useState(null); // New state for legend filtering
+    const { tenantCode, config, loading: tenantLoading } = useTenant();
 
     // Use the custom hook for location filtering
     const {
@@ -162,7 +185,11 @@ function Map({ tickets: propTickets }) {
         handleFilterChange,
         filteredData: locationFilteredFacilities,
         options
-    } = useLocationFilter(facilities);
+    } = useLocationFilter(facilities, {
+        regionField: 'region_name',
+        provinceField: 'province_name',
+        districtField: 'district_name'
+    });
 
     // Sync prop tickets to state if provided
     useEffect(() => {
@@ -172,8 +199,9 @@ function Map({ tickets: propTickets }) {
     }, [propTickets]);
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        // Only fetch when config is available (not still loading from TenantContext)
+        if (config && !tenantLoading) fetchData();
+    }, [config, tenantLoading]);
 
     const fetchData = async () => {
         try {
@@ -184,22 +212,53 @@ function Map({ tickets: propTickets }) {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
 
-            // Always fetch facilities. Only fetch tickets if not provided via props.
-            const promises = [fetch('/api/facilities', { headers })];
+            // Dynamic boundary fetching based on tenant hierarchy
+            const boundaryPromises = (config?.hierarchy || []).map(level => 
+                fetch(`/api/${tenantCode}/boundaries?level=${level.id}`, { headers })
+            );
+
+            const promises = [
+                fetch(`/api/${tenantCode}/facilities`, { headers }),
+                ...boundaryPromises
+            ];
             if (!propTickets) {
-                promises.push(fetch('/api/tickets', { headers }));
+                promises.push(fetch(`/api/${tenantCode}/tickets`, { headers }));
             }
 
             const results = await Promise.all(promises);
-            const facilitiesData = await results[0].json();
-            const facilitiesList = facilitiesData.facilities || facilitiesData || [];
-            setRawFacilities(facilitiesList);
+            
+            // Validate and parse facilities
+            const facilitiesRes = results[0];
+            if (facilitiesRes.ok) {
+                const facilitiesData = await facilitiesRes.json();
+                const facilitiesList = facilitiesData.facilities || (Array.isArray(facilitiesData) ? facilitiesData : []);
+                setRawFacilities(facilitiesList);
+            }
 
+            // Validate and parse boundaries
+            const boundaryResults = results.slice(1, 1 + (config?.hierarchy?.length || 0));
+            const newBoundaries = {};
+            for (let i = 0; i < boundaryResults.length; i++) {
+                const res = boundaryResults[i];
+                const levelId = config?.hierarchy?.[i]?.id;
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.type === 'FeatureCollection') {
+                        newBoundaries[levelId] = data;
+                    }
+                }
+            }
+            setBoundaries(newBoundaries);
+
+            // Validate and parse tickets
             let ticketsList = [];
             if (!propTickets) {
-                const ticketsData = await results[1].json();
-                ticketsList = ticketsData.tickets || ticketsData || [];
-                setTickets(ticketsList);
+                const ticketsRes = results[1 + (config?.hierarchy?.length || 0)];
+                if (ticketsRes && ticketsRes.ok) {
+                    const ticketsData = await ticketsRes.json();
+                    ticketsList = ticketsData.tickets || (Array.isArray(ticketsData) ? ticketsData : []);
+                    setTickets(ticketsList);
+                }
             } else {
                 ticketsList = propTickets;
             }
@@ -220,11 +279,10 @@ function Map({ tickets: propTickets }) {
         // Get unique facility IDs from current tickets
         const facilitiesWithTickets = new Set(tickets.map(t => t.facility_id));
 
-        // Filter to only facilities that have tickets AND have coordinates
-        const filtered = rawFacilities.filter(f => {
-            const hasTickets = facilitiesWithTickets.has(f.facility_id);
+        // Filter to only facilities that have coordinates
+        const filtered = (Array.isArray(rawFacilities) ? rawFacilities : []).filter(f => {
             const hasCoords = (f.latitude && f.longitude) || (f.lat && f.lng) || f.gps_coordinates;
-            return hasTickets && hasCoords;
+            return hasCoords;
         });
 
         setFacilities(filtered);
@@ -234,11 +292,30 @@ function Map({ tickets: propTickets }) {
     // All facilities already filtered to have tickets AND coords
     const filteredFacilities = locationFilteredFacilities;
 
-    // Helper for status logic (Shared with Dashboard)
-    const getEffectiveStatus = (ticket) => {
-        const s = ticket.status || ticket.ticket_status;
-        return s === 'Pending Assignment' ? 'New' : s;
-    };
+    // Calculate status counts for the legend
+    const statusCounts = useMemo(() => {
+        const counts = { 'Escalated': 0, 'New': 0, 'Assigned': 0, 'In Progress': 0, 'On Hold': 0, 'Resolved': 0, 'Closed': 0, 'No Tickets': 0 };
+        
+        filteredFacilities.forEach(fac => {
+            const facTickets = tickets.filter(t => String(t.facility_id) === String(fac.facility_id));
+            if (facTickets.length === 0) {
+                counts['No Tickets']++;
+            } else {
+                const openTickets = facTickets.filter(t => !['Resolved', 'Closed'].includes(getEffectiveStatus(t)));
+                if (openTickets.length === 0) {
+                    counts['Resolved']++;
+                } else {
+                    const statuses = openTickets.map(t => getEffectiveStatus(t));
+                    if (statuses.includes('Escalated')) counts['Escalated']++;
+                    else if (statuses.includes('On Hold')) counts['On Hold']++;
+                    else if (statuses.includes('In Progress')) counts['In Progress']++;
+                    else if (statuses.includes('Assigned')) counts['Assigned']++;
+                    else counts['New']++;
+                }
+            }
+        });
+        return counts;
+    }, [filteredFacilities, tickets]);
 
     // Generate map markers from facilities with coordinates
     const mapMarkers = useMemo(() => {
@@ -319,6 +396,28 @@ function Map({ tickets: propTickets }) {
                 // Find tickets for this facility
                 const facilityTickets = tickets.filter(t => String(t.facility_id) === String(facility.facility_id));
                 const style = getMarkerParams(facilityTickets);
+
+                // CROSS-FILTER: If a status filter is active, only show markers that match that status
+                if (statusFilter) {
+                    // Map the dominant status to the filter name
+                    let dominantStatus = 'No Tickets';
+                    if (facilityTickets.length > 0) {
+                        const openTickets = facilityTickets.filter(t => !['Resolved', 'Closed'].includes(getEffectiveStatus(t)));
+                        if (openTickets.length === 0) {
+                            dominantStatus = 'Resolved'; // Or 'Closed', but the legend uses Resolved for green
+                        } else {
+                            const statuses = openTickets.map(t => getEffectiveStatus(t));
+                            if (statuses.includes('Escalated')) dominantStatus = 'Escalated';
+                            else if (statuses.includes('On Hold')) dominantStatus = 'On Hold';
+                            else if (statuses.includes('In Progress')) dominantStatus = 'In Progress';
+                            else if (statuses.includes('Assigned')) dominantStatus = 'Assigned';
+                            else if (statuses.includes('New')) dominantStatus = 'New';
+                        }
+                    }
+
+                    if (statusFilter !== dominantStatus) return;
+                }
+
                 const icon = createHealthIcon(style.fillColor);
 
                 markers.push(
@@ -339,14 +438,25 @@ function Map({ tickets: propTickets }) {
         });
 
         return markers;
-    }, [filteredFacilities, tickets]);
+    }, [filteredFacilities, tickets, statusFilter]);
 
-    if (loading) {
+    if (loading || tenantLoading) {
         return (
             <div className="map-container">
                 <div className="loading-spinner">
                     <div className="spinner"></div>
                     <p>Loading map...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Don't render map if config is missing (shouldn't happen, but guard anyway)
+    if (!config || !config.mapCenter) {
+        return (
+            <div className="map-container">
+                <div className="loading-spinner">
+                    <p>⚠️ Map configuration not available. Please check your system settings.</p>
                 </div>
             </div>
         );
@@ -358,7 +468,27 @@ function Map({ tickets: propTickets }) {
             <div className="map-header-modern">
                 <div className="header-title">
                     <h1>Facility Map</h1>
-                    <span className="facility-count-badge">{filteredFacilities.length} facilities with tickets</span>
+                    <div className="stats-badges-container">
+                        <div className="stats-badge">
+                            <span className="stats-label">Facilities</span>
+                            <span className="stats-value">{filteredFacilities.length}</span>
+                        </div>
+                        <div className="stats-badge secondary">
+                            <span className="stats-label">Selected Tickets</span>
+                            <span className="stats-value">
+                                {statusFilter 
+                                    ? tickets.filter(t => getEffectiveStatus(t) === statusFilter).length 
+                                    : tickets.length
+                                }
+                            </span>
+                        </div>
+                        {statusFilter && (
+                            <div className="stats-badge accent">
+                                <span className="stats-label">Status Filter</span>
+                                <span className="stats-value">{statusFilter}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -386,13 +516,14 @@ function Map({ tickets: propTickets }) {
             {/* Full width map */}
             <div className="map-area-fullwidth" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <MapContainer
-                    center={[-6.314993, 143.95555]}
-                    zoom={8}
+                    center={config.mapCenter}
+                    zoom={config.mapZoom || 8}
                     style={{ height: '100%', width: '100%', flex: 1, minHeight: 0 }}
                     zoomControl={true}
                     attributionControl={true}
                 >
-                    <LayersControl position="topright">
+                        <RecenterMap center={config.mapCenter} zoom={config.mapZoom} />
+                        <LayersControl position="topright">
                         <LayersControl.BaseLayer checked name="OpenStreetMap">
                             <TileLayer
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -411,6 +542,75 @@ function Map({ tickets: propTickets }) {
                                 attribution='&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors'
                             />
                         </LayersControl.BaseLayer>
+
+                        {/* Dynamic Boundary Layers */}
+                        {(config?.hierarchy || []).map((level, index) => {
+                            const data = boundaries[level.id];
+                            if (!data) return null;
+
+                            return (
+                                <LayersControl.Overlay checked key={level.id} name={level.name}>
+                                    <GeoJSON
+                                        key={`bound-${level.id}-${JSON.stringify(locationFilters)}`}
+                                        data={data}
+                                        filter={(feature) => {
+                                            const props = feature.properties || {};
+                                            
+                                            // 1. If a specific child level is selected, only show that specific shape
+                                            // Find if any filter matches this level or lower levels
+                                            const currentFilterValue = locationFilters[level.id];
+                                            const lowerLevels = config?.hierarchy?.slice(index + 1) || [];
+                                            const isLowerLevelSelected = lowerLevels.some(l => locationFilters[l.id] && locationFilters[l.id] !== 'all');
+
+                                            if (isLowerLevelSelected) return false;
+
+                                            if (currentFilterValue && currentFilterValue !== 'all') {
+                                                const normalizedTarget = normalizeString(currentFilterValue);
+                                                // Check for name in standard properties
+                                                const possibleNames = [props.name, props.NAME, props.NAME_1, props.NAME_2, props.PROVINCE, props.DISTRICT, props.ADM1_EN, props.ADM2_EN, props.adm1_name, props.adm2_name];
+                                                return possibleNames.some(name => name && normalizeString(name) === normalizedTarget);
+                                            }
+
+                                            // 2. If a parent level is selected, only show children belonging to that parent
+                                            const parentLevel = index > 0 ? config?.hierarchy?.[index - 1] : null;
+                                            if (parentLevel) {
+                                                const parentFilterValue = locationFilters[parentLevel.id];
+                                                if (parentFilterValue && parentFilterValue !== 'all') {
+                                                    const normalizedTarget = normalizeString(parentFilterValue);
+                                                    const possibleParentNames = [props.parent, props.province, props.region, props.NAME_1, props.PROVINCE, props.ADM1_EN, props.adm1_name];
+                                                    return possibleParentNames.some(name => name && normalizeString(name) === normalizedTarget);
+                                                }
+                                            }
+
+                                            // 3. Default: only show top level if nothing selected
+                                            return index === 0;
+                                        }}
+                                        style={(feature) => {
+                                            const isSelected = locationFilters[level.id] && locationFilters[level.id] !== 'all';
+                                            return {
+                                                color: level.color || '#475569',
+                                                weight: isSelected ? 3 : 2,
+                                                opacity: 0.8,
+                                                fillColor: level.color || '#475569',
+                                                fillOpacity: isSelected ? 0.15 : 0.05,
+                                                dashArray: index > 0 ? '3, 5' : ''
+                                            };
+                                        }}
+                                        onEachFeature={(feature, layer) => {
+                                            const props = feature.properties || {};
+                                            const name = props.name || props.NAME || props.NAME_1 || props.NAME_2 || props.PROVINCE || props.DISTRICT || props.ADM1_EN || props.ADM2_EN || props.adm1_name || props.adm2_name;
+                                            if (name) {
+                                                layer.bindTooltip(name, { 
+                                                    permanent: true, 
+                                                    direction: "center", 
+                                                    className: `${level.id}-label-tooltip` 
+                                                });
+                                            }
+                                        }}
+                                    />
+                                </LayersControl.Overlay>
+                            );
+                        })}
                     </LayersControl>
 
                     {/* Map Controls */}
@@ -419,11 +619,26 @@ function Map({ tickets: propTickets }) {
                     <LocateControl />
                     <FullscreenControl />
                     <ResetViewControl />
+                    <MapBoundsFitter 
+                        filters={locationFilters} 
+                        boundaries={boundaries}
+                        hierarchy={config?.hierarchy}
+                        defaultCenter={config?.mapCenter}
+                        defaultZoom={config?.mapZoom || 8}
+                    />
 
                     {mapMarkers}
-                </MapContainer>
+                    </MapContainer>
 
-                <MapLegend />
+                {/* Legend */}
+                <MapLegend 
+                    activeStatus={statusFilter} 
+                    onToggleStatus={setStatusFilter} 
+                    counts={statusCounts}
+                    hierarchy={config?.hierarchy}
+                />
+
+                {/* Measure Control Logic */}
 
                 {/* Facility Detail Panel */}
                 {selectedFacility && (

@@ -1,13 +1,14 @@
 .welcome-banner {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    padding: 12px 24px;
+    background: var(--primary-gradient);
+    padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: white;
     border-radius: 0;
-    margin: 20px 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .welcome-content {
@@ -46,7 +47,7 @@
 
 .welcome-text {
     font-size: 16px;
-    color: rgba(255, 255, 255, 0.95);
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -54,18 +55,18 @@
 
 .welcome-text strong {
     font-weight: 600;
-    color: white;
+    color: #ffffff;
 }
 
 .user-role {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.75);
+    color: #ffffff;
     font-weight: 400;
 }
 
 .user-location {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.7);
+    color: #ffffff;
     font-weight: 400;
 }
 
@@ -74,7 +75,7 @@
     align-items: center;
     gap: 6px;
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff;
 }
 
 .welcome-datetime {

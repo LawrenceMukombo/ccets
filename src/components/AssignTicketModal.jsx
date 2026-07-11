@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 
 const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, onAssign }) => {
+    const { tenantCode } = useTenant();
     const [technicians, setTechnicians] = useState([]);
     const [selectedTechnician, setSelectedTechnician] = useState('');
     const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, onAssign }) => 
     const fetchTechnicians = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/users?role=technician', {
+            const response = await fetch(`/api/${tenantCode}/users?role=technician`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -62,7 +64,7 @@ const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, onAssign }) => 
             // Loop through all targets
             // In a better implementation, use a bulk API endpoint
             const promises = targets.map(id =>
-                fetch(`/api/tickets/${id}/assign`, {
+                fetch(`/api/${tenantCode}/tickets/${id}/assign`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

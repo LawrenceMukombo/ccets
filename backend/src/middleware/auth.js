@@ -9,6 +9,12 @@ module.exports = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Assert token tenant matches URL tenant
+        if (req.tenant && decoded.tenant_code !== req.tenant.code) {
+            return res.status(403).json({ message: 'Cross-tenant token reuse is forbidden' });
+        }
+        
         req.user = decoded;
         next();
     } catch (err) {

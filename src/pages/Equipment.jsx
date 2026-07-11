@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Equipment.css';
 import { useLocationFilter } from '../hooks/useLocationFilter';
 import LocationFilter from '../components/LocationFilter';
@@ -6,6 +7,7 @@ import EquipmentDetailsModal from '../components/EquipmentDetailsModal';
 import ReportFaultModal from '../components/ReportFaultModal';
 
 function Equipment() {
+    const { tenantCode, config } = useTenant();
     const [equipment, setEquipment] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,6 +16,12 @@ function Equipment() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const [selectedEquipmentForReport, setSelectedEquipmentForReport] = useState(null);
+
+    // Dynamic Hierarchy
+    const hierarchy = config?.hierarchy || [
+        { id: 'province', name: 'Province' },
+        { id: 'district', name: 'District' }
+    ];
 
     // Pagination state
     const [page, setPage] = useState(1);
@@ -28,7 +36,10 @@ function Equipment() {
         handleFilterChange: handleLocationFilterChange,
         filteredData: locationFilteredEquipment,
         options
-    } = useLocationFilter(equipment);
+    } = useLocationFilter(equipment, {
+        hierarchy: hierarchy,
+        facilityField: 'facility_name'
+    });
 
     useEffect(() => {
         fetchEquipment();
@@ -44,7 +55,7 @@ function Equipment() {
             };
 
             // Fetch ALL equipment data (no pagination on backend)
-            const response = await fetch(`/api/equipment?limit=10000`, { headers });
+            const response = await fetch(`/api/${tenantCode}/equipment?limit=10000`, { headers });
             const data = await response.json();
 
             console.log('API Response:', { status: response.status, data });
@@ -324,7 +335,7 @@ function Equipment() {
                                             <div className="facility-name-cell">
                                                 {item.facility_name || 'Unnamed Facility'}
                                                 <span style={{ fontSize: '11px', display: 'block', color: '#64748b' }}>
-                                                    {item.province}, {item.district}
+                                                    {hierarchy.map(level => item[level.id]).filter(Boolean).join(', ')}
                                                 </span>
                                             </div>
                                         </td>

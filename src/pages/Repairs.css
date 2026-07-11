@@ -9,7 +9,7 @@
 }
 
 .repairs-header {
-    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
+    background: var(--header-gradient);
     padding: 16px 20px;
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -31,8 +31,9 @@
 }
 
 .header-subtitle {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    color: #ffffff;
+    margin: 0;
 }
 
 .create-button {

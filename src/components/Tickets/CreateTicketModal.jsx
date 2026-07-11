@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../../context/TenantContext';
 import './CreateTicketModal.css';
 
 const CreateTicketModal = ({ onClose, onSuccess }) => {
+    const { tenantCode, config } = useTenant();
     const [activeTab, setActiveTab] = useState('location'); // location, details, reporter
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // Dynamic Hierarchy levels from config
+    const hierarchy = config?.hierarchy || [
+        { id: 'province', name: 'Province' },
+        { id: 'district', name: 'District' }
+    ];
 
     // Data Sources
     const [regions, setRegions] = useState([]);
@@ -17,6 +25,9 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
     const [selectedRegion, setSelectedRegion] = useState('');
     const [selectedProvince, setSelectedProvince] = useState('');
     const [selectedDistrict, setSelectedDistrict] = useState('');
+
+    const hasLevel = (id) => hierarchy.some(h => h.id === id);
+    const getLevelName = (id) => hierarchy.find(h => h.id === id)?.name || id.charAt(0).toUpperCase() + id.slice(1);
 
     // Form Data
     const [formData, setFormData] = useState({
@@ -49,49 +60,67 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
 
     // --- Data Fetching ---
 
-    // Fetch Regions & Provinces on mount
+    // Fetch Regions on mount (if needed)
     useEffect(() => {
-        const fetchInit = async () => {
+        if (!hasLevel('region')) return;
+        const fetchRegions = async () => {
             try {
-                const [regRes, provRes] = await Promise.all([
-                    fetch('/api/facilities/regions', { headers: getAuthHeaders() }),
-                    fetch('/api/facilities/provinces', { headers: getAuthHeaders() })
-                ]);
-
-                if (regRes.ok) setRegions(await regRes.json());
-                if (provRes.ok) setProvinces(await provRes.json());
+                const res = await fetch(`/api/${tenantCode}/facilities/regions`, { headers: getAuthHeaders() });
+                if (res.ok) setRegions(await res.json());
             } catch (err) {
-                console.error("Error fetching initial data", err);
+                console.error("Error fetching regions", err);
             }
         };
-        fetchInit();
+        fetchRegions();
     }, []);
 
-    // Filter Provinces when selectedRegion changes? 
-    // Assuming backend returns all provinces and we filter client-side if needed, 
-    // OR we just show valid ones. 
-    // Let's assume we filter provinces by region_id if available.
-    const filteredProvinces = selectedRegion
-        ? provinces.filter(p => p.region_id === parseInt(selectedRegion))
+    // Fetch Provinces on mount (if needed) OR when Region changes
+    useEffect(() => {
+        if (!hasLevel('province')) return;
+        const fetchProvinces = async () => {
+            try {
+                const res = await fetch(`/api/${tenantCode}/facilities/provinces`, { headers: getAuthHeaders() });
+                if (res.ok) setProvinces(await res.json());
+            } catch (err) {
+                console.error("Error fetching provinces", err);
+            }
+        };
+        fetchProvinces();
+    }, []);
+
+    // Filter Provinces by selectedRegion (if region exists in hierarchy)
+    const filteredProvinces = hasLevel('region') && selectedRegion
+        ? provinces.filter(p => p.region_id && p.region_id.toString() === selectedRegion.toString())
         : provinces;
 
-    // Fetch Districts when Province changes
+    // Fetch Districts when parent changes
     useEffect(() => {
-        if (!selectedProvince) {
+        if (!hasLevel('district')) {
+            setDistricts([]);
+            return;
+        }
+
+        // Parent can be Province or Region
+        const parentId = hasLevel('province') ? selectedProvince : selectedRegion;
+
+        if (!parentId) {
             setDistricts([]);
             return;
         }
 
         const fetchDistricts = async () => {
             try {
-                const res = await fetch(`/api/facilities/districts/${selectedProvince}`, { headers: getAuthHeaders() });
+                // If the parent is a region, we might need a different endpoint or use the province id
+                // But usually the backend getDistricts expects a provinceId.
+                // In Malawi, we use region_id as province_id, so it works.
+                const res = await fetch(`/api/${tenantCode}/facilities/districts/${parentId}`, { headers: getAuthHeaders() });
                 if (res.ok) setDistricts(await res.json());
             } catch (err) {
                 console.error("Error fetching districts", err);
             }
         };
         fetchDistricts();
-    }, [selectedProvince]);
+    }, [selectedProvince, selectedRegion]);
 
     // Fetch Facilities when District changes
     useEffect(() => {
@@ -102,8 +131,7 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
 
         const fetchFacilities = async () => {
             try {
-                // Using the specific endpoint for filtered list
-                const res = await fetch(`/api/facilities/district/${selectedDistrict}`, { headers: getAuthHeaders() });
+                const res = await fetch(`/api/${tenantCode}/facilities/district/${selectedDistrict}`, { headers: getAuthHeaders() });
                 if (res.ok) setFacilities(await res.json());
             } catch (err) {
                 console.error("Error fetching facilities", err);
@@ -121,7 +149,7 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
 
         const fetchEquipment = async () => {
             try {
-                const res = await fetch(`/api/facilities/${formData.facilityId}/equipment`, { headers: getAuthHeaders() });
+                const res = await fetch(`/api/${tenantCode}/facilities/${formData.facilityId}/equipment`, { headers: getAuthHeaders() });
                 if (res.ok) setEquipmentList(await res.json());
             } catch (err) {
                 console.error("Error fetching equipment", err);
@@ -131,6 +159,9 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
     }, [formData.facilityId]);
 
     // --- Handlers ---
+    const nextTab = (tab) => {
+        setTimeout(() => setActiveTab(tab), 400);
+    };
 
     // Auto-populate when equipment is selected
     const handleEquipmentChange = (e) => {
@@ -149,18 +180,9 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
                     yearInstalled: eq.year_installed || '',
                     lastRepairDate: eq.last_repair_date || ''
                 }));
+                // Auto-move to next tab after equipment selection
+                nextTab('details');
             }
-        } else {
-            // Clear snapshot data
-            setFormData(prev => ({
-                ...prev,
-                manufacturer: '',
-                model: '',
-                serialNumber: '',
-                refrigerantGas: '',
-                yearInstalled: '',
-                lastRepairDate: ''
-            }));
         }
     };
 
@@ -185,7 +207,7 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/tickets', {
+            const res = await fetch(`/api/${tenantCode}/tickets`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -244,59 +266,65 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
                     {activeTab === 'location' && (
                         <div className="tab-pane fade-in">
                             <div className="form-group-row">
-                                <div className="form-group">
-                                    <label>Region</label>
-                                    <select
-                                        value={selectedRegion}
-                                        onChange={(e) => {
-                                            setSelectedRegion(e.target.value);
-                                            setSelectedProvince('');
-                                            setSelectedDistrict('');
-                                            setFormData(prev => ({ ...prev, facilityId: '', equipmentId: '' }));
-                                        }}
-                                    >
-                                        <option value="">Select Region</option>
-                                        {regions.map(r => (
-                                            <option key={r.region_id} value={r.region_id}>{r.region_name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label>Province</label>
-                                    <select
-                                        value={selectedProvince}
-                                        onChange={(e) => {
-                                            setSelectedProvince(e.target.value);
-                                            setSelectedDistrict('');
-                                            setFormData(prev => ({ ...prev, facilityId: '', equipmentId: '' }));
-                                        }}
-                                        disabled={!selectedRegion}
-                                    >
-                                        <option value="">Select Province</option>
-                                        {filteredProvinces.map(p => (
-                                            <option key={p.province_id} value={p.province_id}>{p.province_name}</option>
-                                        ))}
-                                    </select>
-                                </div>
+                                {hasLevel('region') && (
+                                    <div className="form-group">
+                                        <label>{getLevelName('region')}</label>
+                                        <select
+                                            value={selectedRegion}
+                                            onChange={(e) => {
+                                                setSelectedRegion(e.target.value);
+                                                setSelectedProvince('');
+                                                setSelectedDistrict('');
+                                                setFormData(prev => ({ ...prev, facilityId: '', equipmentId: '' }));
+                                            }}
+                                        >
+                                            <option value="">Select {getLevelName('region')}</option>
+                                            {regions.map(r => (
+                                                <option key={r.region_id} value={r.region_id}>{r.region_name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                                {hasLevel('province') && (
+                                    <div className="form-group">
+                                        <label>{getLevelName('province')}</label>
+                                        <select
+                                            value={selectedProvince}
+                                            onChange={(e) => {
+                                                setSelectedProvince(e.target.value);
+                                                setSelectedDistrict('');
+                                                setFormData(prev => ({ ...prev, facilityId: '', equipmentId: '' }));
+                                            }}
+                                            disabled={hasLevel('region') && !selectedRegion}
+                                        >
+                                            <option value="">Select {getLevelName('province')}</option>
+                                            {filteredProvinces.map(p => (
+                                                <option key={p.province_id} value={p.province_id}>{p.province_name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="form-group-row">
-                                <div className="form-group">
-                                    <label>District</label>
-                                    <select
-                                        value={selectedDistrict}
-                                        onChange={(e) => {
-                                            setSelectedDistrict(e.target.value);
-                                            setFormData(prev => ({ ...prev, facilityId: '', equipmentId: '' }));
-                                        }}
-                                        disabled={!selectedProvince}
-                                    >
-                                        <option value="">Select District</option>
-                                        {districts.map(d => (
-                                            <option key={d.district_id} value={d.district_id}>{d.district_name}</option>
-                                        ))}
-                                    </select>
-                                </div>
+                                {hasLevel('district') && (
+                                    <div className="form-group">
+                                        <label>{getLevelName('district')}</label>
+                                        <select
+                                            value={selectedDistrict}
+                                            onChange={(e) => {
+                                                setSelectedDistrict(e.target.value);
+                                                setFormData(prev => ({ ...prev, facilityId: '', equipmentId: '' }));
+                                            }}
+                                            disabled={(hasLevel('province') && !selectedProvince) || (hasLevel('region') && !hasLevel('province') && !selectedRegion)}
+                                        >
+                                            <option value="">Select {getLevelName('district')}</option>
+                                            {districts.map(d => (
+                                                <option key={d.district_id} value={d.district_id}>{d.district_name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                                 <div className="form-group">
                                     <label>Facility <span className="required">*</span></label>
                                     <select
@@ -308,7 +336,7 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
                                                 equipmentId: '' // reset equipment
                                             }));
                                         }}
-                                        disabled={!selectedDistrict}
+                                        disabled={hasLevel('district') && !selectedDistrict}
                                     >
                                         <option value="">Select Facility</option>
                                         {facilities.map(f => (
@@ -320,7 +348,10 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
 
                             <hr />
 
-                            <h3>Equipment Selection</h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h3>Equipment Selection</h3>
+                                <button className="tab-next-btn" onClick={() => setActiveTab('details')}>Skip to Details &rarr;</button>
+                            </div>
                             <div className="form-group">
                                 <label>Available Equipment</label>
                                 <select
@@ -374,11 +405,12 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
                                 </div>
                             </div>
 
-                            <div className="form-group">
+                             <div className="form-group">
                                 <label>Fault Description <span className="required">*</span></label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    onBlur={() => { if (formData.description.length > 10) nextTab('reporter'); }}
                                     placeholder="Describe the issue in detail..."
                                     rows="6"
                                 ></textarea>
@@ -404,7 +436,7 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
                                     type="text"
                                     value={formData.reportedByPhone}
                                     onChange={(e) => setFormData({ ...formData, reportedByPhone: e.target.value })}
-                                    placeholder="e.g. +675 1234 5678"
+                                    placeholder={(config?.country === 'Zambia' || config?.tenant_code?.toLowerCase() === 'zmb' || config?.name?.includes('Zambia')) ? 'e.g. +260 977 123456' : 'e.g. +675 7000 1234'}
                                 />
                             </div>
                             <div className="form-group">
@@ -422,9 +454,15 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
 
                 <div className="modal-footer">
                     <button className="cancel-btn" onClick={onClose} disabled={loading}>Cancel</button>
-                    <button className="save-btn" onClick={handleSubmit} disabled={loading}>
-                        {loading ? 'Creating...' : 'Create Ticket'}
-                    </button>
+                    {activeTab === 'reporter' ? (
+                        <button className="save-btn" onClick={handleSubmit} disabled={loading || !formData.facilityId || !formData.description}>
+                            {loading ? 'Creating...' : 'Create Ticket'}
+                        </button>
+                    ) : (
+                        <button className="next-footer-btn" onClick={() => setActiveTab(activeTab === 'location' ? 'details' : 'reporter')}>
+                            Next Step &rarr;
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

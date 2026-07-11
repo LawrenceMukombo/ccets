@@ -1,100 +1,102 @@
 import { useState, useMemo } from 'react';
 
 /**
- * Hook to manage cascading location filters (Region -> Province -> District -> Facility).
+ * Hook to manage cascading location filters with dynamic hierarchy support.
  * 
  * @param {Array} data - The dataset to filter.
- * @param {Object} config - specific field names for the dataset.
- * @param {string} config.regionField - Field name for region (default: 'region').
- * @param {string} config.provinceField - Field name for province (default: 'province').
- * @param {string} config.districtField - Field name for district (default: 'district').
- * @param {string} config.facilityField - Field name for facility (default: 'facility_name').
+ * @param {Object} config - configuration including hierarchy and field mapping.
  * @returns {Object} { filters, handleFilterChange, filteredData, options }
  */
 export function useLocationFilter(data = [], config = {}) {
     const {
-        regionField = 'region',
-        provinceField = 'province',
-        districtField = 'district',
+        hierarchy = [
+            { id: 'province', name: 'Province' },
+            { id: 'district', name: 'District' }
+        ],
         facilityField = 'facility_name'
     } = config;
 
-    const [filters, setFilters] = useState({
-        region: 'all',
-        province: 'all',
-        district: 'all',
-        facility: 'all'
-    });
+    // Helper to find the actual field in the data object
+    const getFieldForLevel = (item, levelId) => {
+        if (!item) return null;
+        if (levelId in item) return levelId;
+        if (levelId + '_name' in item) return levelId + '_name';
+        if (levelId + 'Name' in item) return levelId + 'Name';
+        return levelId;
+    };
+
+    const initialFilters = useMemo(() => {
+        const base = { facility: 'all' };
+        hierarchy.forEach(level => { base[level.id] = 'all'; });
+        return base;
+    }, [hierarchy]);
+
+    const [filters, setFilters] = useState(initialFilters);
 
     // Cascading Options Logic
     const options = useMemo(() => {
-        // Unique Regions
-        const regions = [...new Set(data.map(item => item[regionField]).filter(Boolean))].sort();
+        const results = {};
+        
+        hierarchy.forEach((level, index) => {
+            const levelId = level.id;
+            
+            // Filter data by all parent levels
+            let levelData = data;
+            for (let i = 0; i < index; i++) {
+                const parentLevel = hierarchy[i];
+                if (filters[parentLevel.id] !== 'all') {
+                    const parentField = getFieldForLevel(data[0], parentLevel.id);
+                    levelData = levelData.filter(item => item[parentField] === filters[parentLevel.id]);
+                }
+            }
+            
+            // Map field name for the level
+            const currentField = getFieldForLevel(data[0], levelId);
+            results[levelId + 's'] = [...new Set(levelData.map(item => item[currentField]).filter(Boolean))].sort();
+        });
 
-        // Unique Provinces (filtered by selected Region)
-        const provinces = [...new Set(data
-            .filter(item => filters.region === 'all' || item[regionField] === filters.region)
-            .map(item => item[provinceField])
-            .filter(Boolean)
-        )].sort();
+        // Facility Options
+        let facilityData = data;
+        hierarchy.forEach(level => {
+            if (filters[level.id] !== 'all') {
+                const field = getFieldForLevel(data[0], level.id);
+                facilityData = facilityData.filter(item => item[field] === filters[level.id]);
+            }
+        });
+        results.facilities = [...new Set(facilityData.map(item => item[facilityField]).filter(Boolean))].sort();
 
-        // Unique Districts (filtered by selected Region AND Province)
-        const districts = [...new Set(data
-            .filter(item =>
-                (filters.region === 'all' || item[regionField] === filters.region) &&
-                (filters.province === 'all' || item[provinceField] === filters.province)
-            )
-            .map(item => item[districtField])
-            .filter(Boolean)
-        )].sort();
-
-        // Unique Facilities (filtered by selected Region, Province, AND District)
-        const facilities = [...new Set(data
-            .filter(item =>
-                (filters.region === 'all' || item[regionField] === filters.region) &&
-                (filters.province === 'all' || item[provinceField] === filters.province) &&
-                (filters.district === 'all' || item[districtField] === filters.district)
-            )
-            .map(item => item[facilityField])
-            .filter(Boolean)
-        )].sort();
-
-        return { regions, provinces, districts, facilities };
-    }, [data, filters.region, filters.province, filters.district, regionField, provinceField, districtField, facilityField]);
+        return results;
+    }, [data, filters, hierarchy, facilityField]);
 
     // Filtered Data
     const filteredData = useMemo(() => {
+        if (!data || data.length === 0) return [];
+        
         return data.filter(item => {
-            if (filters.region !== 'all' && item[regionField] !== filters.region) return false;
-            if (filters.province !== 'all' && item[provinceField] !== filters.province) return false;
-            if (filters.district !== 'all' && item[districtField] !== filters.district) return false;
+            for (const level of hierarchy) {
+                if (filters[level.id] !== 'all') {
+                    const field = getFieldForLevel(item, level.id);
+                    if (item[field] !== filters[level.id]) return false;
+                }
+            }
             if (filters.facility !== 'all' && item[facilityField] !== filters.facility) return false;
             return true;
         });
-    }, [data, filters, regionField, provinceField, districtField, facilityField]);
+    }, [data, filters, hierarchy, facilityField]);
 
     // Handlers
     const handleFilterChange = (key, value) => {
         setFilters(prev => {
             const newFilters = { ...prev, [key]: value };
 
-            // Logic to reset child filters when parent changes
-            if (key === 'region') {
-                newFilters.province = 'all';
-                newFilters.district = 'all';
-                newFilters.facility = 'all';
-            } else if (key === 'province') {
-                newFilters.district = 'all';
-                newFilters.facility = 'all';
-
-                // Optional: Auto-select region if province belongs to only one region
-                if (value !== 'all') {
-                    const match = data.find(item => item[provinceField] === value);
-                    if (match && match[regionField]) {
-                        newFilters.region = match[regionField];
-                    }
+            // Find index of the changed level
+            const levelIndex = hierarchy.findIndex(l => l.id === key);
+            
+            // Reset all child levels if a parent changed
+            if (levelIndex !== -1) {
+                for (let i = levelIndex + 1; i < hierarchy.length; i++) {
+                    newFilters[hierarchy[i].id] = 'all';
                 }
-            } else if (key === 'district') {
                 newFilters.facility = 'all';
             }
 
@@ -103,17 +105,12 @@ export function useLocationFilter(data = [], config = {}) {
     };
 
     const clearFilters = () => {
-        setFilters({
-            region: 'all',
-            province: 'all',
-            district: 'all',
-            facility: 'all'
-        });
+        setFilters(initialFilters);
     };
 
     return {
         filters,
-        setFilters, // Exposed in case manual override is needed
+        setFilters,
         handleFilterChange,
         clearFilters,
         filteredData,

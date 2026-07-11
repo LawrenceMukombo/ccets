@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../../context/TenantContext';
 import './PermissionsTab.css';
 
 const PermissionsTab = () => {
+    const { tenantCode } = useTenant();
     const [matrixData, setMatrixData] = useState({ roles: [], permissions: [], matrix: {} });
     const [loading, setLoading] = useState(true);
     const [categoryFilter, setCategoryFilter] = useState('');
@@ -16,7 +18,7 @@ const PermissionsTab = () => {
     const fetchMatrix = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/permissions/matrix', {
+            const response = await fetch(`/api/${tenantCode}/permissions/matrix`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -32,7 +34,7 @@ const PermissionsTab = () => {
         setUpdating(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/permissions/roles/${roleId}/toggle/${permissionId}`, {
+            const response = await fetch(`/api/${tenantCode}/permissions/roles/${roleId}/toggle/${permissionId}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -208,6 +210,7 @@ const PermissionsTab = () => {
 
 // Create Permission Modal
 const CreatePermissionModal = ({ onClose, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [formData, setFormData] = useState({
         permission_name: '',
         description: '',
@@ -228,7 +231,7 @@ const CreatePermissionModal = ({ onClose, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/permissions', {
+            const response = await fetch(`/api/${tenantCode}/permissions`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

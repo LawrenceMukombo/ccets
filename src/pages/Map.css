@@ -15,9 +15,9 @@
 }
 
 .map-header-modern {
-    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
-    padding: 16px 24px;
-    border-bottom: 1px solid #e2e8f0;
+    background: var(--header-gradient);
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -41,6 +41,59 @@
     border-radius: 12px;
     font-size: 13px;
     font-weight: 600;
+}
+
+.stats-badges-container {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.stats-badge {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    min-width: 100px;
+    transition: all 0.2s ease;
+}
+
+.stats-badge:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.stats-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.stats-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.2;
+}
+
+.stats-badge.secondary {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.stats-badge.accent {
+    border-color: rgba(245, 158, 11, 0.5);
+    background: rgba(245, 158, 11, 0.15);
+}
+
+.stats-badge.accent .stats-label {
+    color: rgba(251, 191, 36, 1);
 }
 
 /* Filters bar right above map */
@@ -78,8 +131,8 @@
 
 
 .map-header {
-    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
-    padding: 24px 32px;
+    background: var(--header-gradient);
+    padding: 20px 24px;
     margin-bottom: 24px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
@@ -101,7 +154,7 @@
 
 .header-subtitle {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff;
     margin: 0;
 }
 
@@ -549,5 +602,115 @@
 
     .map-sidebar {
         max-height: 300px;
+    }
+}
+
+/* Boundary Tooltips */
+.leaflet-tooltip-pane .leaflet-tooltip {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+}
+
+/* Permanent Labels for Boundaries */
+.leaflet-tooltip-pane .province-label-tooltip,
+.leaflet-tooltip-pane .district-label-tooltip {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    font-weight: 800;
+    padding: 0;
+}
+
+.leaflet-tooltip-pane .province-label-tooltip {
+    color: #be123c;
+    text-shadow: 1px 1px 3px white, -1px -1px 3px white, 1px -1px 3px white, -1px 1px 3px white;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.leaflet-tooltip-pane .district-label-tooltip {
+    color: #0369a1;
+    text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white;
+    font-size: 11px;
+}
+
+/* Updated Legend */
+.map-legend-modern {
+    position: absolute;
+    bottom: 30px;
+    left: 20px;
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e2e8f0;
+    z-index: 1000;
+    min-width: 220px;
+}
+
+.map-legend-modern h4 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.legend-section {
+    margin-bottom: 12px;
+}
+
+.legend-section:last-child {
+    margin-bottom: 0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #475569;
+    font-weight: 500;
+}
+
+.legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.legend-line {
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* Marker Colors */
+.color-critical { background: #ef4444; }
+.color-warning { background: #f59e0b; }
+.color-ok { background: #10b981; }
+.color-none { background: #94a3b8; }
+
+/* Boundary Colors */
+.color-province { background: #be123c; opacity: 0.7; }
+.color-district { background: #0369a1; opacity: 0.5; }
+
+/* Existing Responsive queries... */
+@media (max-width: 768px) {
+    .map-legend-modern {
+        bottom: 80px;
+        left: 10px;
+        padding: 10px;
+        min-width: 160px;
     }
 }

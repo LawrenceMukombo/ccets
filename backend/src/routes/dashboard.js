@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const dashboardController = require('../controllers/dashboardController');
 const verifyToken = require('../middleware/auth');
 const { attachLocationScope } = require('../middleware/locationAccess');

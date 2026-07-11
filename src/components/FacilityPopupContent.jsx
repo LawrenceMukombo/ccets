@@ -1,12 +1,8 @@
 import React from 'react';
+import { getEffectiveStatus } from '../utils/statusUtils';
 
 const FacilityPopupContent = ({ facility, tickets }) => {
     const facilityTickets = tickets.filter(t => String(t.facility_id) === String(facility.facility_id));
-
-    const getEffectiveStatus = (ticket) => {
-        const s = ticket.status || ticket.ticket_status;
-        return s === 'Pending Assignment' ? 'New' : s;
-    };
 
     // Determine aggregate status
     const openTickets = facilityTickets.filter(t => {

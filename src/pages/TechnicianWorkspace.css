@@ -9,8 +9,8 @@
 .workspace-header-sticky {
     position: relative;
     /* Changed from sticky to relative for visibility */
-    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
-    border-bottom: 2px solid #e2e8f0;
+    background: var(--header-gradient);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
     padding: 24px;
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -19,13 +19,13 @@
 .workspace-header-content h1 {
     font-size: 28px;
     font-weight: 700;
-    color: #1e293b;
+    color: white;
     margin: 0 0 4px 0;
 }
 
 .header-subtitle {
     font-size: 14px;
-    color: #64748b;
+    color: #ffffff;
     margin: 0 0 24px 0;
 }
 
@@ -63,7 +63,7 @@
 }
 
 .tab-card.workspace-header {
-    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
+    background: var(--header-gradient);
     color: white;
     padding: 20px 24px;
     margin-bottom: 24px;
@@ -72,9 +72,9 @@
 }
 
 .tab-card.active {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    border-color: #2563eb;
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    background: var(--primary-gradient);
+    border-color: var(--primary-blue);
+    box-shadow: 0 8px 24px rgba(0, 48, 135, 0.4);
     transform: translateY(-3px);
 }
 

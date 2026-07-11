@@ -20,8 +20,12 @@ code {
 }
 
 :root {
-  --primary-blue: #0078D4;
-  --primary-blue-dark: #0063B1;
+  --primary-blue: #003087;
+  --primary-blue-dark: #001a4d;
+  --primary-blue-light: #002366;
+  --primary-gradient: linear-gradient(135deg, #003087 0%, #002366 50%, #001a4d 100%);
+  --header-gradient: linear-gradient(135deg, #003087 0%, #002366 100%);
+  --nav-bg: #003087;
   --accent-green: #10B981;
   --accent-orange: #F59E0B;
   --accent-red: #EF4444;
@@ -30,6 +34,9 @@ code {
   --bg-primary: #f5f5f5;
   --bg-white: #ffffff;
   --border-color: #e0e0e0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 #root {
@@ -55,15 +62,29 @@ body.dark {
   color: var(--text-primary);
 }
 
+/* Force White Font on Navigation Components */
+.nav-container *, 
+.top-navigation *,
+.nav-item,
+.nav-item span,
+.nav-item svg,
+.user-profile-info *,
+.logout-button,
+.nav-brand-section h1 {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  fill: #ffffff !important;
+  opacity: 1 !important;
+}
+
 body.dark .nav-container,
 body.dark .top-navigation {
-  background-color: var(--bg-white);
-  border-bottom-color: var(--border-color);
-  color: var(--text-primary);
+  background-color: #003087; /* Ensure premium blue in dark mode too for header */
+  border-bottom-color: rgba(255,255,255,0.1);
 }
 
 body.dark .nav-item {
-  color: var(--text-secondary);
+  color: white;
 }
 
 body.dark .nav-item:hover,
@@ -82,3 +103,30 @@ body.dark .modal-content {
   border-color: var(--border-color);
 }
 
+/* Global Header Overrides for White Headers */
+h1, h2, h3 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.top-navigation *,
+.header-section *,
+.dashboard-header *,
+.login-header *,
+.audit-header *,
+.um-header *,
+.nav-item,
+.nav-item *,
+.user-name,
+.user-role,
+.brand-text h1,
+.brand-text p {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+}

@@ -3,6 +3,7 @@ import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
     LineChart, Line, CartesianGrid, PieChart, Pie, Cell, Legend, AreaChart, Area
 } from 'recharts';
+import { useTenant } from '../context/TenantContext';
 import { STATUS_COLORS, SEMANTIC_COLORS } from '../constants/colors';
 import TicketDetailsModal from '../components/TicketDetailsModal';
 import Map from './Map';
@@ -22,6 +23,7 @@ const CHART_COLORS = [
 ];
 
 function Reports() {
+    const { tenantCode } = useTenant();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [dateRange, setDateRange] = useState('30');
@@ -102,7 +104,7 @@ function Reports() {
             const token = localStorage.getItem('token');
             const headers = { 'Authorization': `Bearer ${token}` };
 
-            const response = await fetch('/api/tickets', { headers });
+            const response = await fetch(`/api/${tenantCode}/tickets`, { headers });
             const data = await response.json();
             const tickets = data.tickets || [];
 

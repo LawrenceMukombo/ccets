@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Repairs.css';
 import GlobalFilter from '../components/GlobalFilter';
 import { useLocationFilter } from '../hooks/useLocationFilter';
@@ -10,6 +11,7 @@ import TicketDetailsModal from '../components/TicketDetailsModal';
 import EquipmentHistoryModal from '../components/EquipmentHistoryModal';
 
 function Repairs() {
+    const { tenantCode } = useTenant();
     const [repairs, setRepairs] = useState([]);
     const [filteredRepairs, setFilteredRepairs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ function Repairs() {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
 
-            const response = await fetch('/api/tickets', { headers });
+            const response = await fetch(`/api/${tenantCode}/tickets`, { headers });
 
             if (response.ok) {
                 const data = await response.json();

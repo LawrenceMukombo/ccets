@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const facilityController = require('../controllers/facilityController');
 const authMiddleware = require('../middleware/auth');
 const { attachLocationScope } = require('../middleware/locationAccess');

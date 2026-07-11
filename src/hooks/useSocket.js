@@ -9,6 +9,9 @@ export const useSocket = (userId) => {
     useEffect(() => {
         if (!userId) return;
 
+        // Get tenant from localStorage
+        const tenantCode = localStorage.getItem('tenantCode');
+
         // Connect to the server defined in proxy or absolute URL
         // Using "" connects to window.location.host, which is proxied by Vite
         socketRef.current = io('', {
@@ -20,7 +23,12 @@ export const useSocket = (userId) => {
 
         socket.on('connect', () => {
             console.log('Connected to socket server');
-            socket.emit('join_user', userId);
+            // If we have a tenant, scope the room
+            if (tenantCode) {
+                socket.emit('join_user', `${tenantCode}_${userId}`);
+            } else {
+                socket.emit('join_user', userId);
+            }
         });
 
         socket.on('notification', (notification) => {

@@ -5,10 +5,22 @@
 }
 
 .notifications-header {
+    background: var(--header-gradient);
+    border-radius: 12px;
+    padding: 24px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    color: #ffffff;
+}
+
+.notifications-header h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
 }
 
 .notifications-tabs {
@@ -68,6 +80,8 @@
 .notification-content {
     flex: 1;
 }
+
+
 
 .notification-time {
     font-size: 12px;

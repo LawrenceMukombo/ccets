@@ -9,11 +9,10 @@
 }
 
 .reports-header {
-    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
+    background: var(--header-gradient);
     color: white;
     padding: 24px 32px;
-    /* No margin-bottom here to allow sticky */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .sticky-header-shadow {
@@ -343,7 +342,7 @@
 }
 
 .header-subtitle {
-    color: #94a3b8;
+    color: #ffffff;
     margin: 0;
 }
 

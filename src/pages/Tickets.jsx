@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Tickets.css';
 import '../components/TicketActionsDropdown.css';
 import { useLocationFilter } from '../hooks/useLocationFilter';
@@ -12,10 +13,17 @@ import EditTicketModal from '../components/EditTicketModal';
 import EscalateTicketModal from '../components/EscalateTicketModal';
 
 function Tickets() {
+    const { tenantCode, config } = useTenant();
     const [tickets, setTickets] = useState([]);
     const [filteredTickets, setFilteredTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Dynamic Hierarchy
+    const hierarchy = config?.hierarchy || [
+        { id: 'province', name: 'Province' },
+        { id: 'district', name: 'District' }
+    ];
 
     // Modal states
     const [selectedTicket, setSelectedTicket] = useState(null);
@@ -44,9 +52,8 @@ function Tickets() {
         filteredData: locationFilteredTickets,
         options: locationOptions
     } = useLocationFilter(tickets, {
-        regionField: 'region_name',
-        provinceField: 'province_name',
-        districtField: 'district_name'
+        hierarchy: hierarchy,
+        facilityField: 'facility_name'
     });
 
     const [filters, setFilters] = useState({
@@ -76,7 +83,7 @@ function Tickets() {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
 
-            const response = await fetch('/api/tickets', { headers });
+            const response = await fetch(`/api/${tenantCode}/tickets`, { headers });
             const data = await response.json();
             const ticketsList = data.tickets || data || [];
             setTickets(ticketsList);
@@ -236,7 +243,7 @@ function Tickets() {
         try {
             const token = localStorage.getItem('token');
             for (const id of selectedTicketIds) {
-                await fetch(`/api/tickets/${id}`, {
+                await fetch(`/api/${tenantCode}/tickets/${id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -366,20 +373,16 @@ function Tickets() {
                                     <th onClick={() => requestSort('ticket_reference_number')} className="sortable">
                                         REF {getSortIndicator('ticket_reference_number')}
                                     </th>
-                                    <th onClick={() => requestSort('region_name')} className="sortable">
-                                        REGION {getSortIndicator('region_name')}
-                                    </th>
-                                    <th onClick={() => requestSort('province_name')} className="sortable">
-                                        PROVINCE {getSortIndicator('province_name')}
-                                    </th>
-                                    <th onClick={() => requestSort('district_name')} className="sortable">
-                                        DISTRICT {getSortIndicator('district_name')}
-                                    </th>
+                                    {hierarchy.map(level => (
+                                        <th key={level.id} onClick={() => requestSort(level.id)} className="sortable">
+                                            {level.name.toUpperCase()} {getSortIndicator(level.id)}
+                                        </th>
+                                    ))}
                                     <th onClick={() => requestSort('facility_name')} className="sortable">
                                         FACILITY {getSortIndicator('facility_name')}
                                     </th>
                                     <th onClick={() => requestSort('fault_description')} className="sortable">
-                                        FAULT {getSortIndicator('fault_description')}
+                                        FAULT INFORMATION {getSortIndicator('fault_description')}
                                     </th>
                                     <th onClick={() => requestSort('ticket_status')} className="sortable">
                                         STATUS {getSortIndicator('ticket_status')}
@@ -409,16 +412,20 @@ function Tickets() {
                                             />
                                         </td>
                                         <td><div className="ticket-ref">{ticket.ticket_reference_number || `TKT-${ticket.ticket_id}`}</div></td>
-                                        <td>{ticket.region_name || '-'}</td>
-                                        <td>{ticket.province_name || '-'}</td>
-                                        <td>{ticket.district_name || '-'}</td>
+                                        {hierarchy.map(level => {
+                                            const field = level.id + (ticket[level.id + '_name'] ? '_name' : '');
+                                            return <td key={level.id}>{ticket[field] || ticket[level.id] || '-'}</td>;
+                                        })}
                                         <td>{ticket.facility_name || '-'}</td>
                                         <td>
                                             <div className="fault-info">
-                                                <div className="fault-icon-title">
-                                                    <span className="fault-title">{ticket.equipment_manufacturer || 'Equipment'}</span>
+                                                <div className="fault-location-context" style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                                                    {ticket.province_name || ticket.province} &gt; {ticket.district_name || ticket.district}
                                                 </div>
-                                                <div className="fault-description">{ticket.fault_description}</div>
+                                                <div className="fault-icon-title">
+                                                    <span className="fault-title" style={{ fontSize: '0.85rem', fontWeight: '600' }}>{ticket.equipment_manufacturer || 'Equipment'}</span>
+                                                </div>
+                                                <div className="fault-description" style={{ fontSize: '0.75rem' }}>{ticket.fault_description}</div>
                                             </div>
                                         </td>
                                         <td><span className={`status-badge ${getStatusColor(ticket.ticket_status)}`}>{ticket.ticket_status}</span></td>

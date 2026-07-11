@@ -49,3 +49,9 @@ coverage/
 
 # PM2
 .pm2/
+
+# Office temporary lock files
+~$*
+
+# Large source archives kept locally; expanded files are committed instead.
+zmb_admin_boundaries.shp.zip

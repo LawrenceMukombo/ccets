@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../context/TenantContext';
 import { STATUS_COLORS } from '../constants/colors';
 import './Audit.css';
 
 function Audit() {
+    const { tenantCode } = useTenant();
     const [auditLogs, setAuditLogs] = useState([]);
     const [filteredLogs, setFilteredLogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ function Audit() {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
 
-            const response = await fetch('/api/audit?limit=200', { headers });
+            const response = await fetch(`/api/${tenantCode}/audit?limit=200`, { headers });
 
             if (response.ok) {
                 const data = await response.json();
@@ -147,7 +149,7 @@ function Audit() {
     const handleExport = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/audit/export', {
+            const response = await fetch(`/api/${tenantCode}/audit/export`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();

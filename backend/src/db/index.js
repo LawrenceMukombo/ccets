@@ -32,15 +32,29 @@ pool.on('error', (err, client) => {
     process.exit(-1);
 });
 
+const tenantStore = require('../middleware/tenantStore');
+
 module.exports = {
     query: async (text, params) => {
+        const client = await pool.connect();
         try {
-            return await pool.query(text, params);
+            const tenant = tenantStore.getStore();
+            const schema = tenant && tenant.schema_name ? tenant.schema_name : 'public';
+            
+            // Set search path for this client transaction
+            await client.query(`SET search_path TO "${schema}", public`);
+            
+            // Execute the actual query
+            return await client.query(text, params);
         } catch (error) {
             console.error('Database Query Error:', error.message);
             console.error('Query:', text);
             console.error('Params:', params);
             throw error;
+        } finally {
+            // Restore default to prevent leaks (though releasing to pool usually resets, it is safer)
+            await client.query(`SET search_path TO public`);
+            client.release();
         }
     },
     pool,

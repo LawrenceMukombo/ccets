@@ -4,11 +4,13 @@ import './Navigation.css';
 
 import UserProfileModal from './UserProfileModal';
 import { useSocket } from '../hooks/useSocket';
+import { useTenant } from '../context/TenantContext';
 
-function Navigation({ user: propUser, onLogout, theme, toggleTheme }) {
+function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTheme }) {
     const navigate = useNavigate();
     const location = useLocation();
     const [showProfile, setShowProfile] = useState(false);
+    const { tenantCode, config } = useTenant();
 
     // Notifications
     const [showNotifications, setShowNotifications] = useState(false);
@@ -42,20 +44,21 @@ function Navigation({ user: propUser, onLogout, theme, toggleTheme }) {
         { path: '/equipment', label: 'Equipment', icon: 'M20 7h-9M14 17H5M16 21V3M3 21V9m0 12h18M3 9l9-6 9 6' },
         { path: '/map', label: 'Map', icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
         { path: '/reports', label: 'Reports', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-        { path: '/notifications', label: 'Notifications', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
+        { path: '/notifications', label: 'Alerts', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
         {
             path: '/audit',
             label: 'Audit',
             icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
-            roles: ['Administrator', 'National Manager']
+            roles: ['Administrator', 'National Manager', 'Admin', 'SuperAdmin']
         },
         {
             path: '/user-management',
-            label: 'User Management',
+            label: 'Users',
             icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
-            roles: ['Administrator', 'National Manager'],
+            roles: ['Administrator', 'National Manager', 'Admin', 'SuperAdmin'],
             permission: 'manage_users'
         },
+        { path: '/settings', label: 'Settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
     ];
 
     // Filter items based on user role or permissions
@@ -63,7 +66,7 @@ function Navigation({ user: propUser, onLogout, theme, toggleTheme }) {
         if (!item.roles && !item.permission) return true; // Public item
         if (!user || !user.role_name) return false; // No user/role loaded yet
 
-        const hasRole = item.roles ? item.roles.includes(user.role_name) : false;
+        const hasRole = item.roles ? item.roles.some(r => r.toLowerCase() === user.role_name?.toLowerCase()) : false;
         const hasPermission = item.permission && user.permissions ? user.permissions.includes(item.permission) : false;
 
         return hasRole || hasPermission;
@@ -75,10 +78,10 @@ function Navigation({ user: propUser, onLogout, theme, toggleTheme }) {
                 <div className="nav-container">
                     <div className="nav-brand">
                         <div className="brand-icon">
-                            <img src="/png_emblem.png" alt="PNG Emblem" style={{ width: '40px', height: 'auto' }} />
+                            {config?.emblem && <img src={config.emblem} alt={`${config?.name} Emblem`} style={{ width: '40px', height: 'auto' }} />}
                         </div>
                         <div className="brand-text">
-                            <h1>PNG CCETS</h1>
+                            <h1>{config?.name?.toUpperCase() === 'PAPUA NEW GUINEA' ? 'PNG' : config?.name?.toUpperCase() || 'CCETS'} CCETS</h1>
                             <p>Cold Chain Equipment Ticketing System</p>
                         </div>
                     </div>
@@ -99,6 +102,22 @@ function Navigation({ user: propUser, onLogout, theme, toggleTheme }) {
                     </div>
 
                     <div className="nav-user">
+                        {/* Switch Country */}
+                        {onSwitchCountry && (
+                            <button
+                                className="nav-item switch-tenant-btn"
+                                onClick={onSwitchCountry}
+                                title="Switch Country / Region"
+                                style={{ padding: '8px', borderRadius: '50%', marginRight: '4px', border: 'none', background: 'transparent', cursor: 'pointer' }}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                </svg>
+                            </button>
+                        )}
+
                         {/* Theme Toggle */}
                         {toggleTheme && (
                             <button

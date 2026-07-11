@@ -15,8 +15,28 @@ import Audit from './pages/Audit';
 import TechnicianWorkspace from './pages/TechnicianWorkspace';
 import UserManagement from './pages/UserManagement';
 import Notifications from './pages/Notifications';
+import Settings from './pages/Settings';
+import TenantPicker from './pages/TenantPicker';
+import { useTenant } from './context/TenantContext';
+
+// Clears tenant + auth state and redirects to the picker
+const SwitchTenant = ({ onLogout, setTenantFn }) => {
+    useEffect(() => {
+        // Clear everything so the picker is shown fresh
+        localStorage.removeItem('tenantCode');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (onLogout) onLogout();
+        if (setTenantFn) setTenantFn(null);
+    }, []);
+    return <Navigate to="/" replace />;
+};
+
 
 function App() {
+    const { tenantCode } = useTenant();
+
+    
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
         return !!localStorage.getItem('token');
     });
@@ -40,28 +60,50 @@ function App() {
     };
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && tenantCode) {
             // Fetch fresh current user details from API
-            fetch('/api/auth/me', {
+            fetch(`/api/${tenantCode}/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             })
-                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 401 || res.status === 403) {
+                        throw new Error('Unauthorized');
+                    }
+                    return res.json();
+                })
                 .then(data => {
                     setCurrentUser(data);
                     // Update localStorage with fresh data
                     localStorage.setItem('user', JSON.stringify(data));
                 })
-                .catch(err => console.error('Error fetching user:', err));
+                .catch(err => {
+                    console.error('Error fetching user:', err);
+                    if (err.message === 'Unauthorized') {
+                        handleLogout();
+                    }
+                });
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, tenantCode]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setIsAuthenticated(false);
         setCurrentUser(null);
+    };
+
+    const { setTenant } = useTenant();
+
+    const handleSwitchCountry = () => {
+        // Full reset — clears tenant, auth state, and user
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('tenantCode');
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        setTenant(null);
     };
 
     // Auto Logout Logic (10 minutes)
@@ -91,7 +133,7 @@ function App() {
 
     const AuthenticatedLayout = ({ children }) => (
         <>
-            <Navigation user={currentUser} onLogout={handleLogout} theme={theme} toggleTheme={toggleTheme} />
+            <Navigation user={currentUser} onLogout={handleLogout} onSwitchCountry={handleSwitchCountry} theme={theme} toggleTheme={toggleTheme} />
             <WelcomeBanner user={currentUser} />
             {children}
             <Footer />
@@ -99,6 +141,8 @@ function App() {
     );
 
     const ProtectedRoute = ({ children, allowedRoles, requiredPermission }) => {
+        if (!tenantCode) return <Navigate to="/" replace />;
+        if (!isAuthenticated) return <Navigate to="/login" replace />;
         if (!currentUser) return null; // Wait for user to load
 
         // Normalize role check (handle potential case sensitivity or missing roles)
@@ -117,64 +161,78 @@ function App() {
         }
         return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
     };
+    
+    // Require Tenant for public pages too
+    const RequireTenant = ({ children }) => {
+        if (!tenantCode) return <Navigate to="/" replace />;
+        return children;
+    };
 
     return (
         <Router>
             <Routes>
-                <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
+                {/* Root URL now always shows the picker if not logged in, preventing "sticky" defaults */}
+                <Route path="/" element={isAuthenticated && tenantCode ? <Navigate to="/dashboard" /> : <TenantPicker />} />
+                {/* /switch — always clears tenant+auth and returns to picker */}
+                <Route path="/switch" element={<SwitchTenant onLogout={handleLogout} setTenantFn={setTenant} />} />
+                <Route path="/login" element={<RequireTenant><Login onLogin={() => setIsAuthenticated(true)} /></RequireTenant>} />
                 <Route
                     path="/dashboard"
-                    element={isAuthenticated ? <AuthenticatedLayout><Dashboard /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
                 />
                 <Route
                     path="/tickets"
-                    element={isAuthenticated ? <AuthenticatedLayout><Tickets /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><Tickets /></ProtectedRoute>}
                 />
                 <Route
                     path="/repairs"
-                    element={isAuthenticated ? <AuthenticatedLayout><Repairs /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><Repairs /></ProtectedRoute>}
                 />
                 <Route
                     path="/map"
-                    element={isAuthenticated ? <AuthenticatedLayout><Map /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><Map /></ProtectedRoute>}
                 />
                 <Route
                     path="/reports"
-                    element={isAuthenticated ? <AuthenticatedLayout><Reports /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><Reports /></ProtectedRoute>}
                 />
                 <Route
                     path="/facilities"
-                    element={isAuthenticated ? <AuthenticatedLayout><Facilities /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><Facilities /></ProtectedRoute>}
                 />
                 <Route
                     path="/equipment"
-                    element={isAuthenticated ? <AuthenticatedLayout><Equipment /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><Equipment /></ProtectedRoute>}
                 />
                 <Route
                     path="/audit"
-                    element={isAuthenticated ?
+                    element={
                         <ProtectedRoute allowedRoles={['Administrator', 'National Manager']}>
                             <Audit />
-                        </ProtectedRoute> : <Navigate to="/login" />
+                        </ProtectedRoute>
                     }
                 />
                 <Route
                     path="/workspace"
-                    element={isAuthenticated ? <AuthenticatedLayout><TechnicianWorkspace /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><TechnicianWorkspace /></ProtectedRoute>}
                 />
                 <Route
                     path="/user-management"
-                    element={isAuthenticated ?
+                    element={
                         <ProtectedRoute allowedRoles={['Administrator', 'National Manager']} requiredPermission="manage_users">
                             <UserManagement />
-                        </ProtectedRoute> : <Navigate to="/login" />
+                        </ProtectedRoute>
                     }
                 />
                 <Route
                     path="/notifications"
-                    element={isAuthenticated ? <AuthenticatedLayout><Notifications /></AuthenticatedLayout> : <Navigate to="/login" />}
+                    element={<ProtectedRoute><Notifications /></ProtectedRoute>}
                 />
-                <Route path="/" element={<Navigate to="/login" />} />
+                <Route
+                    path="/settings"
+                    element={<ProtectedRoute><Settings /></ProtectedRoute>}
+                />
+                <Route path="*" element={<Navigate to="/" />} />
             </Routes>
         </Router>
     );

@@ -40,19 +40,50 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const dashboardRoutes = require('./routes/dashboard');
 const koboRoutes = require('./routes/koboRoutes'); // ODK Integration
 
-app.use('/api/auth', authRoutes);
-app.use('/api/facilities', facilityRoutes);
-app.use('/api/tickets', ticketRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/groups', groupRoutes);
-app.use('/api/permissions', permissionRoutes);
-app.use('/api/audit', auditRoutes);
-app.use('/api/equipment', equipmentRoutes);
-app.use('/api/faults', faultRoutes);
-app.use('/api/spare-parts', sparePartsRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/hooks/kobo', koboRoutes); // Mount ODK webhook
+const resolveTenant = require('./middleware/tenant.middleware');
+
+// Create a router for tenant-specific endpoints
+const tenantRouter = express.Router({ mergeParams: true });
+tenantRouter.use('/auth', authRoutes);
+tenantRouter.use('/facilities', facilityRoutes);
+tenantRouter.use('/tickets', ticketRoutes);
+tenantRouter.use('/dashboard', dashboardRoutes);
+tenantRouter.use('/users', userRoutes);
+tenantRouter.use('/groups', groupRoutes);
+tenantRouter.use('/permissions', permissionRoutes);
+tenantRouter.use('/audit', auditRoutes);
+tenantRouter.use('/equipment', equipmentRoutes);
+tenantRouter.use('/faults', faultRoutes);
+tenantRouter.use('/spare-parts', sparePartsRoutes);
+tenantRouter.use('/notifications', notificationRoutes);
+tenantRouter.use('/boundaries', require('./routes/boundaries'));
+tenantRouter.use('/settings', require('./routes/settings'));
+tenantRouter.use('/hooks/kobo', koboRoutes); // Mount ODK webhook
+
+// ── Public tenant listing (no auth required — used by TenantPicker) ──────────
+const db = require('./db');
+app.get('/api/tenants', async (req, res) => {
+    try {
+        const result = await db.pool.query(
+            `SELECT t.code, t.name, tc.emblem 
+             FROM public.tenants t 
+             LEFT JOIN public.tenant_config tc ON t.code = tc.tenant_code
+             WHERE t.is_active = true 
+             ORDER BY t.name`
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error listing tenants:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Mount the tenant router with the resolveTenant middleware
+app.use('/api/:tenantCode', resolveTenant, tenantRouter);
+
+// Super-admin routes
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

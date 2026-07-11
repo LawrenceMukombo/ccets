@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Facilities.css';
 import { useLocationFilter } from '../hooks/useLocationFilter';
 import LocationFilter from '../components/LocationFilter';
 
 function Facilities() {
+    const { tenantCode, config } = useTenant();
     const [facilities, setFacilities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchFilter, setSearchFilter] = useState('');
+
+    // Dynamic Hierarchy
+    const hierarchy = config?.hierarchy || [
+        { id: 'province', name: 'Province' },
+        { id: 'district', name: 'District' }
+    ];
 
     // Use the custom hook for location filtering
     // Configure with correct field names for facilities data
@@ -17,9 +25,7 @@ function Facilities() {
         filteredData: locationFilteredFacilities,
         options
     } = useLocationFilter(facilities, {
-        regionField: 'region',
-        provinceField: 'province',
-        districtField: 'district',
+        hierarchy: hierarchy,
         facilityField: 'facility_name'
     });
 
@@ -36,7 +42,7 @@ function Facilities() {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
 
-            const response = await fetch('/api/facilities', { headers });
+            const response = await fetch(`/api/${tenantCode}/facilities`, { headers });
             const data = await response.json();
 
             const facilitiesList = data.facilities || data || [];
@@ -139,9 +145,9 @@ function Facilities() {
                             <tr>
                                 <th>NAME</th>
                                 <th>CODE</th>
-                                <th>REGION</th>
-                                <th>PROVINCE</th>
-                                <th>DISTRICT</th>
+                                {hierarchy.map(level => (
+                                    <th key={level.id}>{level.name.toUpperCase()}</th>
+                                ))}
                                 <th>TYPE</th>
                                 <th>STATUS</th>
                                 <th>EQUIP.</th>
@@ -161,9 +167,9 @@ function Facilities() {
                                             {facility.facility_code || '-'}
                                         </div>
                                     </td>
-                                    <td>{facility.region || '-'}</td>
-                                    <td>{facility.province || '-'}</td>
-                                    <td>{facility.district || '-'}</td>
+                                    {hierarchy.map(level => (
+                                        <td key={level.id}>{facility[level.id] || '-'}</td>
+                                    ))}
                                     <td>{facility.type || '-'}</td>
                                     <td>
                                         <span className={`status-badge ${facility.is_functioning ? 'status-open' : 'status-closed'}`}>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../../context/TenantContext';
 import './RolesTab.css';
 
 const RolesTab = () => {
+    const { tenantCode } = useTenant();
     const [roles, setRoles] = useState([]);
     const [permissions, setPermissions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ const RolesTab = () => {
     const fetchData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/permissions/matrix', {
+            const response = await fetch(`/api/${tenantCode}/permissions/matrix`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -114,6 +116,7 @@ const RolesTab = () => {
 
 // Create Role Modal
 const CreateRoleModal = ({ onClose, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [formData, setFormData] = useState({ role_name: '', description: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -125,7 +128,7 @@ const CreateRoleModal = ({ onClose, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/permissions/roles', {
+            const response = await fetch(`/api/${tenantCode}/permissions/roles`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -192,6 +195,7 @@ const CreateRoleModal = ({ onClose, onSuccess }) => {
 
 // Role Permissions Modal
 const RolePermissionsModal = ({ role, permissions, onClose, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [rolePermissions, setRolePermissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -204,7 +208,7 @@ const RolePermissionsModal = ({ role, permissions, onClose, onSuccess }) => {
     const fetchRolePermissions = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/permissions/matrix', {
+            const response = await fetch(`/api/${tenantCode}/permissions/matrix`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -230,7 +234,7 @@ const RolePermissionsModal = ({ role, permissions, onClose, onSuccess }) => {
         setSaving(true);
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/permissions/roles/${role.role_id}`, {
+            await fetch(`/api/${tenantCode}/permissions/roles/${role.role_id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

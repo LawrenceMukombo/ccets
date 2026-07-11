@@ -5,11 +5,11 @@
 }
 
 .facilities-header {
-    background: linear-gradient(135deg, #1e3c72 0%, #bcc9e8 100%);
-    padding: 24px 32px;
+    background: var(--header-gradient);
+    padding: 20px 24px;
     margin-bottom: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border-radius: 0;
+    box-shadow: var(--shadow-md);
+    border-radius: 12px;
 }
 
 .header-content {
@@ -29,7 +29,7 @@
 
 .header-subtitle {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff;
     margin: 0;
 }
 
@@ -37,8 +37,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    padding: 10px 20px;
+    background: var(--primary-gradient);
     border: none;
     border-radius: 8px;
     color: white;

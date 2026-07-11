@@ -1,0 +1,760 @@
+﻿NAME,TYPE,LLG_Pcode,LLG_Name,Dis_Pcode,District_Name,Prov_Pcode,Prov_name,X,Y,Source,Feature
+NOMAD,Health Centre,PG010105,Nomad Rural LLG,PG0101,Middle Fly District,PG01,Western Province,142.229503,-6.292661,Base,Health Facility
+INDORODORO,Aidpost,PG010313,Morehead Rural LLG,PG0103,South Fly District,PG01,Western Province,141.301878,-8.592272,Base,Health Facility
+MONTFORT,Aidpost,PG010207,Kiunga Urban LLG,PG0102,North Fly District,PG01,Western Province,141.290635,-6.12199,Base,Health Facility
+DARU.HOSPITAL,Urban Clinic,PG010311,Kiwai Rural LLG,PG0103,South Fly District,PG01,Western Province,143.212601,-9.071766,Base,Health Facility
+WEAM,Aidpost,PG010313,Morehead Rural LLG,PG0103,South Fly District,PG01,Western Province,141.137099,-8.617221,Base,Health Facility
+WIPIM,Health Centre,PG010314,Oriomo-Bituri Rural LLG,PG0103,South Fly District,PG01,Western Province,142.878082,-8.785482,Base,Health Facility
+KIUNGA,District Hospital,PG010207,Kiunga Urban LLG,PG0102,North Fly District,PG01,Western Province,141.302866,-6.11577,Base,Health Facility
+KOARU,KOARU HEALTH CENTRE,PG020101,Central Kerema Rural LLG,PG0201,Kerema District,PG02,Gulf Province,146.036686,-8.070478,Base,Health Facility
+MIRIVASE,Health Centre,PG020102,East Kerema Rural LLG,PG0201,Kerema District,PG02,Gulf Province,146.143417,-8.211169,Base,Health Facility
+KUKIPI,HEALTH CENTRE,PG020102,East Kerema Rural LLG,PG0201,Kerema District,PG02,Gulf Province,146.105494,-8.172524,Base,Health Facility
+IRUNA,Health Centre,PG030101,Amazon Bay Rural LLG,PG0301,Abau District,PG03,Central Province,149.338012,-10.301883,Base,Health Facility
+GUARIMEIPA,Aidpost,PG030204,Guari Rural LLG,PG0302,Goilala District,PG03,Central Province,146.824497,-8.285286,Base,Health Facility
+OMU CATH MISS,Aidpost,PG030204,Guari Rural LLG,PG0302,Goilala District,PG03,Central Province,146.879542,-8.077091,Base,Health Facility
+TORORO,Sub Centre,PG030205,Tapini Rural LLG,PG0302,Goilala District,PG03,Central Province,146.930262,-8.251395,Base,Health Facility
+KERAU,Aidpost,PG030205,Tapini Rural LLG,PG0302,Goilala District,PG03,Central Province,147.065189,-8.255448,Base,Health Facility
+KILEIPI,Aidpost,PG030205,Tapini Rural LLG,PG0302,Goilala District,PG03,Central Province,147.141433,-8.238119,Base,Health Facility
+SOPU NO. 1,Aidpost,PG030205,Tapini Rural LLG,PG0302,Goilala District,PG03,Central Province,147.168168,-8.306922,Base,Health Facility
+MAINI,Aidpost,PG030205,Tapini Rural LLG,PG0302,Goilala District,PG03,Central Province,147.111074,-8.34999,Base,Health Facility
+FANE,Sub Centre,PG030206,Woitape Rural LLG,PG0302,Goilala District,PG03,Central Province,147.086552,-8.551201,Base,Health Facility
+ONONGE,Sub Centre,PG030206,Woitape Rural LLG,PG0302,Goilala District,PG03,Central Province,147.258803,-8.686879,Base,Health Facility
+ORO,Aidpost,PG030206,Woitape Rural LLG,PG0302,Goilala District,PG03,Central Province,147.270073,-8.74404,Base,Health Facility
+TOLUKUMA GOLD MINE,Urban Clinic,PG030206,Woitape Rural LLG,PG0302,Goilala District,PG03,Central Province,147.133397,-8.560835,Base,Health Facility
+YONGAI,Sub Centre,PG030206,Woitape Rural LLG,PG0302,Goilala District,PG03,Central Province,147.460251,-8.529593,Base,Health Facility
+KELERAKWA,Aidpost,PG030102,Aroma Rural LLG,PG0301,Abau District,PG03,Central Province,148.168353,-10.087482,Base,Health Facility
+UPULIMA,Sub Centre,PG030102,Aroma Rural LLG,PG0301,Abau District,PG03,Central Province,148.205324,-9.940986,Base,Health Facility
+BORU,Health Centre,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.847347,-10.236158,Base,Health Facility
+AROANA,Aidpost,PG030101,Amazon Bay Rural LLG,PG0301,Abau District,PG03,Central Province,149.391236,-10.297135,Base,Health Facility
+BOREBO,Aidpost,PG030101,Amazon Bay Rural LLG,PG0301,Abau District,PG03,Central Province,149.449654,-10.334646,Base,Health Facility
+MAILU ISLAND,Aidpost,PG030101,Amazon Bay Rural LLG,PG0301,Abau District,PG03,Central Province,149.358313,-10.382251,Base,Health Facility
+BAILEBO RUBBER SETTL,Aidpost,PG030101,Amazon Bay Rural LLG,PG0301,Abau District,PG03,Central Province,149.314919,-10.235873,Base,Health Facility
+NUNUMAI,Aidpost,PG030101,Amazon Bay Rural LLG,PG0301,Abau District,PG03,Central Province,149.371787,-10.179238,Base,Health Facility
+DOMARA,Aidpost,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.563804,-10.170303,Base,Health Facility
+PARAMANA,Aidpost,PG030102,Aroma Rural LLG,PG0301,Abau District,PG03,Central Province,148.006517,-10.157231,Base,Health Facility
+KINIKALANA,Aidpost,PG030102,Aroma Rural LLG,PG0301,Abau District,PG03,Central Province,148.011406,-10.144699,Base,Health Facility
+KELEKAPANA,Aidpost,PG030102,Aroma Rural LLG,PG0301,Abau District,PG03,Central Province,148.08906,-10.1327,Base,Health Facility
+WAIRAVANUA,Aidpost,PG030102,Aroma Rural LLG,PG0301,Abau District,PG03,Central Province,148.115386,-10.131683,Base,Health Facility
+HOMENOMU,Aidpost,PG030413,Rigo Inland Rural LLG,PG0304,Rigo District,PG03,Central Province,148.059703,-9.64986,Base,Health Facility
+VORAKOGENA,Aidpost,PG030413,Rigo Inland Rural LLG,PG0304,Rigo District,PG03,Central Province,148.011565,-9.890157,Base,Health Facility
+RARAI,Aidpost,PG030310,Mekeo Kuni Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.607793,-8.499382,Base,Health Facility
+APANAIPI,Aidpost,PG020102,East Kerema Rural LLG,PG0201,Kerema District,PG02,Gulf Province,146.363399,-8.391389,Base,Health Facility
+KOABA.SM'T,Aidpost,PG020102,East Kerema Rural LLG,PG0201,Kerema District,PG02,Gulf Province,146.362029,-8.394348,Base,Health Facility
+ORIROPETANA,Aidpost,PG030310,Mekeo Kuni Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.578046,-8.559482,Base,Health Facility
+BIOTOU,Aidpost,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.622652,-8.737114,Base,Health Facility
+MANABO STATION,Aidpost,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.492641,-10.057265,Base,Health Facility
+IANU STATION,Aidpost,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.427532,-9.96395,Base,Health Facility
+COCOALAND STATION,Aidpost,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.434348,-10.130388,Base,Health Facility
+LAUNAKALANA AG STN,Aidpost,PG030411,Rigo Central Rural LLG,PG0304,Rigo District,PG03,Central Province,147.778816,-9.944522,Base,Health Facility
+BARAKAU,Aidpost,PG030307,Hiri Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.353485,-9.591866,Base,Health Facility
+MANUMANU,Aidpost,PG030307,Hiri Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.891496,-9.112838,Base,Health Facility
+MAVA,Aidpost,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.844953,-9.01203,Base,Health Facility
+AVABADINA COMM. SCHO,Aidpost,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.857444,-9.009965,Base,Health Facility
+KANOSIA,Aidpost,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.986033,-8.995662,Base,Health Facility
+GOROHU,Aidpost,PG030307,Hiri Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.913403,-9.149706,Base,Health Facility
+ROKU,Aidpost,PG030307,Hiri Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.091274,-9.459124,Base,Health Facility
+PAU,Sub Centre,PG040101,National Capital District,PG0401,National Capital District,PG04,National Capital District,147.274272,-9.40693,Base,Health Facility
+GOLDIE,Sub Centre,PG030307,Hiri Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.272433,-9.349616,Base,Health Facility
+DOROM.2,Aidpost,PG030413,Rigo Inland Rural LLG,PG0304,Rigo District,PG03,Central Province,147.865996,-9.661177,Base,Health Facility
+KAREKODOBU,Aidpost,PG030411,Rigo Central Rural LLG,PG0304,Rigo District,PG03,Central Province,147.729987,-9.733508,Base,Health Facility
+KAPAROKO,Aidpost,PG030412,Rigo Coastal Rural LLG,PG0304,Rigo District,PG03,Central Province,147.704918,-10.011723,Base,Health Facility
+KEMABOLO,Aidpost,PG030412,Rigo Coastal Rural LLG,PG0304,Rigo District,PG03,Central Province,147.643016,-9.929648,Base,Health Facility
+GABA GABA,Aidpost,PG030412,Rigo Coastal Rural LLG,PG0304,Rigo District,PG03,Central Province,147.516022,-9.803351,Base,Health Facility
+MOREGUINA,Health Centre,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.474816,-10.015955,Base,Health Facility
+KAMULAI,Sub Centre,PG030204,Guari Rural LLG,PG0302,Goilala District,PG03,Central Province,146.839203,-8.135436,Base,Health Facility
+INAUANI,Aidpost,PG030310,Mekeo Kuni Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.663423,-8.494257,Base,Health Facility
+MAOPA NO. 1,Aidpost,PG030102,Aroma Rural LLG,PG0301,Abau District,PG03,Central Province,148.017763,-10.135737,Base,Health Facility
+KIVORI.POE,Aidpost,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.397197,-8.588224,Base,Health Facility
+BABIKO,Aidpost,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.538529,-8.684006,Base,Health Facility
+KALO,Aidpost,PG030412,Rigo Coastal Rural LLG,PG0304,Rigo District,PG03,Central Province,147.786353,-10.044643,Base,Health Facility
+SAROA,Aidpost,PG030411,Rigo Central Rural LLG,PG0304,Rigo District,PG03,Central Province,147.605452,-9.799199,Base,Health Facility
+SUASI,Aidpost,PG030204,Guari Rural LLG,PG0302,Goilala District,PG03,Central Province,146.809006,-8.111082,Base,Health Facility
+SOGERI,Sub Centre,PG030309,Koiari Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.417753,-9.422107,Base,Health Facility
+TAPINI,Health Centre,PG030205,Tapini Rural LLG,PG0302,Goilala District,PG03,Central Province,146.988558,-8.356156,Base,Health Facility
+VISI,Aidpost,PG030206,Woitape Rural LLG,PG0302,Goilala District,PG03,Central Province,147.245435,-8.699318,Base,Health Facility
+WOITAPE,Health Centre,PG030206,Woitape Rural LLG,PG0302,Goilala District,PG03,Central Province,147.25162,-8.543641,Base,Health Facility
+URULAU,Aidpost,PG030310,Mekeo Kuni Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.434657,-8.17909,Base,Health Facility
+KUBUNA,Sub Centre,PG030310,Mekeo Kuni Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.754638,-8.690436,Base,Health Facility
+ROBINSON RIVER PLANT,Aidpost,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.850085,-10.143841,Base,Health Facility
+MERANI/MARI,Aidpost,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.458069,-10.11201,Base,Health Facility
+BARAMATA NO 4,Aidpost,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.48939,-10.200179,Base,Health Facility
+LALAURA,Aidpost,PG030102,Aroma Rural LLG,PG0301,Abau District,PG03,Central Province,148.357608,-10.184423,Base,Health Facility
+TUTUBU,Aidpost,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.43601,-10.191113,Base,Health Facility
+MAIPIKO,Aidpost,PG030413,Rigo Inland Rural LLG,PG0304,Rigo District,PG03,Central Province,148.066576,-9.870369,Base,Health Facility
+MT. DIAMOND HIGH SCH,Urban Clinic,PG030307,Hiri Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.317556,-9.476393,Base,Health Facility
+OGOTANA,Aidpost,PG030309,Koiari Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.485423,-9.448634,Base,Health Facility
+RED.SHELD.ARMY,Aidpost,PG030309,Koiari Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.458377,-9.372555,Base,Health Facility
+FORAKOROTA,Aidpost,PG030309,Koiari Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.500102,-9.481707,Base,Health Facility
+AGEVAIRU,Sub Centre,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.816818,-9.018436,Base,Health Facility
+OSABEAI,Aidpost,PG030309,Koiari Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.299005,-9.330357,Base,Health Facility
+TORULA,Aidpost,PG030204,Guari Rural LLG,PG0302,Goilala District,PG03,Central Province,146.897843,-8.013802,Base,Health Facility
+VEIFA'A,Health Centre,PG030310,Mekeo Kuni Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.561577,-8.542506,Base,Health Facility
+BEREINA,Health Centre,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.510816,-8.637709,Base,Health Facility
+INAUAIA,Sub Centre,PG030310,Mekeo Kuni Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.578941,-8.634759,Base,Health Facility
+BAKOIUDU,Sub Centre,PG030310,Mekeo Kuni Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.823481,-8.619779,Base,Health Facility
+HISIU,Aidpost,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.774317,-9.048338,Base,Health Facility
+TUBUSEREA,Aidpost,PG030307,Hiri Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.318828,-9.549389,Base,Health Facility
+BOREGAINA,Sub Centre,PG030411,Rigo Central Rural LLG,PG0304,Rigo District,PG03,Central Province,147.74607,-9.767496,Base,Health Facility
+MAGARIDA,Health Centre,PG030101,Amazon Bay Rural LLG,PG0301,Abau District,PG03,Central Province,149.338535,-10.297435,Base,Health Facility
+GOHODAE,Sub Centre,PG030103,Cloudy Bay Rural LLG,PG0301,Abau District,PG03,Central Province,148.629607,-10.093374,Base,Health Facility
+KURIVA,Aidpost,PG030307,Hiri Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.115048,-9.067569,Base,Health Facility
+TAURUBA,Aidpost,PG030412,Rigo Coastal Rural LLG,PG0304,Rigo District,PG03,Central Province,147.620621,-9.901792,Base,Health Facility
+MANUGORO,Aidpost,PG030411,Rigo Central Rural LLG,PG0304,Rigo District,PG03,Central Province,147.463938,-9.712717,Base,Health Facility
+HULA,Sub Centre,PG030412,Rigo Coastal Rural LLG,PG0304,Rigo District,PG03,Central Province,147.725659,-10.101857,Base,Health Facility
+BOKU,Sub Centre,PG030413,Rigo Inland Rural LLG,PG0304,Rigo District,PG03,Central Province,147.86808,-9.70426,Base,Health Facility
+DOROBISORO,Sub Centre,PG030413,Rigo Inland Rural LLG,PG0304,Rigo District,PG03,Central Province,147.91906,-9.460452,Base,Health Facility
+KWIKILA,Health Centre,PG030411,Rigo Central Rural LLG,PG0304,Rigo District,PG03,Central Province,147.678865,-9.808244,Base,Health Facility
+EFOGI,Sub Centre,PG030309,Koiari Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,147.665661,-9.156234,Base,Health Facility
+YULE ISLAND,Sub Centre,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.539442,-8.835667,Base,Health Facility
+DOA,Sub Centre,PG030308,Kairuku Rural LLG,PG0303,Kairuku - Hiri District,PG03,Central Province,146.952093,-8.978236,Base,Health Facility
+GUGA,Aid Post,PG050104,Maramatana Rural LLG,PG0501,Alotau District,PG05,Milne Bay Province,150.663875,-10.278126,Base,Health Facility
+YAPOA,CHURCH,PG050104,Maramatana Rural LLG,PG0501,Alotau District,PG05,Milne Bay Province,150.569963,-10.267632,Base,Health Facility
+YAPOA,Aid Post,PG050104,Maramatana Rural LLG,PG0501,Alotau District,PG05,Milne Bay Province,150.561892,-10.253824,Base,Health Facility
+TAUPOTA,Aid Post,PG050104,Maramatana Rural LLG,PG0501,Alotau District,PG05,Milne Bay Province,150.419872,-10.210239,Base,Health Facility
+GARUAHI,Health Centre,PG050104,Maramatana Rural LLG,PG0501,Alotau District,PG05,Milne Bay Province,150.482946,-10.217738,Base,Health Facility
+EAST CAPE,Health Centre,PG050104,Maramatana Rural LLG,PG0501,Alotau District,PG05,Milne Bay Province,150.873943,-10.226656,Base,Health Facility
+BOSALEWA,Aidpost,PG050415,Dobu Rural LLG,PG0504,Esa'ala District,PG05,Milne Bay Province,150.714317,-9.449584,Base,Health Facility
+BUDIBUDI,Aidpost,PG050211,Murua Rural LLG,PG0502,Samarai-Murua District,PG05,Milne Bay Province,153.68683,-9.291541,Base,Health Facility
+NASIKWABU,Aidpost,PG050211,Murua Rural LLG,PG0502,Samarai-Murua District,PG05,Milne Bay Province,152.430726,-9.552695,Base,Health Facility
+IWA Aidpost,Aidpost,PG050211,Murua Rural LLG,PG0502,Samarai-Murua District,PG05,Milne Bay Province,151.671277,-8.704627,Base,Health Facility
+MADAU,Aidpost,PG050211,Murua Rural LLG,PG0502,Samarai-Murua District,PG05,Milne Bay Province,152.404984,-8.990427,Base,Health Facility
+GUASOPA,District Hospit,PG050211,Murua Rural LLG,PG0502,Samarai-Murua District,PG05,Milne Bay Province,152.945909,-9.225721,Base,Health Facility
+SINEI,Aidpost,PG060102,Tufi Rural LLG,PG0601,Ijivitari District,PG06,Northern (Oro) Province,149.268084,-9.012453,Base,Health Facility
+AJOA,Aidpost,PG060102,Tufi Rural LLG,PG0601,Ijivitari District,PG06,Northern (Oro) Province,149.190278,-9.283906,Base,Health Facility
+TUFI,Health Centre,PG060102,Tufi Rural LLG,PG0601,Ijivitari District,PG06,Northern (Oro) Province,149.322636,-9.079126,Base,Health Facility
+SAIHO,Health Centre,PG060206,Higaturu Rural LLG,PG0602,Sohe District,PG06,Northern (Oro) Province,148.068284,-8.827435,Base,Health Facility
+SANGARA,Health Centre,PG060206,Higaturu Rural LLG,PG0602,Sohe District,PG06,Northern (Oro) Province,148.196872,-8.75393,Base,Health Facility
+BAREJI,Aidpost,PG060101,Oro Bay Rural LLG,PG0601,Ijivitari District,PG06,Northern (Oro) Province,148.571736,-9.156151,Base,Health Facility
+TOWAN,Aidpost,PG210413,Lower Wage LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.399093,-6.092196,Base,Health Facility
+SORIP,Aidpost,PG070725,Nipa Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.394728,-6.142991,Base,Health Facility
+NIPA,Sub Centre,PG070725,Nipa Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.446204,-6.14603,Base,Health Facility
+SEMIN,Aidpost,PG070725,Nipa Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.490989,-6.226969,Base,Health Facility
+KAR,Aidpost,PG070726,Poroma Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.552989,-6.245443,Base,Health Facility
+POROMA,Aidpost,PG070726,Poroma Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.628706,-6.310518,Base,Health Facility
+TOIWARO,Aidpost,PG070726,Poroma Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.627177,-6.352652,Base,Health Facility
+HAGINI,Aidpost,PG210515,Lake Kopiago Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.468776,-5.443592,Base,Health Facility
+AROU,,PG210515,Lake Kopiago Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.515205,-5.497076,Base,Health Facility
+KOPIAGO STATION,Health Centre,PG210515,Lake Kopiago Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.495714,-5.385683,Base,Health Facility
+HAWINDA 1,,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.621666,-5.443566,Base,Health Facility
+KUDJEBI,Aidpost,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.578019,-5.581879,Base,Health Facility
+KAGOMA,,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.627269,-5.618299,Base,Health Facility
+TANGI,Aidpost,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.661747,-5.654865,Base,Health Facility
+LEVANI,Aidpost,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.572184,-5.732314,Base,Health Facility
+PIANGONGA 2,Aidpost,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.66343,-5.684972,Base,Health Facility
+HUJENOMA 1,Sub Centre,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.69659,-5.714723,Base,Health Facility
+TIIBA (TIEBA),Aidpost,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.78793,-5.649772,Base,Health Facility
+HUNGI,Health Centre,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.787984,-5.65022,Base,Health Facility
+TUGU,Aidpost,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.705162,-5.57306,Base,Health Facility
+PARU (PORI),,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.735001,-5.583627,Base,Health Facility
+WARIA,Aidpost,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.759251,-5.611982,Base,Health Facility
+GUALA STATION,Aidpost,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.764718,-5.734902,Base,Health Facility
+HUMBURU NO2,Aidpost,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.826074,-5.743699,Base,Health Facility
+PAIJAKA NO2,Health Centre,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.935302,-5.760556,Base,Health Facility
+EGANDA  NO2,Aidpost,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.899549,-5.729043,Base,Health Facility
+KARITA 1,Aidpost,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.840588,-5.766054,Base,Health Facility
+HEDEMRI (HEDEMARI NO,Sub Centre,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.816716,-5.771825,Base,Health Facility
+HURUBAIA,,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.673019,-5.488359,Base,Health Facility
+DODOMONA,Aidpost,PG010105,Nomad Rural LLG,PG0101,Middle Fly District,PG01,Western Province,142.61751,-6.243385,Base,Health Facility
+LUDESA,Sub Centre,PG070723,Mt Bosavi Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,142.842827,-6.464294,Base,Health Facility
+MULUMA,Aidpost,PG070723,Mt Bosavi Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,142.768574,-6.425327,Base,Health Facility
+TENGO,Aidpost,PG210431,Upper Wage LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.269954,-5.954253,Base,Health Facility
+SOND,Aidpost,PG070725,Nipa Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.484089,-6.132739,Base,Health Facility
+INJET,Aidpost,PG070619,Lai Valley Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.532423,-6.043157,Base,Health Facility
+NOL,Aidpost,PG070619,Lai Valley Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.538634,-6.009611,Base,Health Facility
+TAMIDE,Health Centre,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.034819,-6.05893,Base,Health Facility
+TANI,Aidpost,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.846322,-6.111953,Base,Health Facility
+GUALA NO2,Sub Centre,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.756571,-5.726309,Base,Health Facility
+KELEBO  1,Sub Centre,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.564941,-5.565109,Base,Health Facility
+MARIA,Aidpost,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.803472,-5.730973,Base,Health Facility
+HUMBURU NO1,Aidpost,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.80475,-5.729078,Base,Health Facility
+UGU,Aidpost,PG210431,Upper Wage LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.340742,-5.930716,Base,Health Facility
+TABALA,Aidpost,PG210431,Upper Wage LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.332959,-5.94787,Base,Health Facility
+SDA MISS.STN,Health Centre,PG210431,Upper Wage LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.350097,-5.960189,Base,Health Facility
+TUGUP,Aidpost,PG070619,Lai Valley Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.576368,-6.126881,Base,Health Facility
+MONTA,Aidpost,PG070619,Lai Valley Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.521993,-5.984424,Base,Health Facility
+TOBO,Aidpost,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.788223,-6.049873,Base,Health Facility
+MALANDA,Sub Center,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.835583,-6.079405,Base,Health Facility
+MINDIRATE,Sub Centre,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.837199,-6.070932,Base,Health Facility
+KOMO RURAL STATION,Health Centre,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.856625,-6.063562,Base,Health Facility
+EANDA,FOOT,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.879039,-6.078596,Base,Health Facility
+PARA 1,Aidpost,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.804208,-6.006961,Base,Health Facility
+HABONO,Aidpost,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.834499,-5.926655,Base,Health Facility
+IDAUWI,Health Centre,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.857174,-5.926598,Base,Health Facility
+HIWANDA,Health Centre,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.868985,-5.861493,Base,Health Facility
+HIWANDA NO1 (HIWANDA,Aidpost,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.870676,-5.860134,Base,Health Facility
+WAROLO,Aidpost,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.901107,-5.843685,Base,Health Facility
+PIRIBU NO1,Aidpost,PG210829,Tari Urban LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.936773,-5.858281,Base,Health Facility
+INDUPI,Aidpost,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.897035,-5.958304,Base,Health Facility
+TAWANDA,Health Centre,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.852763,-5.821084,Base,Health Facility
+HARE NO1,Vocational Centre,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.841833,-5.807481,Base,Health Facility
+MAGARA NO2,Aidpost,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.818244,-5.821262,Base,Health Facility
+PAU'A,Aidpost,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.14879,-6.184823,Base,Health Facility
+EA MISS.HQ,Health Centre,PG210829,Tari Urban LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.92695,-5.830812,Base,Health Facility
+TARI 03,District Hospital,PG210829,Tari Urban LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.941379,-5.838371,Base,Health Facility
+TIGIBI NO2,Aidpost,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.027649,-5.923322,Base,Health Facility
+IANGOME,Aidpost,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.96438,-5.893385,Base,Health Facility
+URUMA,Aidpost,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.992794,-5.923465,Base,Health Facility
+PAGE,Aidpost,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.957177,-5.909752,Base,Health Facility
+PAIJAKA NO1,Aidpost,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.938691,-5.782528,Base,Health Facility
+ULA,Aidpost,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.920163,-5.807277,Base,Health Facility
+HALENGUALI,Aidpost,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.927365,-5.82634,Base,Health Facility
+KANARI,Aidpost,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.038228,-5.964865,Base,Health Facility
+KEMBIL,Aidpost,PG070725,Nipa Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.458459,-6.195733,Base,Health Facility
+MENGIL,Aidpost,PG070724,Nembi Plateau Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.491522,-6.228622,Base,Health Facility
+SUMBURA,Sub Centre,PG070309,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.846633,-6.483509,Base,Health Facility
+KAGUA STATION,Health Centre,PG070309,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.857683,-6.398938,Base,Health Facility
+WALUANDA,Aidpost,PG070309,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.879334,-6.397116,Base,Health Facility
+TUMBERERE,Aidpost,PG070309,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.897721,-6.375767,Base,Health Facility
+WAPIA,Aidpost,PG070309,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.903027,-6.459664,Base,Health Facility
+WABI STN,Aidpost,PG070332,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.790164,-6.377573,Base,Health Facility
+WADI LUTH.MISS,Aidpost,PG070332,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.790558,-6.380304,Base,Health Facility
+SUMI (STATION),Aidpost,PG070332,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.738803,-6.373644,Base,Health Facility
+RONGKA,Aidpost,PG070309,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.800738,-6.485802,Base,Health Facility
+PUTI,Aidpost,PG070332,Kagua Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.737033,-6.326941,Base,Health Facility
+BATRI 2,Aidpost,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.944746,-6.55201,Base,Health Facility
+ERAVE STATION,Health Centre,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.897696,-6.606044,Base,Health Facility
+TIABILI,Aidpost,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.004663,-6.641752,Base,Health Facility
+WARO,Sub Centre,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.006781,-6.689964,Base,Health Facility
+BESABARU NO2,Aidpost,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.000816,-6.719155,Base,Health Facility
+PAWABI 2,Aidpost,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.95612,-6.72989,Base,Health Facility
+TSIMBERIGI,Community,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.927788,-6.72493,Base,Health Facility
+POBU WOROK NO1,Sub Centre,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.927199,-6.724852,Base,Health Facility
+KERABI,Aidpost,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.079203,-6.667709,Base,Health Facility
+BALOWEI,Aidpost,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.124399,-6.673165,Base,Health Facility
+TIRI,Aidpost,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.181967,-6.681546,Base,Health Facility
+PUPITAU (PUPUTAO),Aidpost,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.296865,-6.725942,Base,Health Facility
+WAREGA,AIR,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.223241,-6.702941,Base,Health Facility
+WAPOSALI,Health Centre,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.29331,-6.65803,Base,Health Facility
+AGU,Aidpost,PG070310,Kuare Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.965602,-6.42125,Base,Health Facility
+KALAWIRA,Aidpost,PG070310,Kuare Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.068245,-6.50168,Base,Health Facility
+IPAMA (WANORE),Aidpost,PG070310,Kuare Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.062785,-6.539028,Base,Health Facility
+KUARE STN,Aidpost,PG070310,Kuare Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.00385,-6.460937,Base,Health Facility
+KALANE,Community,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.085265,-6.425824,Base,Health Facility
+TOKOINI,Aidpost,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.074615,-6.434977,Base,Health Facility
+WERIKO,ROAD,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.155424,-6.447207,Base,Health Facility
+TUNDA,Aidpost,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.160549,-6.488057,Base,Health Facility
+KAPAROI,AIR,PG070310,Kuare Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.125304,-6.539379,Base,Health Facility
+LAPONGO,Aidpost,PG070310,Kuare Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,144.012136,-6.509427,Base,Health Facility
+KALIPOI,Aidpost,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.158959,-6.440457,Base,Health Facility
+TIPA,ROAD,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.100509,-6.438719,Base,Health Facility
+KADOBA,Aidpost,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.567107,-6.723231,Base,Health Facility
+KAFA,AIR,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.514399,-6.584205,Base,Health Facility
+SISIBIA 2,Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.12126,-6.330127,Base,Health Facility
+KAIPU 1,ROAD,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.158103,-6.365213,Base,Health Facility
+HIDINIHIA (HEDINIA),ROAD,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.265549,-6.526327,Base,Health Facility
+WARO STN,Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.205941,-6.539875,Base,Health Facility
+WAISAME,District Hosipital,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.229709,-6.361371,Base,Health Facility
+KEREPIA,Health Centre,PG090712,Mt Giluwe Rural LLG,PG0907,Tambul/Nebilyer District,PG09,Western Highlands Province,143.993964,-5.94821,Base,Health Facility
+WAIPE,Health Centre,PG090712,Mt Giluwe Rural LLG,PG0907,Tambul/Nebilyer District,PG09,Western Highlands Province,144.042614,-6.008702,Base,Health Facility
+UNDIAPU,Aidpost,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.254519,-6.478366,Base,Health Facility
+TENGAI,Aidpost,PG070101,East Pangia Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.229969,-6.392877,Base,Health Facility
+TAIKOPINI,Aipost,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.215214,-6.428312,Base,Health Facility
+NAUKENE,Aidpost,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.233082,-6.454799,Base,Health Facility
+LAWE,Aidpost,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.196805,-6.522904,Base,Health Facility
+WILLIAME,Health Centre,PG070104,Wiru Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.192575,-6.495936,Base,Health Facility
+ALIA,Aidpost,PG070101,East Pangia Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.203052,-6.340431,Base,Health Facility
+PONDYAPU,Aidpost,PG070101,East Pangia Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.218183,-6.377044,Base,Health Facility
+PANGIA STATION,Health Centre,PG070101,East Pangia Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.109358,-6.380691,Base,Health Facility
+YOMONOU,Aidpost,PG070101,East Pangia Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.025008,-6.354066,Base,Health Facility
+WAPERE,Aidpost,PG070101,East Pangia Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.043548,-6.389351,Base,Health Facility
+WARABABE,Aidpost,PG070101,East Pangia Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,144.041588,-6.387087,Base,Health Facility
+IALIBU 01,Health Centre,PG070102,Ialibu Urban LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,143.994775,-6.28134,Base,Health Facility
+YAWAIANGIL,Aidpost,PG070205,Ialibu Basin Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.953037,-6.178877,Base,Health Facility
+PAKULE,Health Centre,PG070205,Ialibu Basin Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.91193,-6.208343,Base,Health Facility
+KERO,Aidpost,PG070205,Ialibu Basin Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,144.028879,-6.194168,Base,Health Facility
+CIS BUI-YEBI,Aidpost,PG070207,Lower Mendi Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.740546,-6.216314,Base,Health Facility
+YARA,Aidpost,PG070207,Lower Mendi Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.8359,-6.22608,Base,Health Facility
+KENDAL 2 (PSP),Aidpost,PG070205,Ialibu Basin Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.972652,-6.254435,Base,Health Facility
+MULI,Health Centre,PG070103,Kewabi Rural LLG,PG0701,Ialibu/Pangia District,PG07,Southern Highlands Province,143.919845,-6.331204,Base,Health Facility
+PERAGOIA (PERAKOIA),Aidpost,PG210515,Lake Kopiago Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.550642,-5.455207,Base,Health Facility
+PAGA HIGH SCHOOL,Sub Centre,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.592132,-5.477542,Base,Health Facility
+AUWI,Aidpost,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.639629,-5.511462,Base,Health Facility
+TADE,Aidpost,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.760556,-5.612064,Base,Health Facility
+YATAMALI  NO1,Aidpost,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.702206,-5.746793,Base,Health Facility
+ITAPU,Aidpost,PG210830,Tebi Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.998647,-5.826008,Base,Health Facility
+HANGAPO NO1,Aidpost,PG210830,Tebi Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.997461,-5.848835,Base,Health Facility
+ANDAWALE,Aidpost,PG210830,Tebi Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,143.007993,-5.863598,Base,Health Facility
+HOLEBIA (HOIEBIA),Sub Centre,PG210830,Tebi Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.971386,-5.831441,Base,Health Facility
+KUKU NO2,Aidpost,PG210830,Tebi Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.979718,-5.849909,Base,Health Facility
+KUKU NO1,Aidpost,PG210830,Tebi Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.968375,-5.860422,Base,Health Facility
+NAGIA,FOOT,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.958107,-5.817881,Base,Health Facility
+TIBIRIBI,Aidpost,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.969812,-5.780286,Base,Health Facility
+PURENI CM.STN,Sub Centre,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.826481,-5.841746,Base,Health Facility
+WARA MUNIHU,Health Centre,PG070619,Lai Valley Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.541847,-6.073456,Base,Health Facility
+KIP,Aidpost,PG070619,Lai Valley Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.554637,-6.115311,Base,Health Facility
+KUSA,Aidpost,PG070726,Poroma Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.521668,-6.250963,Base,Health Facility
+YARIA NO1,Aidpost,PG070207,Lower Mendi Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.665884,-6.25383,Base,Health Facility
+MEGI NO2,Aidpost,PG070207,Lower Mendi Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.646471,-6.25913,Base,Health Facility
+DET,Health Centre,PG070726,Poroma Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.607707,-6.277808,Base,Health Facility
+BAIBU STATION,Aidpost,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.484817,-6.474026,Base,Health Facility
+INU MISSION,Sub Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.304894,-6.370319,Base,Health Facility
+TUGIRI,Sub Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.344581,-6.389671,Base,Health Facility
+KUNIFALU,Sub Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.629976,-6.529581,Base,Health Facility
+HARABIYU,Aidpost,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.580468,-6.508513,Base,Health Facility
+PIMAGA STATION,Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.508357,-6.499001,Base,Health Facility
+KUMA,Aidpost,PG070621,Upper Mendi Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.737197,-6.022595,Base,Health Facility
+KUNDAGA (KUNDAKA),Aidpost,PG070621,Upper Mendi Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.715475,-6.047197,Base,Health Facility
+EKARI,ROAD,PG070621,Upper Mendi Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.696276,-6.016149,Base,Health Facility
+NENE,Aidpost,PG070621,Upper Mendi Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.64536,-5.999506,Base,Health Facility
+SEMP,Aidpost,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.637495,-5.99931,Base,Health Facility
+PINGIRIP,Health Centre,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.611253,-6.00497,Base,Health Facility
+MUNGURA,Aidpost,PG070621,Upper Mendi Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.652376,-6.013496,Base,Health Facility
+PASURIM,Aidpost,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.614443,-6.042828,Base,Health Facility
+WAMBIP NO1,Aidpost,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.62027,-6.080078,Base,Health Facility
+WENDIA,Aidpost,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.631404,-6.085237,Base,Health Facility
+TENTE AREA NO1,District Hospital,PG070620,Mendi Urban LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.654516,-6.119085,Base,Health Facility
+DIMAFA (DIMIFA),Aidpost,PG070621,Upper Mendi Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.690884,-6.083171,Base,Health Facility
+KOMBAL 1,Aidpost,PG070621,Upper Mendi Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.654385,-6.058715,Base,Health Facility
+HUMBRA,Aidpost,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.642965,-6.056697,Base,Health Facility
+HUM,Sub Centre,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.591189,-6.070629,Base,Health Facility
+TOPA,SuB Centre,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.591695,-6.076802,Base,Health Facility
+TULUM NO2,Aidpost,PG070618,Karints Rural LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.606161,-6.059511,Base,Health Facility
+YAKEN N0 NO1,Aidpost,PG070207,Lower Mendi Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.663341,-6.206383,Base,Health Facility
+UNA,Aidpost,PG070207,Lower Mendi Rural LLG,PG0702,Imbonggu District,PG07,Southern Highlands Province,143.627245,-6.184088,Base,Health Facility
+MENDI HOSPITAL,District Hospital,PG070620,Mendi Urban LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.653132,-6.128324,Base,Health Facility
+WAKWAK,Aidpost,PG070620,Mendi Urban LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.662667,-6.132092,Base,Health Facility
+MENDI 3,District Hospital,PG070620,Mendi Urban LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.663185,-6.148451,Base,Health Facility
+ALUNI,Aidpost,PG210515,Lake Kopiago Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.380632,-5.390217,Base,Health Facility
+KANDEP H/C,,PG080101,Kandep Rural LLG,PG0801,Kandep District,PG08,Enga Province,143.507618,-5.839565,Base,Health Facility
+SOPAS,,PG080411,Wabag Rural LLG,PG0804,Wabag District,PG08,Enga Province,143.667962,-5.466316,Base,Health Facility
+MARU,,PG080102,Wage Rural LLG,PG0801,Kandep District,PG08,Enga Province,143.451556,-5.893427,Base,Health Facility
+LIMANDA,,PG080513,Wapenamanda Rural LLG,PG0805,Wapenamanda District,PG08,Enga Province,143.869212,-5.626514,Base,Health Facility
+YAMBIAKAM,,PG080514,Tsak Rural LLG,PG0805,Wapenamanda District,PG08,Enga Province,143.882838,-5.657269,Base,Health Facility
+YAMPU,,PG080203,Ambum Rural LLG,PG0802,Kompiam District,PG08,Enga Province,143.742319,-5.462065,Base,Health Facility
+WABAG,,PG080410,Wabag Urban LLG,PG0804,Wabag District,PG08,Enga Province,143.725552,-5.495519,Base,Health Facility
+TALU,Aidpost,PG220611,North Waghi Rural LLG,PG2206,North Waghi District,PG22,Jiwaka Province,144.671295,-5.822287,Base,Health Facility
+KENEMBO,Aidpost,PG090203,Dei Rural LLG,PG0902,Dei District,PG09,Western Highlands Province,144.362858,-5.708466,Base,Health Facility
+LUMUSA,Health Centre,PG090510,Lumusa Rural LLG,PG0905,Mul/Baiyer District,PG09,Western Highlands Province,144.066535,-5.535899,Base,Health Facility
+NEGABO.H/C,Health Centre,PG100307,Karimui Rural LLG,PG1003,Karimui/Nomane District,PG10,Chimbu (Simbu) Province,144.703436,-6.567307,Base,Health Facility
+GIRIU,Aidpost,PG100102,Elimbari Rural LLG,PG1001,Chuave District,PG10,Chimbu (Simbu) Province,145.078146,-6.214487,Base,Health Facility
+KUNABAU,Aidpost,PG100410,Gena/Waugla Rural LLG,PG1004,Kerowagi District,PG10,Chimbu (Simbu) Province,144.857737,-5.942591,Base,Health Facility
+BOGO,Health Centre,PG100411,Upper/Lower Koronigl LLG,PG1004,Kerowagi District,PG10,Chimbu (Simbu) Province,144.9087,-5.857495,Base,Health Facility
+KURANGKA,Aidpost,PG110419,Kamano No. 2 Rural LLG,PG1104,Kainanatu District,PG11,Eastern Highlands Province,146.07423,-6.357582,Base,Health Facility
+BIOKA,Aidpost,PG110419,Kamano No. 2 Rural LLG,PG1104,Kainanatu District,PG11,Eastern Highlands Province,146.018174,-6.309618,Base,Health Facility
+KESEVAKA,Health Centre,PG110315,Dunantina Rural LLG,PG1103,Henganofi District,PG11,Eastern Highlands Province,145.692966,-6.157143,Base,Health Facility
+HENAGARU,Health Centre,PG110722,West Okapa Rural LLG,PG1107,Okapa District,PG11,Eastern Highlands Province,145.427324,-6.529949,Base,Health Facility
+KASENA,Aidpost,PG110112,Lower Asaro Rural LLG,PG1101,Daulo District,PG11,Eastern Highlands Province,145.303487,-5.970358,Base,Health Facility
+HEWE,Aidpost,PG110214,Gahuku Rural LLG,PG1102,Goroka District,PG11,Eastern Highlands Province,145.320945,-6.063101,Base,Health Facility
+OBURA,Sub Centre,PG110608,Lamari Rural LLG,PG1106,Obura/Wonenara District,PG11,Eastern Highlands Province,145.975967,-6.55916,Base,Health Facility
+KISEVEROKA,Aidpost,PG110521,Yagaria Rural LLG,PG1105,Lufa District,PG11,Eastern Highlands Province,145.426907,-6.373158,Base,Health Facility
+MT.SION,Other,PG110202,Gahuku Rural LLG,PG1102,Goroka District,PG11,Eastern Highlands Province,145.394179,-6.122159,Base,Health Facility
+PUROSA,Aidpost,PG110710,East Okapa Rural LLG,PG1107,Okapa District,PG11,Eastern Highlands Province,145.559079,-6.676893,Base,Health Facility
+YAMAIUFA,Aidpost,PG110112,Lower Asaro Rural LLG,PG1101,Daulo District,PG11,Eastern Highlands Province,145.271058,-6.026142,Base,Health Facility
+KABWUM STN,No,PG120435,Selepet Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.189551,-6.154741,Base,Health Facility
+KAMANDU,No,PG120435,Selepet Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.187142,-6.190664,Base,Health Facility
+UROP,No,PG120414,Yus Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,146.604513,-5.981459,Base,Health Facility
+KALASSA MISS,No,PG120926,Sialum Rural LLG,PG1209,Tawae/Siassi District,PG12,Morobe Province,147.55925,-6.133641,Base,Health Facility
+KIP,No,PG120926,Sialum Rural LLG,PG1209,Tawae/Siassi District,PG12,Morobe Province,147.555444,-6.152719,Base,Health Facility
+KUKUYA,No,PG120926,Sialum Rural LLG,PG1209,Tawae/Siassi District,PG12,Morobe Province,147.544503,-6.140439,Base,Health Facility
+BONGA,No,PG120207,Kotte Rural LLG,PG1202,Finschafen District,PG12,Morobe Province,147.845496,-6.421713,Base,Health Facility
+PUYAKNGA,No,PG120619,Wantoat/Leron Rural LLG,PG1206,Markham District,PG12,Morobe Province,146.472674,-6.135041,Base,Health Facility
+YASURU,No,PG120617,Onga/Waffa Rural LLG,PG1206,Markham District,PG12,Morobe Province,146.179511,-6.603356,Base,Health Facility
+MENYI,No,PG120103,Watut Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,146.389255,-7.284499,Base,Health Facility
+BAYEMATU,No,PG120129,Buang Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,146.731777,-6.953429,Base,Health Facility
+HAWATA,No,PG120103,Watut Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,146.408716,-7.251205,Base,Health Facility
+PATEP 2,No,PG120101,Mumeng Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,146.611524,-6.882841,Base,Health Facility
+GUA,Health Centre,PG120414,Yus Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,146.56946,-5.968198,Base,Health Facility
+GANGULUT,Health Centre,PG120414,Yus Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,146.57313,-5.961024,Base,Health Facility
+DERIM,Health Centre,PG120412,Deyamos Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.101674,-6.145139,Base,Health Facility
+MOLONG,Aidpost,PG120412,Deyamos Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.115892,-6.163759,Base,Health Facility
+TUMUNG,Aidpost,PG120412,Deyamos Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.112181,-6.169885,Base,Health Facility
+ONGGAKE,Aidpost,PG120412,Deyamos Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.105122,-6.182695,Base,Health Facility
+DENGANDO,Aidpost,PG120435,Selepet Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.159396,-6.202107,Base,Health Facility
+DOLO,Aidpost,PG120435,Selepet Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.199084,-6.181799,Base,Health Facility
+ERENDENGAN,Aidpost,PG120435,Selepet Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.196417,-6.188238,Base,Health Facility
+SIKAM,Aidpost,PG120431,Komba Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.226728,-6.207128,Base,Health Facility
+UMAN,Aidpost,PG120431,Komba Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.210899,-6.216006,Base,Health Facility
+KOMBAN,Aidpost,PG120431,Komba Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.242338,-6.246491,Base,Health Facility
+CHIMBULOK,Aidpost,PG120129,Buang Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,146.741076,-6.90284,Base,Health Facility
+GOLDEN PINE,Aidpost,PG120103,Watut Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,146.595153,-7.136083,Base,Health Facility
+HIAKWATA,Aidpost,PG120730,Kapao Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,146.278937,-7.304718,Base,Health Facility
+ASEKI STATION,Health Centre,PG120734,Nanima Kariba LLG,PG1207,Menyamya District,PG12,Morobe Province,146.19138,-7.35062,Base,Health Facility
+HEKWANGI,Aidpost,PG120722,Wapi Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,146.100077,-7.180767,Base,Health Facility
+KAPO STATION,Health Centre,PG120722,Wapi Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,146.089263,-7.205134,Base,Health Facility
+PINAKE STN,Aidpost,PG120722,Wapi Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,146.075906,-7.242166,Base,Health Facility
+SIKWONG 1,Aidpost,PG120722,Wapi Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,146.100631,-7.250043,Base,Health Facility
+KWALEMJUKA,Health Centre,PG120721,Kome Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,145.922148,-7.147973,Base,Health Facility
+HEWAU,Aidpost,PG120721,Kome Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,145.923421,-7.1573,Base,Health Facility
+KWAPLAREM,Health Centre,PG120721,Kome Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,145.923475,-7.196645,Base,Health Facility
+LONGWI,Aidpost,PG120721,Kome Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,145.892045,-7.210999,Base,Health Facility
+KONDOLOP,Aidpost,PG120435,Selepet Rural LLG,PG1204,Kabwum District,PG12,Morobe Province,147.210642,-6.117676,Base,Health Facility
+NANDA,Aidpost,PG120926,Sialum Rural LLG,PG1209,Tawae/Siassi District,PG12,Morobe Province,147.666977,-6.177718,Base,Health Facility
+NOWA,Aidpost,PG120311,Wampar Rural LLG,PG1203,Huon District,PG12,Morobe Province,146.470408,-6.510882,Base,Health Facility
+YANUF,Aidpost,PG120617,Onga/Waffa Rural LLG,PG1206,Markham District,PG12,Morobe Province,146.286689,-6.531179,Base,Health Facility
+KASU NO 1,Health Centre,PG120102,Waria Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,147.1446,-7.899986,Base,Health Facility
+GURU MISSION,Health Centre,PG120102,Waria Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,147.126578,-7.878734,Base,Health Facility
+GURU VILLAGE,Health Centre,PG120102,Waria Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,147.125339,-7.88033,Base,Health Facility
+GARAINA STATION,Health Centre,PG120102,Waria Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,147.145332,-7.888496,Base,Health Facility
+SOPA,Health Centre,PG120102,Waria Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,147.138447,-7.889455,Base,Health Facility
+KASU NO 2,Health Centre,PG120102,Waria Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,147.141612,-7.911405,Base,Health Facility
+GARAINA,Health Centre,PG120102,Waria Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,147.15531,-7.883524,Base,Health Facility
+WAGAU,MUMENG,PG120129,Buang Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,146.80006,-6.852331,Base,Health Facility
+WAU GOVMNT STN,WAU/BULOLO URBAN,PG120104,Wau/Bulolo Urban LLG,PG1201,Bulolo District,PG12,Morobe Province,146.71595,-7.348579,Base,Health Facility
+YUNZAIN (OLD),KOTTE RURAL,PG120207,Kotte Rural LLG,PG1202,Finschafen District,PG12,Morobe Province,147.61242,-6.412663,Base,Health Facility
+GWEM-STATION,MUMENG RURAL,PG120129,Buang Rural LLG,PG1201,Bulolo District,PG12,Morobe Province,146.769214,-6.874909,Base,Health Facility
+KWANGE,KOME RURAL,PG120721,Kome Rural LLG,PG1207,Menyamya District,PG12,Morobe Province,145.930428,-7.175399,Base,Health Facility
+HELDSBACH,KOTTE RURAL,PG120207,Kotte Rural LLG,PG1202,Finschafen District,PG12,Morobe Province,147.831896,-6.495205,Base,Health Facility
+MURUKANAM,Aidpost,PG130514,Sumgilbar Rural LLG,PG1305,Sumkar District,PG13,Madang Province,145.564185,-4.628687,Base,Health Facility
+BUNABUNG,Health Centre,PG130514,Sumgilbar Rural LLG,PG1305,Sumkar District,PG13,Madang Province,145.522938,-4.586004,Base,Health Facility
+MANGA.MAREK,Health Centre,PG130513,Karkar Rural LLG,PG1305,Sumkar District,PG13,Madang Province,146.017892,-4.545932,Base,Health Facility
+YAGAUM,District Hospital,PG130204,Ambenob Rural LLG,PG1302,Madang District,PG13,Madang Province,145.738068,-5.289535,Base,Health Facility
+NUMBIA,Aidpost,PG130103,Yawar Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.839832,-4.162233,Base,Health Facility
+USINO,Sub Health Centre,PG130616,Usino Rural LLG,PG1306,Usino Bundi District,PG13,Madang Province,145.378589,-5.52846,Base,Health Facility
+TABELLE.H.C,Sub Centre,PG130102,Iabu Rural LLG,PG1301,Bogia District,PG13,Madang Province,145.001979,-4.109343,Base,Health Facility
+ALIBETI,Aidpost,PG130616,Usino Rural LLG,PG1306,Usino Bundi District,PG13,Madang Province,145.564789,-5.822005,Base,Health Facility
+HATZFELDHAVEN,Health Centre,PG130101,Almami Rural LLG,PG1301,Bogia District,PG13,Madang Province,145.209988,-4.396967,Base,Health Facility
+MALALA,Sub Centre,PG130101,Almami Rural LLG,PG1301,Bogia District,PG13,Madang Province,145.354839,-4.44942,Base,Health Facility
+WANGOR,Aidpost,PG130101,Almami Rural LLG,PG1301,Bogia District,PG13,Madang Province,145.069934,-4.366322,Base,Health Facility
+TRINIM,Aidpost,PG130101,Almami Rural LLG,PG1301,Bogia District,PG13,Madang Province,145.095729,-4.442943,Base,Health Facility
+PIR,Aidpost,PG130103,Yawar Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.70161,-4.338039,Base,Health Facility
+WAZAMB,Aidpost,PG130103,Yawar Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.914515,-4.42208,Base,Health Facility
+ARIANGON,SUB CENTRE,PG130103,Yawar Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.871401,-4.381927,Base,Health Facility
+IGOS,SUB CENTRE,PG130103,Yawar Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.772725,-4.313504,Base,Health Facility
+KAYOMA,SUB CENTRE,PG130103,Yawar Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.630738,-4.539822,Base,Health Facility
+BEGESIN,Health Centre,PG130616,Usino Rural LLG,PG1306,Usino Bundi District,PG13,Madang Province,145.444897,-5.38399,Base,Health Facility
+SAUSI,Health Centre,PG130616,Usino Rural LLG,PG1306,Usino Bundi District,PG13,Madang Province,145.500554,-5.666261,Base,Health Facility
+WALIUM STATION,Health Centre,PG130616,Usino Rural LLG,PG1306,Usino Bundi District,PG13,Madang Province,145.458476,-5.596842,Base,Health Facility
+YORO AIDPOST,AIDPOST,PG130101,Almami Rural LLG,PG1301,Bogia District,PG13,Madang Province,145.211128,-4.451846,Base,Health Facility
+ABARIA,AIDPOST,PG130102,Iabu Rural LLG,PG1301,Bogia District,PG13,Madang Province,145.074413,-4.064733,Base,Health Facility
+BOSMUN AIDPOST,AIDPOST,PG130103,Yawar Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.64866,-4.176665,Base,Health Facility
+BULIWAR,AIDPOST,PG130103,Yawar Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.679612,-4.096632,Base,Health Facility
+BOISA,BOISA,PG130102,Iabu Rural LLG,PG1301,Bogia District,PG13,Madang Province,144.960679,-3.996483,Base,Health Facility
+ALBINAMA,Sub Centre,PG140311,Bumbita/Muhian Rural LLG,PG1403,Maprik District,PG14,East Sepik Province,142.90599,-3.588103,Base,Health Facility
+BRIKITI,Aidpost,PG140310,Albiges/Mablep Rural LLG,PG1403,Maprik District,PG14,East Sepik Province,143.009457,-3.620166,Base,Health Facility
+BAKLO,Aidpost,PG140102,Dreikikier Rural LLG,PG1401,Ambunti/Drekikier District,PG14,East Sepik Province,142.640336,-3.614887,Base,Health Facility
+KAUK,Aidpost,PG140414,Boikin/Dagua Rural LLG,PG1404,Wewak District,PG14,East Sepik Province,143.157941,-3.363239,Base,Health Facility
+WOGINARA,Aidpost,PG140414,Boikin/Dagua Rural LLG,PG1404,Wewak District,PG14,East Sepik Province,143.31044,-3.460047,Base,Health Facility
+BANAK,Aidpost,PG140414,Boikin/Dagua Rural LLG,PG1404,Wewak District,PG14,East Sepik Province,143.363125,-3.416876,Base,Health Facility
+WAUTOGIK,Aidpost,PG140414,Boikin/Dagua Rural LLG,PG1404,Wewak District,PG14,East Sepik Province,143.355151,-3.44539,Base,Health Facility
+BAJIMAN,Aidpost,PG140415,Turubu Rural LLG,PG1404,Wewak District,PG14,East Sepik Province,143.799189,-3.725236,Base,Health Facility
+WATWAT.1,Aidpost,PG140415,Turubu Rural LLG,PG1404,Wewak District,PG14,East Sepik Province,143.745016,-3.707731,Base,Health Facility
+MARIK,Aidpost,PG140417,Wewak Rural LLG,PG1404,Wewak District,PG14,East Sepik Province,143.633268,-3.619006,Base,Health Facility
+SOWOM,Aidpost,PG140414,Boikin/Dagua Rural LLG,PG1404,Wewak District,PG14,East Sepik Province,143.107322,-3.373209,Base,Health Facility
+BURUI,Health Centre,PG140519,Burui/Kunai Rural LLG,PG1405,Wosera Gawi District,PG14,East Sepik Province,143.024086,-3.994269,Base,Health Facility
+ULAU.C.MISSION,Sub Centre,PG150101,East Aitape Rural LLG,PG1501,Aitape/Lumi District,PG15,West Sepik (Sandaun) Province,142.792797,-3.304206,Base,Health Facility
+RAIHU,District Hospital,PG150101,East Aitape Rural LLG,PG1501,Aitape/Lumi District,PG15,West Sepik (Sandaun) Province,142.363677,-3.178458,Base,Health Facility
+YAUKONO,Aidpost,PG150413,Bewani/Wutung Onei Rural LLG,PG1504,Vanimo/Green River District,PG15,West Sepik (Sandaun) Province,141.053253,-2.807536,Base,Health Facility
+KAMBRIAP.APOST,Aidpost,PG150414,Green River Rural LLG,PG1504,Vanimo/Green River District,PG15,West Sepik (Sandaun) Province,141.041152,-3.848617,Base,Health Facility
+LUMI,Health Centre,PG150102,East Wapei Rural LLG,PG1501,Aitape/Lumi District,PG15,West Sepik (Sandaun) Province,142.053102,-3.490147,Base,Health Facility
+FATIMA,Sub Centre,PG150104,West Wapei Rural LLG,PG1501,Aitape/Lumi District,PG15,West Sepik (Sandaun) Province,142.107606,-3.440138,Base,Health Facility
+SIPOTE,Aidpost,PG150104,West Wapei Rural LLG,PG1501,Aitape/Lumi District,PG15,West Sepik (Sandaun) Province,142.078165,-3.439645,Base,Health Facility
+KA,,PG160109,Tetidu LLG,PG1601,Manus District,PG16,Manus Province,147.067265,-2.110355,Base,Health Facility
+SIRRAH,,PG160108,Nali Sopat/Penabu LLG,PG1601,Manus District,PG16,Manus Province,147.16838,-2.139751,Base,Health Facility
+LAGO,,PG160111,Balopa LLG,PG1601,Manus District,PG16,Manus Province,147.369478,-2.374906,Base,Health Facility
+LAMUSMUS,Aidpost,PG170103,Tikana Rural LLG,PG1701,Kavieng District,PG17,New Ireland Province,151.138487,-2.896077,Base,Health Facility
+ALAKASAM,Aidpost,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.836275,-4.484864,Base,Health Facility
+AONA,Health Sub Centre,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.037474,-5.738233,Base,Health Facility
+ARABAM,Aidpost,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.114117,-4.596667,Base,Health Facility
+BAGO,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.359172,-5.170849,Base,Health Facility
+BILI,Aidpost,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.092963,-5.664742,Base,Health Facility
+PAPARATAVA,Health Sub Centre,PG180105,Vunadidir/Toma Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.168083,-4.382447,Base,Health Facility
+GAULIM,Health Sub Centre,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.094261,-4.437853,Base,Health Facility
+GELAGELA RES'MNT,Health Centre,PG180208,Kokopo/Vunamami Urban LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.242638,-4.410911,Base,Health Facility
+KABABIAI,Aidpost,PG180207,Duke of York Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.47076,-4.169109,Base,Health Facility
+KABATIAI,Aidpost,PG180207,Duke of York Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.470954,-4.208495,Base,Health Facility
+KADULAUNG S/MENT NO 1,Aidpost,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.118398,-4.452603,Base,Health Facility
+KAITON,Aidpost,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.427928,-5.695839,Base,Health Facility
+KAMANAKAM,Aidpost,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.839181,-4.284842,Base,Health Facility
+KANAKO,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.629386,-4.573353,Base,Health Facility
+KAPKENA,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.516745,-5.291004,Base,Health Facility
+KARAWARA,Aidpost,PG180207,Duke of York Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.420327,-4.241387,Base,Health Facility
+VUNAMARITA,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.80327,-4.214071,Base,Health Facility
+KARONG,Aidpost,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.226594,-4.960565,Base,Health Facility
+KENMININGA,Aidpost,PG180312,Melkoi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.013644,-5.895841,Base,Health Facility
+KERAVAT,Health Centre,PG180101,Central Gazelle Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.041466,-4.34921,Base,Health Facility
+Molot Health Centre,Health Centre,PG180207,Duke of York Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.453004,-4.137461,Base,Health Facility
+KORPUN,Aidpost,PG180311,East Pomio Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.036519,-5.454133,Base,Health Facility
+LAKIRI,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.701888,-5.313244,Base,Health Facility
+LASSUL BAY,Health Centre,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.717514,-4.219697,Base,Health Facility
+LOPUN,Aidpost,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.995024,-5.74812,Base,Health Facility
+LUNGA LUNGA,Aidpost,PG180104,Livuan/Reimber Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.983536,-4.212423,Base,Health Facility
+MALASAET,Aidpost,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.890201,-4.464258,Base,Health Facility
+Makaen,Aidpost,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.464737,-5.628978,Base,Health Facility
+MANDRES,Health Centre,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.91578,-4.33921,Base,Health Facility
+MAPUNA,Aidpost,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.082126,-5.754783,Base,Health Facility
+Marambu,Aidpost,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.263214,-4.637731,Base,Health Facility
+MARUNGA,Health Sub Centre,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.043503,-4.970382,Base,Health Facility
+MASUARI,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.460152,-5.178987,Base,Health Facility
+MATANAKUNAI,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.685574,-4.864484,Base,Health Facility
+MILE,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.379493,-5.331175,Base,Health Facility
+MUELA,Health Sub Centre,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.419709,-5.244191,Base,Health Facility
+MUNGOU,Health Centre,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.370263,-4.691117,Base,Health Facility
+NAPAPAR,Health Sub Centre,PG180101,Central Gazelle Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.11742,-4.339818,Base,Health Facility
+NONGA BASE HOSPITAL,Urban Clinic,PG180415,Balanataman Rural LLG,PG1804,Rabaul District,PG18,East New Britain Province,152.150195,-4.159254,Base,Health Facility
+NUTUVE,Health Sub Centre,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.661734,-5.333552,Base,Health Facility
+OPEN BAY,Health Sub Centre,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.692747,-4.803005,Base,Health Facility
+PAKIA,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.396318,-5.350078,Base,Health Facility
+PALIPAL,Aidpost,PG180207,Duke of York Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.424354,-4.118246,Base,Health Facility
+PALMALMAL,Health Centre,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.49322,-5.63033,Base,Health Facility
+PILEMATANA,Aidpost,PG180312,Melkoi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.972075,-5.973904,Base,Health Facility
+PUKTAS,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.776491,-4.245548,Base,Health Facility
+RABABAT,Aidpost,PG180104,Livuan/Reimber Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.027944,-4.19268,Base,Health Facility
+RABAGI,Aidpost,PG180105,Vunadidir/Toma Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.125221,-4.386862,Base,Health Facility
+RAKIVAL,Aidpost,PG180418,Watom Island Rual LLG,PG1804,Rabaul District,PG18,East New Britain Province,152.076368,-4.095567,Base,Health Facility
+GELAGELA,Health Sub Centre,PG180208,Kokopo/Vunamami Urban LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.23584,-4.402849,Base,Health Facility
+RAMALMAL,Aidpost,PG180104,Livuan/Reimber Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.104399,-4.224731,Base,Health Facility
+RAPITOK,Aidpost,PG180105,Vunadidir/Toma Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.11994,-4.363901,Base,Health Facility
+RAU,Aidpost,PG180418,Watom Island Rual LLG,PG1804,Rabaul District,PG18,East New Britain Province,152.069629,-4.112918,Base,Health Facility
+RAUNSEPNA,Health Sub Centre,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.784413,-4.456156,Base,Health Facility
+SANBAM,Aidpost,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.229786,-4.586968,Base,Health Facility
+SERENGUNA,Aidpost,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.219757,-5.741849,Base,Health Facility
+SIKUT 2,Aidpost,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.209663,-4.521887,Base,Health Facility
+SIKUT 1,Aidpost,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.210084,-4.521962,Base,Health Facility
+SIVAUNA,Health Centre,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.096204,-5.861056,Base,Health Facility
+SPANGO,Aidpost,PG180311,East Pomio Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.953997,-5.031515,Base,Health Facility
+TAKIS,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.501739,-4.207686,Base,Health Facility
+TAMANAIRIK NO  1,Aidpost,PG180105,Vunadidir/Toma Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.158892,-4.389012,Base,Health Facility
+Tapipipi Health Centre,Health Centre,PG180105,Vunadidir/Toma Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.16726,-4.349556,Base,Health Facility
+TAPO,Health Sub Centre,PG180206,Bitapaka Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.322468,-4.392725,Base,Health Facility
+TOKAI,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.720813,-5.511608,Base,Health Facility
+TOKIALA,Aidpost,PG180101,Central Gazelle Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.039374,-4.308885,Base,Health Facility
+TUKE,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.478731,-5.237328,Base,Health Facility
+UVOL,Health Sub Centre,PG180312,Melkoi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.002246,-6.015464,Base,Health Facility
+VARANA,Aidpost,PG180206,Bitapaka Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.305888,-4.493942,Base,Health Facility
+VIOSOPUNA,Health Centre,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.129897,-5.704322,Base,Health Facility
+VIVIRAN PRIVATE,Aidpost,PG180105,Vunadidir/Toma Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.151414,-4.434938,Base,Health Facility
+VUNAIROTO,Aidpost,PG180104,Livuan/Reimber Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.092709,-4.199255,Base,Health Facility
+VUNAKAUR,Aidpost,PG180105,Vunadidir/Toma Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.149873,-4.40548,Base,Health Facility
+VUNALAKA,Aidpost,PG180104,Livuan/Reimber Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.124498,-4.262128,Base,Health Facility
+VUNALIR,Aidpost,PG180104,Livuan/Reimber Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.0513,-4.204717,Base,Health Facility
+VUNAPAKA,Health Centre,PG180104,Livuan/Reimber Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.08184,-4.246638,Base,Health Facility
+VUNAPALADING,Aidpost,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.969689,-4.379391,Base,Health Facility
+VUNAPOPE,Health Centre,PG180208,Kokopo/Vunamami Urban LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.282209,-4.344192,Base,Health Facility
+VUNGA,Aidpost,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.062585,-4.509151,Base,Health Facility
+WAIRIKI,Aidpost,PG180105,Vunadidir/Toma Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.183156,-4.420065,Base,Health Facility
+RABAUL,Urban Clinic,PG180417,Rabaul Urban LLG,PG1804,Rabaul District,PG18,East New Britain Province,152.179755,-4.198955,Base,Health Facility
+WARENA S'MNT,Aidpost,PG180206,Bitapaka Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.305482,-4.494371,Base,Health Facility
+WARANGOI,Health Centre,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.155178,-4.494567,Base,Health Facility
+WILLIAMBEMAKI,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.629858,-4.52261,Base,Health Facility
+YALAM,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.747547,-4.410182,Base,Health Facility
+YAUYAU,Aidpost,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.959744,-5.627284,Base,Health Facility
+MALAKUNA,Aidpost,PG180206,Bitapaka Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.346504,-4.386368,Base,Health Facility
+TANGOLO,Aidpost,PG180312,Melkoi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.817891,-6.000345,Base,Health Facility
+VATNABARA,Health Sub Centre,PG180207,Duke of York Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.411814,-4.205948,Base,Health Facility
+WALILIAI,Aidpost,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.938831,-4.363998,Base,Health Facility
+Takabur,Aidpost,PG180208,Kokopo/Vunamami Urban LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.214383,-4.378402,Base,Health Facility
+MATONG,Health Sub Centre,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.751791,-5.545955,Base,Health Facility
+KADAULUNG,Aidpost,PG180102,Inland Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.136325,-4.4806,Base,Health Facility
+LOPUN,Aidpost,PG180312,Melkoi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.704576,-5.945667,Base,Health Facility
+OLAIPUN,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.536731,-5.501452,Base,Health Facility
+PULIPUNA,Aidpost,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.990892,-5.742905,Base,Health Facility
+BUTUWIN,Health Sub Centre,PG180208,Kokopo/Vunamami Urban LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.241432,-4.325215,Base,Health Facility
+KAWA,Aidpost,PG180310,Central/Inland Pomio LLG,PG1803,Pomio District,PG18,East New Britain Province,151.672912,-5.509551,Base,Health Facility
+KOMGI,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.735937,-4.374211,Base,Health Facility
+LAES KEREVAT,Aidpost,PG180101,Central Gazelle Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.030075,-4.332155,Base,Health Facility
+MASO,Aidpost,PG180312,Melkoi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,151.057321,-5.990952,Base,Health Facility
+WALMETKI,Aidpost,PG180103,Lassul Baining Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,151.554196,-4.370491,Base,Health Facility
+MIOKO,Aidpost,PG180207,Duke of York Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.458691,-4.225312,Base,Health Facility
+NAKUKUR,Aidpost,PG180207,Duke of York Rural LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.415613,-4.161572,Base,Health Facility
+Tavuiliu,Aidpost,PG180101,Central Gazelle Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.138702,-4.285487,Base,Health Facility
+ULAGUNAN,Aidpost,PG180208,Kokopo/Vunamami Urban LLG,PG1802,Kokopo District,PG18,East New Britain Province,152.247712,-4.373422,Base,Health Facility
+Vunairima College,Aidpost,PG180104,Livuan/Reimber Rural LLG,PG1801,Gazelle District,PG18,East New Britain Province,152.033045,-4.264156,Base,Health Facility
+Nongia,Aidpost,PG180313,Sinivit Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,152.31251,-4.851169,Base,Health Facility
+Gigipuna,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.132958,-5.198369,Base,Health Facility
+Noau,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.324955,-4.962402,Base,Health Facility
+Barema,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.119959,-5.220129,Base,Health Facility
+Hargy Compound,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.05196,-5.308728,Base,Health Facility
+Tiauru,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.04196,-5.371367,Base,Health Facility
+Ulamona,1,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.247956,-5.002771,Base,Health Facility
+Wilelo,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.087959,-5.261938,Base,Health Facility
+Navo,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.234957,-5.09443,Base,Health Facility
+Kabaia 1,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.159958,-5.11037,Base,Health Facility
+Soi 1,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.128958,-5.15429,Base,Health Facility
+Bibisi,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.907962,-5.643364,Base,Health Facility
+Kai,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.802964,-5.557745,Base,Health Facility
+Marapu,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.761964,-5.586555,Base,Health Facility
+Tarobi,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.801964,-5.455106,Base,Health Facility
+Uasilau 1,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.884963,-5.581435,Base,Health Facility
+Ubae,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.638966,-5.645524,Base,Health Facility
+Uasilau 2,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.879963,-5.549635,Base,Health Facility
+Silanga,1,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.849963,-5.552975,Base,Health Facility
+Sale/Sege,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.948962,-5.517335,Base,Health Facility
+Mamota,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.759964,-5.544085,Base,Health Facility
+Bereme,0,PG180312,Melkoi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.618967,-5.732483,Base,Health Facility
+Lamaliu,0,PG180314,West Pomio/Mamusi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.961962,-5.632944,Base,Health Facility
+Umua,0,PG180312,Melkoi Rural LLG,PG1803,Pomio District,PG18,East New Britain Province,150.611967,-5.813732,Base,Health Facility
+Gaongo,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.262972,-5.574066,Base,Health Facility
+Lavege,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.590967,-5.644264,Base,Health Facility
+Mosa,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.280971,-5.628575,Base,Health Facility
+Mingai,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.191973,-5.703224,Base,Health Facility
+Leim,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.315971,-5.764703,Base,Health Facility
+Malalia,0,PG190208,Hoskins Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.530968,-5.458287,Base,Health Facility
+Mai Mission,0,PG190208,Hoskins Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.296971,-5.549546,Base,Health Facility
+Ponini,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.245972,-5.586926,Base,Health Facility
+Buvussi,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.37797,-5.626035,Base,Health Facility
+Dami Oil Palm,0,PG190208,Hoskins Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.332971,-5.533616,Base,Health Facility
+Galai 1,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.37397,-5.662894,Base,Health Facility
+Kapore,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.276971,-5.582736,Base,Health Facility
+Kavui,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.306971,-5.588855,Base,Health Facility
+Lakiemata,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.208973,-5.658055,Base,Health Facility
+Sarakolok,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.217972,-5.636935,Base,Health Facility
+Tamba,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.255972,-5.647745,Base,Health Facility
+Siki,0,PG190208,Hoskins Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.439969,-5.479137,Base,Health Facility
+Malilimi 1,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.441969,-5.626135,Base,Health Facility
+Galai 2,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.40697,-5.655195,Base,Health Facility
+Malilimi 2,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.440969,-5.680144,Base,Health Facility
+Togulo,0,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.193973,-5.649615,Base,Health Facility
+Bola,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.044974,-5.340439,Base,Health Facility
+Buludava,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.024974,-5.075192,Base,Health Facility
+Garu,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,149.971976,-5.412698,Base,Health Facility
+Kandoka,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.839978,-5.503427,Base,Health Facility
+Pangalu,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.048974,-5.25893,Base,Health Facility
+Patanga,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.069974,-5.397738,Base,Health Facility
+Valupai,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,149.966975,-5.2676,Base,Health Facility
+Navurai,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.037975,-5.362299,Base,Health Facility
+Kavuhara,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.004975,-5.361969,Base,Health Facility
+Numondo,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.082974,-5.511417,Base,Health Facility
+Kumbango Mill,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.212972,-5.591466,Base,Health Facility
+Garu Plantation,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.053975,-5.521207,Base,Health Facility
+Kumbango Division 1,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.213972,-5.587816,Base,Health Facility
+Kumbango Division 2,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.203973,-5.605665,Base,Health Facility
+Kumbango Division 3,0,PG190211,Talasea Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.175973,-5.650385,Base,Health Facility
+Nutanavua,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.294985,-5.557648,Base,Health Facility
+Silovuti,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.66798,-5.532597,Base,Health Facility
+Isu,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.68198,-5.479578,Base,Health Facility
+Sasavoru,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.620981,-5.503778,Base,Health Facility
+Kumburi 1,0,PG190207,Bali/Witu Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,149.164986,-4.902986,Base,Health Facility
+Lambe,0,PG190207,Bali/Witu Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,149.491981,-4.641518,Base,Health Facility
+Manopo,0,PG190207,Bali/Witu Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,149.116987,-4.883186,Base,Health Facility
+Nalagaro,0,PG190207,Bali/Witu Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,149.138987,-4.904076,Base,Health Facility
+Rangu,0,PG190207,Bali/Witu Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,149.338983,-4.629439,Base,Health Facility
+Saint Michael's,0,PG190207,Bali/Witu Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,149.489981,-4.691008,Base,Health Facility
+Popmu,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.066989,-5.653327,Base,Health Facility
+Bolo,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.182987,-5.585447,Base,Health Facility
+Bulawatne,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.285986,-5.748675,Base,Health Facility
+Gigina,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.055989,-5.726246,Base,Health Facility
+Kwako,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.223987,-5.685066,Base,Health Facility
+Maravo,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.303986,-5.822384,Base,Health Facility
+Rovos,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.204987,-5.722436,Base,Health Facility
+Talewaga,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.247986,-5.636627,Base,Health Facility
+Kaliai,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.120988,-5.520258,Base,Health Facility
+Iboki,0,PG190105,Kove/Kaliai Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.195987,-5.558218,Base,Health Facility
+Akonga,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.646994,-5.490009,Base,Health Facility
+Aimaga,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.388998,-5.592089,Base,Health Facility
+Airagilpua,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.489997,-5.622718,Base,Health Facility
+Aisega,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.352999,-5.733367,Base,Health Facility
+Gilnit,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.541996,-5.760026,Base,Health Facility
+Sagsag Mission,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.331999,-5.581719,Base,Health Facility
+Kilenge,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.366998,-5.47483,Base,Health Facility
+Aumo Logging Camp 1,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.453998,-5.775496,Base,Health Facility
+Aumo Logging Camp 2,0,PG190102,Gloucester Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.434998,-5.772456,Base,Health Facility
+Borowai,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.872992,-5.870215,Base,Health Facility
+Iungpun,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.747994,-5.941934,Base,Health Facility
+Doungon,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.04099,-6.075202,Base,Health Facility
+Anepmete Logging Camp,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.640995,-5.834825,Base,Health Facility
+Crocodile Point,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.176988,-6.080662,Base,Health Facility
+Geren,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.588996,-5.811196,Base,Health Facility
+Sauren Logging Camp,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,148.868992,-5.968613,Base,Health Facility
+Akinum,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.731981,-6.271438,Base,Health Facility
+Wasum,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.343986,-6.054622,Base,Health Facility
+Aum,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.701981,-6.271848,Base,Health Facility
+Ahli,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.834979,-6.274198,Base,Health Facility
+Aulo,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.474984,-6.101941,Base,Health Facility
+Aliwo,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.571983,-6.262389,Base,Health Facility
+Asimete,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.468984,-6.117761,Base,Health Facility
+Mukurien,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.76598,-6.269258,Base,Health Facility
+Poliaeng,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.303986,-6.053142,Base,Health Facility
+Ablingi,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.069976,-6.300937,Base,Health Facility
+Amio,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.746966,-6.106768,Base,Health Facility
+Au,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.217973,-6.248528,Base,Health Facility
+Amelei,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.621967,-6.108289,Base,Health Facility
+Asirim,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.368971,-6.00926,Base,Health Facility
+Alevo,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.897978,-6.292048,Base,Health Facility
+Awagli,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.221973,-6.273317,Base,Health Facility
+Gailo,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.076976,-6.281898,Base,Health Facility
+Gasmata,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.331972,-6.272367,Base,Health Facility
+Amio Logging Camp,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.741966,-6.108198,Base,Health Facility
+Amio Government Station,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,150.727966,-6.110038,Base,Health Facility
+Ipuk,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.320986,-5.974763,Base,Health Facility
+Mang,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.442984,-5.938693,Base,Health Facility
+Molo,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.464984,-6.024452,Base,Health Facility
+Tekerapna,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.226987,-5.974793,Base,Health Facility
+Urin,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.162988,-6.002702,Base,Health Facility
+Gergereng,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.301986,-5.959563,Base,Health Facility
+Miupak,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.539983,-5.983792,Base,Health Facility
+Eseli,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.407985,-6.011592,Base,Health Facility
+Aka,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.637982,-6.11612,Base,Health Facility
+Au,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.625982,-6.097961,Base,Health Facility
+Iombon,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.790979,-6.020551,Base,Health Facility
+Pomalal,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.75198,-6.12079,Base,Health Facility
+Senemsi,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.569983,-6.101941,Base,Health Facility
+Honevio,0,PG190101,Gasmata Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.870978,-6.175609,Base,Health Facility
+Pomalngin,0,PG190104,Kandrian Inland Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.833979,-6.10703,Base,Health Facility
+Kandrian Station,1,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.546983,-6.207559,Base,Health Facility
+Turuk,0,PG190103,Kandrian Coastal Rural LLG,PG1901,Kandrian/Gloucester District,PG19,West New Britain Province,149.551983,-6.213759,Base,Health Facility
+Bialla Hospital,1,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,151.03496,-5.325448,Base,Health Facility
+Bilomi 1,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.677966,-5.635784,Base,Health Facility
+Bilomi 2,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.658966,-5.608995,Base,Health Facility
+Kapiura Mill,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.684966,-5.624014,Base,Health Facility
+Karausu,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.716965,-5.594865,Base,Health Facility
+Kautu 1,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.679966,-5.585545,Base,Health Facility
+Kautu 2,0,PG190206,Bialla Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.700965,-5.607545,Base,Health Facility
+Hoskins Station,0,PG190208,Hoskins Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.410969,-5.456747,Base,Health Facility
+Buluma Compound,1,PG190208,Hoskins Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.317971,-5.530256,Base,Health Facility
+Mosa Administration,1,PG190210,Mosa Rural LLG,PG1902,Talasea District,PG19,West New Britain Province,150.237972,-5.622945,Base,Health Facility
+EILELINA,Health Centre,PG200104,Buka LLG,PG2001,North Bougainville District,PG20,Autonomous Region of Bougainville,154.665079,-5.13665,Base,Health Facility
+SOVELE,Health Centre,PG200311,Bana LLG,PG2003,South Bougainville District,PG20,Autonomous Region of Bougainville,155.387416,-6.475616,Base,Health Facility
+RATSWA,Aidpost,PG200103,Selau/Suir LLG,PG2001,North Bougainville District,PG20,Autonomous Region of Bougainville,154.796134,-5.53423,Base,Health Facility
+TOKAINO,Health Centre,PG200309,Buin LLG,PG2003,South Bougainville District,PG20,Autonomous Region of Bougainville,155.635827,-6.659566,Base,Health Facility
+URATAI,Aidpost,PG200207,Wakunai LLG,PG2002,Central Bougainville District,PG20,Autonomous Region of Bougainville,155.114196,-5.838726,Base,Health Facility
+WAKUNAI,Health Centre,PG200207,Wakunai LLG,PG2002,Central Bougainville District,PG20,Autonomous Region of Bougainville,155.209139,-5.869634,Base,Health Facility
+BENARIA  SC,Sub Health Centre,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.025085,-6.132804,OSL,Health Facility
+JUNI SC,Sub Health Centre,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.784782,-5.938442,OSL,Health Facility
+KARINJA SC,Sub Health Centre,PG210413,Lower Wage LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.348085,-6.100498,OSL,Health Facility
+KOMO HC,Health Centre,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.856619,-6.063562,OSL,Health Facility
+MANANDA SC,Sub Health Centre,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.851113,-6.147935,OSL,Health Facility
+MARGARIMA HC,Health Centre,PG210431,Upper Wage LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.359911,-5.977781,OSL,Health Facility
+PANDUAKA SC,Sub Health Centre,PG210431,Upper Wage LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.308164,-5.836802,OSL,Health Facility
+WABIA HC,Health Centre,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.988878,-5.899101,OSL,Health Facility
+TIGIBI SC,Sub Health Centre,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.027644,-5.923322,OSL,Health Facility
+DAULI SC,Sub Health Centre,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.963802,-5.957931,OSL,Health Facility
+GUALA SC,Sub Health Centre,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.764713,-5.734903,OSL,Health Facility
+KELABO SC,Sub Health Centre,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.564936,-5.565109,OSL,Health Facility
+KOPIAGO HC,Health Centre,PG210515,Lake Kopiago Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.495708,-5.385684,OSL,Health Facility
+KOROBA DH,Hospital,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.738338,-5.702606,OSL,Health Facility
+FUGWA HC,Health Centre,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.869928,-5.843855,OSL,Health Facility
+PAGA SC,Sub Health Centre,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.592126,-5.477543,OSL,Health Facility
+PORI HC,Health Centre,PG210514,Awi/Pori Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.734996,-5.583627,OSL,Health Facility
+PURENI SC,Sub Health Centre,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.826475,-5.841747,OSL,Health Facility
+ALUNI SC,Sub Health Centre,PG210515,Lake Kopiago Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.380047,-5.390286,OSL,Health Facility
+HEDEMARI SC,Sub Health Centre,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.816711,-5.771825,OSL,Health Facility
+AWI SC,Sub Health Centre,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.704869,-5.743665,OSL,Health Facility
+KAGOMA SC,Sub Health Centre,PG210516,North Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.627263,-5.618299,OSL,Health Facility
+WANIKIPA SC,Sub Health Centre,PG210515,Lake Kopiago Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.522207,-5.255776,OSL,Health Facility
+MARIA SC,Sub Health Centre,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.803466,-5.730974,OSL,Health Facility
+HANGAPO SC,Sub Health Centre,PG210830,Tebi Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.997456,-5.848835,OSL,Health Facility
+IDAWI SC,Sub Health Centre,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.857169,-5.926599,OSL,Health Facility
+KARIDA SC,Sub Health Centre,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.840583,-5.766054,OSL,Health Facility
+PAJAKA SC,Sub Health Centre,PG210828,Tagali Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.938686,-5.782528,OSL,Health Facility
+TANI WALETE SC,Sub Health Centre,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.888087,-5.983032,OSL,Health Facility
+HELA HOSPITAL,Hospital,PG210829,Tari Urban LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.940922,-5.838172,OSL,Health Facility
+KAKARANE SC,Sub Health Centre,PG210517,South Koroba Rural LLG,PG2105,Koroba/Kopiago District,PG21,Hela Province,142.765395,-5.763146,OSL,Health Facility
+HABONO SC,Sub Health Centre,PG210827,Hayapuga Rural LLG,PG2108,Tari/Pori District,PG21,Hela Province,142.834499,-5.926655,OSL,Health Facility
+PARA SC,Sub Health Centre,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.794608,-6.023301,OSL,Health Facility
+OSL CLINIC,Clinic,PG210412,Komo Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,142.78644,-5.935276,OSL,Health Facility
+OSL CLINIC,Clnic,PG020210,West Kikori Rural LLG,PG0202,Kikori District,PG02,Gulf Province,144.182419,-7.320534,OSL,Health Facility
+KAIAM,Aidpost,PG020210,West Kikori Rural LLG,PG0202,Kikori District,PG02,Gulf Province,144.177296,-7.31949,OSL,Health Facility
+PAU'A,Aid Post,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.14879,-6.184823,OSL,Health Facility
+KANTOBO,Aid Post,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.567107,-6.723231,OSL,Health Facility
+KAFA,Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.514399,-6.584205,OSL,Health Facility
+SISIBIA,Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.12126,-6.330127,OSL,Health Facility
+KAIPU,Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.158103,-6.365213,OSL,Health Facility
+HEDINIA,Sub Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.265549,-6.526327,OSL,Health Facility
+WARO,Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.205941,-6.539875,OSL,Health Facility
+OSL CLINIC,Clinic,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.229709,-6.361371,OSL,Health Facility
+INU,Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.304894,-6.370319,OSL,Health Facility
+TUGIRI,Sub Health Centre,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.344581,-6.389671,OSL,Health Facility
+PIMAGA,Hospital,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.508357,-6.499001,OSL,Health Facility
+BAGUALE,Health Centre,PG070725,Nipa Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.224369,-6.229815,OSL,Health Facility
+HOMA,Aid Post,PG210411,Hulia Rural LLG,PG2104,Komo/Magarima District,PG21,Hela Province,143.147068,-6.199214,OSL,Health Facility
+SAMBERIGI,Health Centre,PG070308,Erave Rural LLG,PG0703,Kagua/Erave District,PG07,Southern Highlands Province,143.927199,-6.724852,OSL,Health Facility
+OSL CLINIC,Clinic,PG020210,West Kikori Rural LLG,PG0202,Kikori District,PG02,Gulf Province,143.74445,-6.82123,OSL,Health Facility
+AIYO,Aidpost,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.286594,-6.54233,OSL,Health Facility
+WALAGU HSC,Sub Health Centre,PG070723,Mt Bosavi Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,142.84293,-6.4642,OSL,Health Facility
+HARABAIYU AP,Aidpost,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.580468,-6.508513,OSL,Health Facility
+OROKANA AP,Aidpost,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.528043,-6.501132,OSL,Health Facility
+YOMASI  AP,Aidpost,PG070722,Lake Kutubu Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.649685,-6.544715,OSL,Health Facility
+TAMENDA SC,Sub Health Centre,PG070726,Poroma Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.642345,-6.349555,OSL,Health Facility
+KAR  SC,Sub Health Centre,PG070726,Poroma Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.549182,-6.241818,OSL,Health Facility
+TEGIBO  SC,Sub Health Centre,PG070724,Nembi Plateau Rural LLG,PG0707,Nipa/Kutubu District,PG07,Southern Highlands Province,143.466531,-6.233127,OSL,Health Facility
+MENDI,Hospital,PG070620,Mendi Urban LLG,PG0706,Mendi/Munihu District,PG07,Southern Highlands Province,143.657297,-6.142889,OSL,Health Facility

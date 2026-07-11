@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../../context/TenantContext';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     LineChart, Line, PieChart, Pie, Cell, Legend
 } from 'recharts';
 import './OperationsOverview.css';
 
-const OperationsOverview = ({ filters }) => {
+const OperationsOverview = ({ filters, onLocationChange }) => {
+    const { tenantCode } = useTenant();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -26,7 +28,7 @@ const OperationsOverview = ({ filters }) => {
                 if (filters.location?.facility) params.append('facility', filters.location.facility);
 
                 const token = localStorage.getItem('token');
-                const res = await fetch(`/api/dashboard/operations?${params.toString()}`, {
+                const res = await fetch(`/api/${tenantCode}/dashboard/operations?${params.toString()}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -178,7 +180,7 @@ const OperationsOverview = ({ filters }) => {
                             {riskMap.slice(0, 5).map((fac, i) => (
                                 <tr
                                     key={i}
-                                    onClick={() => onLocationChange({ ...filters.location, facility: fac.facility_id })}
+                                    onClick={() => onLocationChange('facility', fac.facility_name)}
                                     style={{ cursor: 'pointer' }}
                                     title="Filter dashboard by this facility"
                                     className="interactive-row"
