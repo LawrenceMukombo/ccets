@@ -55,3 +55,9 @@ coverage/
 
 # Large source archives kept locally; expanded files are committed instead.
 zmb_admin_boundaries.shp.zip
+
+# Raw geospatial source/temp files kept locally outside GitHub push payload
+backend/src/data/mwi_temp/
+backend/src/data/png_temp/
+zmb_admin_boundaries.shp/
+mwi_admin_boundaries.geojson.zip
