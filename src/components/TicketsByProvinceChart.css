@@ -1,4 +1,4 @@
-.chart-container {
+.analytics-layout .chart-container {
     background: white;
     border-radius: 12px;
     padding: 24px;
@@ -424,4 +424,31 @@
         color: #f1f5f9;
         border-bottom-color: #334155;
     }
+}
+/* Force readable province chart text on light dashboard cards, even when the OS/browser is in dark mode. */
+.analytics-layout .chart-container,
+.analytics-layout .chart-container .chart-header,
+.analytics-layout .chart-container .chart-content,
+.analytics-layout .chart-container .bars-container {
+    background: #ffffff !important;
+    color: #1e293b !important;
+}
+
+.analytics-layout .chart-container .chart-header h3,
+.analytics-layout .chart-container .chart-subtitle,
+.analytics-layout .chart-container .legend-label,
+.analytics-layout .chart-container .province-name,
+.analytics-layout .chart-container .province-total,
+.analytics-layout .chart-container .chart-empty,
+.analytics-layout .chart-container .bar-label-vertical .province-name,
+.analytics-layout .chart-container .bar-label-vertical .province-total {
+    color: #1e293b !important;
+    opacity: 1 !important;
+}
+
+.analytics-layout .chart-container .chart-subtitle,
+.analytics-layout .chart-container .legend-label,
+.analytics-layout .chart-container .province-total,
+.analytics-layout .chart-container .bar-label-vertical .province-total {
+    color: #475569 !important;
 }

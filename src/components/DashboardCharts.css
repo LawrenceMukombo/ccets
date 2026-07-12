@@ -194,3 +194,32 @@
         fill: #f1f5f9;
     }
 }
+/* Force readable analytics text on light dashboard cards, even when the OS/browser is in dark mode. */
+.dashboard-charts .chart-card,
+.dashboard-charts .chart-card-header,
+.dashboard-charts .chart-content {
+    background: #ffffff !important;
+    color: #1e293b !important;
+}
+
+.dashboard-charts .chart-card-header h3,
+.dashboard-charts .chart-card-header p,
+.dashboard-charts .chart-empty,
+.dashboard-charts .recharts-text,
+.dashboard-charts .recharts-cartesian-axis-tick-value,
+.dashboard-charts .recharts-label,
+.dashboard-charts .recharts-pie-label-text,
+.dashboard-charts .recharts-legend-item-text {
+    color: #1e293b !important;
+    fill: #1e293b !important;
+    opacity: 1 !important;
+}
+
+.dashboard-charts .chart-card-header p {
+    color: #475569 !important;
+}
+
+.dashboard-charts .recharts-cartesian-grid line {
+    stroke: #cbd5e1 !important;
+    opacity: 1 !important;
+}
