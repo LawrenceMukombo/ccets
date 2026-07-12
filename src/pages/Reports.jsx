@@ -26,7 +26,7 @@ function Reports() {
     const { tenantCode } = useTenant();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [dateRange, setDateRange] = useState('30');
+    const [dateRange, setDateRange] = useState('all');
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -135,7 +135,7 @@ function Reports() {
                 end.setHours(23, 59, 59, 999);
                 filtered = filtered.filter(t => new Date(t.created_at) <= end);
             }
-        } else {
+        } else if (dateRange !== 'all') {
             const days = parseInt(dateRange);
             const cutoff = new Date();
             cutoff.setDate(cutoff.getDate() - days);
@@ -345,6 +345,12 @@ function Reports() {
         }, 100);
     };
 
+    const getDateRangeLabel = () => {
+        if (dateRange === 'all') return 'all ticket history';
+        if (dateRange === 'custom') return 'the selected custom range';
+        return `the last ${dateRange} days`;
+    };
+
     const handleExport = () => {
         if (techStats.length === 0) return;
         const headers = ['Technician Name', 'Tickets Assigned', 'Tickets Resolved', 'Efficiency (%)', 'Avg Resolution Time (Days)'];
@@ -353,7 +359,7 @@ function Reports() {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `technician_performance_report_${dateRange}days.csv`);
+        link.setAttribute("download", dateRange === 'all' ? 'technician_performance_report_all_time.csv' : `technician_performance_report_${dateRange}days.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -374,7 +380,7 @@ function Reports() {
                 <div className="header-content">
                     <div>
                         <h1>📊 Analytics & Reports</h1>
-                        <p className="header-subtitle">Performance insights for the last {dateRange} days</p>
+                        <p className="header-subtitle">Performance insights for {getDateRangeLabel()}</p>
                     </div>
                     <div className="header-actions">
                         <LocationFilter
@@ -417,6 +423,7 @@ function Reports() {
                             onChange={(e) => setDateRange(e.target.value)}
                             className="date-range-select"
                         >
+                            <option value="all">All Time</option>
                             <option value="7">Last 7 Days</option>
                             <option value="30">Last 30 Days</option>
                             <option value="90">Last 90 Days</option>
