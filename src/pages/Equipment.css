@@ -523,3 +523,14 @@ body.dark .page-btn:hover:not(:disabled) {
 body.dark .pagination-info {
     color: #94a3b8;
 }
+/* Keep page titles readable on the blue header band. */
+.equipment-container .equipment-header,
+.equipment-container .equipment-header h1,
+.equipment-container .equipment-header .header-subtitle {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+.equipment-container .equipment-header h1 {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
