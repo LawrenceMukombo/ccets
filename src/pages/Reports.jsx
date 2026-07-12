@@ -159,16 +159,16 @@ function Reports() {
         }
 
         // Location Filters (Using hook state)
-        if (locationFilters.region !== 'all') {
+        if (locationFilters.region && locationFilters.region !== 'all') {
             filtered = filtered.filter(t => t.region_name === locationFilters.region);
         }
-        if (locationFilters.province !== 'all') {
+        if (locationFilters.province && locationFilters.province !== 'all') {
             filtered = filtered.filter(t => t.province_name === locationFilters.province);
         }
-        if (locationFilters.district !== 'all') {
+        if (locationFilters.district && locationFilters.district !== 'all') {
             filtered = filtered.filter(t => t.district_name === locationFilters.district);
         }
-        if (locationFilters.facility !== 'all') {
+        if (locationFilters.facility && locationFilters.facility !== 'all') {
             filtered = filtered.filter(t => t.facility_name === locationFilters.facility);
         }
 
