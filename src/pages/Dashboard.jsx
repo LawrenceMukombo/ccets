@@ -627,7 +627,7 @@ function Dashboard() {
                             </div>
                             <div className="chart-body">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={trendData}>
+                                    <LineChart data={weeklyTrendData}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                         <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
                                         <YAxis fontSize={10} tickLine={false} axisLine={false} />

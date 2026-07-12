@@ -987,10 +987,10 @@ exports.getTicketsByProvince = async (req, res) => {
         const query = `
             SELECT 
                 COALESCE(loc.${topLevelNameField}, 'Unknown ${topLevelLabel}') as location,
-                COUNT(CASE WHEN LOWER(t.ticket_status) IN ('open', 'new') THEN 1 END)::int as open,
-                COUNT(CASE WHEN LOWER(t.ticket_status) IN ('in_progress', 'assigned') THEN 1 END)::int as in_progress,
-                COUNT(CASE WHEN LOWER(t.ticket_status) = 'resolved' THEN 1 END)::int as resolved,
-                COUNT(CASE WHEN LOWER(t.ticket_status) = 'closed' THEN 1 END)::int as closed,
+                COUNT(CASE WHEN LOWER(t.ticket_status::text) IN ('open', 'new') THEN 1 END)::int as open,
+                COUNT(CASE WHEN LOWER(t.ticket_status::text) IN ('in_progress', 'in progress', 'assigned') THEN 1 END)::int as in_progress,
+                COUNT(CASE WHEN LOWER(t.ticket_status::text) = 'resolved' THEN 1 END)::int as resolved,
+                COUNT(CASE WHEN LOWER(t.ticket_status::text) = 'closed' THEN 1 END)::int as closed,
                 COUNT(*)::int as total
             FROM tickets t
             LEFT JOIN facilities f ON t.facility_id = f.facility_id
@@ -1079,9 +1079,9 @@ exports.getMonthlyTrends = async (req, res) => {
         const result = await db.query(`
             SELECT 
                 TO_CHAR(created_at, 'Mon') as month,
-                COUNT(CASE WHEN LOWER(ticket_status) IN ('open', 'new') THEN 1 END)::int as high_priority,
-                COUNT(CASE WHEN LOWER(ticket_status) IN ('in_progress', 'assigned') THEN 1 END)::int as medium_priority,
-                COUNT(CASE WHEN LOWER(ticket_status) IN ('resolved', 'closed') THEN 1 END)::int as low_priority,
+                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('open', 'new') THEN 1 END)::int as high_priority,
+                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('in_progress', 'in progress', 'assigned') THEN 1 END)::int as medium_priority,
+                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('resolved', 'closed') THEN 1 END)::int as low_priority,
                 COUNT(*)::int as total
             FROM tickets
             WHERE created_at >= CURRENT_DATE - INTERVAL '6 months'
