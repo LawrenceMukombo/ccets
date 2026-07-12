@@ -1,5 +1,10 @@
 import { useState, useMemo } from 'react';
 
+const DEFAULT_HIERARCHY = [
+    { id: 'province', name: 'Province' },
+    { id: 'district', name: 'District' }
+];
+
 /**
  * Hook to manage cascading location filters with dynamic hierarchy support.
  * 
@@ -9,10 +14,7 @@ import { useState, useMemo } from 'react';
  */
 export function useLocationFilter(data = [], config = {}) {
     const {
-        hierarchy = [
-            { id: 'province', name: 'Province' },
-            { id: 'district', name: 'District' }
-        ],
+        hierarchy = DEFAULT_HIERARCHY,
         facilityField = 'facility_name'
     } = config;
 

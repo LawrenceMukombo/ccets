@@ -8,15 +8,15 @@ const getAuditLogs = async (req, res) => {
 
         let query = `
             SELECT 
-                al.id,
+                al.audit_id AS id,
                 al.action,
-                al.entity_type,
-                al.entity_id,
-                al.details,
-                al.ip_address,
-                al.user_agent,
-                al.created_at,
-                CONCAT(u.first_name, ' ', u.last_name) as user_name,
+                al.table_name AS entity_type,
+                al.record_id AS entity_id,
+                json_build_object('old_value', al.old_value, 'new_value', al.new_value) AS details,
+                NULL::text AS ip_address,
+                NULL::text AS user_agent,
+                al.timestamp AS created_at,
+                NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as user_name,
                 u.email as user_email
             FROM audit_trail al
             LEFT JOIN users u ON al.user_id = u.user_id
@@ -39,12 +39,12 @@ const getAuditLogs = async (req, res) => {
         }
 
         if (entity_type && entity_type !== 'all') {
-            query += ` AND al.entity_type = $${paramCount}`;
+            query += ` AND al.table_name = $${paramCount}`;
             params.push(entity_type);
             paramCount++;
         }
 
-        query += ` ORDER BY al.created_at DESC LIMIT $${paramCount}`;
+        query += ` ORDER BY al.timestamp DESC LIMIT $${paramCount}`;
         params.push(limit);
 
         const result = await db.query(query, params);
@@ -69,16 +69,16 @@ const exportAuditLogs = async (req, res) => {
     try {
         const logs = await db.query(`
             SELECT 
-                al.created_at,
-                CONCAT(u.first_name, ' ', u.last_name) as user_name,
+                al.timestamp AS created_at,
+                NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as user_name,
                 al.action,
-                al.entity_type,
-                al.entity_id,
-                al.ip_address,
-                al.details
+                al.table_name AS entity_type,
+                al.record_id AS entity_id,
+                NULL::text AS ip_address,
+                json_build_object('old_value', al.old_value, 'new_value', al.new_value) AS details
             FROM audit_trail al
             LEFT JOIN users u ON al.user_id = u.user_id
-            ORDER BY al.created_at DESC
+            ORDER BY al.timestamp DESC
             LIMIT 1000
         `);
 

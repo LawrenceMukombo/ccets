@@ -509,6 +509,7 @@ function Map({ tickets: propTickets }) {
                         options={options}
                         onFilterChange={handleFilterChange}
                         compactMode={true}
+                        labelColor="#334155"
                     />
                 </div>
             )}
