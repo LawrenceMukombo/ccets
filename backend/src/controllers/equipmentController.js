@@ -91,6 +91,7 @@ const getEquipment = async (req, res) => {
             FROM equipment e
             LEFT JOIN facilities f ON e.facility_id = f.facility_id
             LEFT JOIN provinces p ON f.province_id = p.province_id
+            LEFT JOIN districts d ON f.district_id = d.district_id
             LEFT JOIN regions r ON p.region_id = r.region_id
             ${whereClause}
         `, queryParams);
