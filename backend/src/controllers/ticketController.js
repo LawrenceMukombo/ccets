@@ -1079,15 +1079,16 @@ exports.getTicketsByProvince = async (req, res) => {
                 ? JSON.parse(configRes.rows[0].hierarchy) 
                 : configRes.rows[0].hierarchy;
             
-            if (hierarchy && hierarchy.length > 0) {
-                const topLevel = hierarchy[0];
+            const geoHierarchy = (hierarchy || []).filter(level => 
+                ['province', 'district', 'region'].includes(level.id)
+            );
+            
+            if (geoHierarchy && geoHierarchy.length > 0) {
+                const topLevel = geoHierarchy[0];
                 topLevelLabel = topLevel.name;
                 topLevelId = `${topLevel.id}_id`;
                 topLevelNameField = `${topLevel.id}_name`;
                 tableName = `${topLevel.id}s`; // Assuming plural table name convention
-                
-                // Special case for "region" as it often doesn't follow the plural 's' if already ending in n? 
-                // Actually 'regions', 'provinces', 'districts' all work.
             }
         }
 
