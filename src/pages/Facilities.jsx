@@ -34,6 +34,25 @@ function Facilities() {
         { id: 'district', name: 'District' }
     ];
 
+    const isFilterableLevel = (level) => {
+        if (!level || !level.id) return false;
+        const idLower = level.id.toLowerCase();
+        const nameLower = (level.name || '').toLowerCase();
+        const nonFilteringTerms = [
+            'national', 'country', 'facility', 'health_facility', 'healthfacility', 'system'
+        ];
+        const isExcluded = nonFilteringTerms.some(term => 
+            idLower.includes(term) || nameLower.includes(term)
+        );
+        if (idLower === 'level_3' && nameLower === 'national') return false;
+        if (idLower === 'level_4' && nameLower === 'health facility') return false;
+        return !isExcluded;
+    };
+
+    const filterableLocationHierarchy = useMemo(() => {
+        return hierarchy.filter(isFilterableLevel);
+    }, [hierarchy]);
+
     // Location Filter options calculated from in-memory metadata list
     const {
         filters: locationFilters,
@@ -41,7 +60,7 @@ function Facilities() {
         clearFilters: clearLocationFilters,
         options
     } = useLocationFilter(allFacilitiesForOptions, {
-        hierarchy: hierarchy,
+        hierarchy: filterableLocationHierarchy,
         facilityField: 'facility_name'
     });
 
@@ -113,7 +132,7 @@ function Facilities() {
     const columns = [
         { id: 'facility_name', label: 'Name', sortable: true, defaultVisible: true, hideable: false },
         { id: 'facility_code', label: 'Code', sortable: true, defaultVisible: true },
-        ...hierarchy.map(level => ({
+        ...filterableLocationHierarchy.map(level => ({
             id: level.id,
             label: level.name.toUpperCase(),
             sortable: true,

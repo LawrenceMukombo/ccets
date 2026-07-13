@@ -37,9 +37,23 @@ function Tickets() {
     // Dynamic Hierarchy
     const hierarchy = config?.hierarchy || DEFAULT_TICKET_HIERARCHY;
 
+    const isFilterableLevel = (level) => {
+        if (!level || !level.id) return false;
+        const idLower = level.id.toLowerCase();
+        const nameLower = (level.name || '').toLowerCase();
+        const nonFilteringTerms = [
+            'national', 'country', 'facility', 'health_facility', 'healthfacility', 'system'
+        ];
+        const isExcluded = nonFilteringTerms.some(term => 
+            idLower.includes(term) || nameLower.includes(term)
+        );
+        if (idLower === 'level_3' && nameLower === 'national') return false;
+        if (idLower === 'level_4' && nameLower === 'health facility') return false;
+        return !isExcluded;
+    };
+
     const filterableLocationHierarchy = useMemo(() => {
-        const nonFilteringLevels = new Set(['national', 'country', 'facility', 'health_facility', 'healthFacility']);
-        return hierarchy.filter(level => level?.id && !nonFilteringLevels.has(level.id));
+        return hierarchy.filter(isFilterableLevel);
     }, [hierarchy]);
 
     // Modal states
@@ -318,7 +332,7 @@ function Tickets() {
                 </span>
             )
         },
-        ...hierarchy.map(level => ({
+        ...filterableLocationHierarchy.map(level => ({
             id: level.id === 'region' ? 'region_name' : level.id === 'province' ? 'province_name' : 'district_name',
             label: level.name.toUpperCase(),
             sortable: true,
