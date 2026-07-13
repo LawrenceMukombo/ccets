@@ -218,11 +218,11 @@ function Map({ tickets: propTickets }) {
             );
 
             const promises = [
-                fetch(`/api/${tenantCode}/facilities`, { headers }),
+                fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers }),
                 ...boundaryPromises
             ];
             if (!propTickets) {
-                promises.push(fetch(`/api/${tenantCode}/tickets`, { headers }));
+                promises.push(fetch(`/api/${tenantCode}/tickets?limit=100000`, { headers }));
             }
 
             const results = await Promise.all(promises);

@@ -104,7 +104,7 @@ function Reports() {
             const token = localStorage.getItem('token');
             const headers = { 'Authorization': `Bearer ${token}` };
 
-            const response = await fetch(`/api/${tenantCode}/tickets`, { headers });
+            const response = await fetch(`/api/${tenantCode}/tickets?limit=100000`, { headers });
             const data = await response.json();
             const tickets = data.tickets || [];
 

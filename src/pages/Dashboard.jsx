@@ -187,9 +187,9 @@ function Dashboard() {
             const headers = { 'Content-Type': 'application/json', ...(token && { 'Authorization': `Bearer ${token}` }) };
 
             const [ticketsRes, facilitiesRes] = await Promise.all([
-                fetch(`/api/${tenantCode}/tickets`, { headers }),
-                fetch(`/api/${tenantCode}/facilities`, { headers })
-            ]);
+                 fetch(`/api/${tenantCode}/tickets?limit=100000`, { headers }),
+                 fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers })
+             ]);
 
             const ticketsData = await ticketsRes.json();
             const facilitiesData = await facilitiesRes.json();

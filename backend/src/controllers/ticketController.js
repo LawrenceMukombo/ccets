@@ -145,9 +145,8 @@ exports.getAllTickets = async (req, res) => {
         const sortBy = sortByAllowlist[req.query.sortBy] || 't.created_at';
         const sortDirection = req.query.sortDirection === 'asc' ? 'ASC' : 'DESC';
 
-        // Pagination
         const page = Math.max(1, parseInt(req.query.page) || 1);
-        const pageSize = Math.min(10000, Math.max(1, parseInt(req.query.pageSize || req.query.limit) || 25));
+        const pageSize = Math.min(100000, Math.max(1, parseInt(req.query.pageSize || req.query.limit) || 25));
         const offset = (page - 1) * pageSize;
 
         const dataQuery = `
