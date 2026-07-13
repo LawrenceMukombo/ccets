@@ -13,6 +13,7 @@ import TicketsByProvinceChart from '../components/TicketsByProvinceChart';
 import OperationsOverview from '../components/Dashboard/OperationsOverview';
 import { useTenant } from '../context/TenantContext';
 import { getEffectiveStatus, getWeekNumber } from '../utils/statusUtils';
+import { getCachedData, setCachedData } from '../utils/cache';
 
 import DashboardCharts from '../components/DashboardCharts';
 import TicketsTable from '../components/TicketsTable';
@@ -183,19 +184,52 @@ function Dashboard() {
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
+            
+            // Check cache first
+            const cachedTickets = getCachedData('tickets', tenantCode);
+            const cachedFacilities = getCachedData('facilities', tenantCode);
+
+            if (cachedTickets && cachedFacilities) {
+                setAllTickets(cachedTickets);
+                setFacilities(cachedFacilities);
+                return;
+            }
+
             const token = localStorage.getItem('token');
             const headers = { 'Content-Type': 'application/json', ...(token && { 'Authorization': `Bearer ${token}` }) };
 
-            const [ticketsRes, facilitiesRes] = await Promise.all([
-                 fetch(`/api/${tenantCode}/tickets?limit=100000`, { headers }),
-                 fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers })
-             ]);
+            const promises = [];
+            if (cachedTickets) {
+                setAllTickets(cachedTickets);
+            } else {
+                promises.push(
+                    fetch(`/api/${tenantCode}/tickets?limit=100000&minimal=true`, { headers })
+                        .then(res => res.json())
+                        .then(data => {
+                            const list = data.tickets || data || [];
+                            setAllTickets(list);
+                            setCachedData('tickets', tenantCode, list);
+                        })
+                );
+            }
 
-            const ticketsData = await ticketsRes.json();
-            const facilitiesData = await facilitiesRes.json();
+            if (cachedFacilities) {
+                setFacilities(cachedFacilities);
+            } else {
+                promises.push(
+                    fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers })
+                        .then(res => res.json())
+                        .then(data => {
+                            const list = data.facilities || data || [];
+                            setFacilities(list);
+                            setCachedData('facilities', tenantCode, list);
+                        })
+                );
+            }
 
-            setAllTickets(ticketsData.tickets || ticketsData || []);
-            setFacilities(facilitiesData.facilities || facilitiesData || []);
+            if (promises.length > 0) {
+                await Promise.all(promises);
+            }
         } catch (err) {
             console.error('Error fetching dashboard data:', err);
         } finally {

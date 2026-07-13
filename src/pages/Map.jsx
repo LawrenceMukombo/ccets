@@ -13,6 +13,7 @@ import DistanceMeasurementTool from '../components/DistanceMeasurementTool';
 import MapBoundsFitter from '../components/MapBoundsFitter';
 import { useTenant } from '../context/TenantContext';
 import { getEffectiveStatus } from '../utils/statusUtils';
+import { getCachedData, setCachedData } from '../utils/cache';
 
 // Fix Leaflet default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -212,56 +213,66 @@ function Map({ tickets: propTickets }) {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
 
-            // Dynamic boundary fetching based on tenant hierarchy
+            // 1. Check cache first for facilities and tickets
+            const cachedTickets = getCachedData('tickets', tenantCode);
+            const cachedFacilities = getCachedData('facilities', tenantCode);
+
+            // Fetch boundaries
             const boundaryPromises = (config?.hierarchy || []).map(level => 
                 fetch(`/api/${tenantCode}/boundaries?level=${level.id}`, { headers })
+                    .then(res => res.ok ? res.json() : null)
             );
 
-            const promises = [
-                fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers }),
-                ...boundaryPromises
-            ];
-            if (!propTickets) {
-                promises.push(fetch(`/api/${tenantCode}/tickets?limit=100000`, { headers }));
-            }
-
-            const results = await Promise.all(promises);
-            
-            // Validate and parse facilities
-            const facilitiesRes = results[0];
-            if (facilitiesRes.ok) {
-                const facilitiesData = await facilitiesRes.json();
-                const facilitiesList = facilitiesData.facilities || (Array.isArray(facilitiesData) ? facilitiesData : []);
-                setRawFacilities(facilitiesList);
-            }
-
-            // Validate and parse boundaries
-            const boundaryResults = results.slice(1, 1 + (config?.hierarchy?.length || 0));
-            const newBoundaries = {};
-            for (let i = 0; i < boundaryResults.length; i++) {
-                const res = boundaryResults[i];
-                const levelId = config?.hierarchy?.[i]?.id;
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.type === 'FeatureCollection') {
-                        newBoundaries[levelId] = data;
-                    }
-                }
-            }
-            setBoundaries(newBoundaries);
-
-            // Validate and parse tickets
-            let ticketsList = [];
-            if (!propTickets) {
-                const ticketsRes = results[1 + (config?.hierarchy?.length || 0)];
-                if (ticketsRes && ticketsRes.ok) {
-                    const ticketsData = await ticketsRes.json();
-                    ticketsList = ticketsData.tickets || (Array.isArray(ticketsData) ? ticketsData : []);
-                    setTickets(ticketsList);
-                }
+            // Fetch facilities if not cached
+            let facilitiesPromise;
+            if (cachedFacilities) {
+                setRawFacilities(cachedFacilities);
+                facilitiesPromise = Promise.resolve(cachedFacilities);
             } else {
-                ticketsList = propTickets;
+                facilitiesPromise = fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers })
+                    .then(res => res.ok ? res.json() : [])
+                    .then(data => {
+                        const list = data.facilities || data || [];
+                        setRawFacilities(list);
+                        setCachedData('facilities', tenantCode, list);
+                        return list;
+                    });
             }
+
+            // Fetch tickets if not cached and not provided by props
+            let ticketsPromise;
+            if (propTickets) {
+                setTickets(propTickets);
+                ticketsPromise = Promise.resolve(propTickets);
+            } else if (cachedTickets) {
+                setTickets(cachedTickets);
+                ticketsPromise = Promise.resolve(cachedTickets);
+            } else {
+                ticketsPromise = fetch(`/api/${tenantCode}/tickets?limit=100000&minimal=true`, { headers })
+                    .then(res => res.ok ? res.json() : [])
+                    .then(data => {
+                        const list = data.tickets || data || [];
+                        setTickets(list);
+                        setCachedData('tickets', tenantCode, list);
+                        return list;
+                    });
+            }
+
+            const [boundaryData, _fac, _tix] = await Promise.all([
+                Promise.all(boundaryPromises),
+                facilitiesPromise,
+                ticketsPromise
+            ]);
+
+            // Set boundaries
+            const newBoundaries = {};
+            (config?.hierarchy || []).forEach((level, i) => {
+                const data = boundaryData[i];
+                if (data && data.type === 'FeatureCollection') {
+                    newBoundaries[level.id] = data;
+                }
+            });
+            setBoundaries(newBoundaries);
 
             setError(null);
         } catch (err) {

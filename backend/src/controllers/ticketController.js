@@ -149,43 +149,75 @@ exports.getAllTickets = async (req, res) => {
         const pageSize = Math.min(100000, Math.max(1, parseInt(req.query.pageSize || req.query.limit) || 25));
         const offset = (page - 1) * pageSize;
 
-        const dataQuery = `
-            SELECT 
-                t.ticket_id,
-                t.ticket_reference_number,
-                t.facility_id,
-                CASE 
-                    WHEN f.facility_id IN (1, 2) THEN NULL 
-                    ELSE f.facility_name 
-                END as facility_name,
-                r_facility.region_name as region_name,
-                p_facility.province_name as province_name,
-                d_facility.district_name as district_name,
-                t.fault_description,
-                t.selected_equipment_id as equipment_id,
-                COALESCE(e.manufacturer, t.equipment_manufacturer) as equipment_manufacturer,
-                e.model as equipment_model,
-                t.priority,
-                t.ticket_status,
-                t.assigned_to,
-                t.created_at,
-                COALESCE(t.assigned_to_name, CASE WHEN u.user_id IS NOT NULL THEN CONCAT(u.first_name, ' ', u.last_name) ELSE NULL END) as assigned_to_name,
-                COALESCE(t.assigned_to_email, u.email) as assigned_to_email,
-                COALESCE(t.assigned_to_phone, u.phone_number) as assigned_to_phone,
-                t.date_resolved,
-                f.latitude,
-                f.longitude
-            FROM tickets t
-            LEFT JOIN facilities f ON t.facility_id = f.facility_id
-            LEFT JOIN equipment e ON t.selected_equipment_id = e.equipment_id
-            LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
-            LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
-            LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
-            LEFT JOIN users u ON t.assigned_to = u.user_id
-            ${whereClause} ${locationFilter}
-            ORDER BY ${sortBy} ${sortDirection}
-            LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-        `;
+        const isMinimal = req.query.minimal === 'true';
+
+        let dataQuery;
+        if (isMinimal) {
+            dataQuery = `
+                SELECT 
+                    t.ticket_id,
+                    t.ticket_reference_number,
+                    t.facility_id,
+                    f.facility_name,
+                    r_facility.region_name as region_name,
+                    p_facility.province_name as province_name,
+                    d_facility.district_name as district_name,
+                    t.priority,
+                    t.ticket_status,
+                    t.created_at,
+                    t.date_resolved,
+                    f.latitude,
+                    f.longitude,
+                    t.assigned_to_name,
+                    t.fault_description as description
+                FROM tickets t
+                LEFT JOIN facilities f ON t.facility_id = f.facility_id
+                LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
+                LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
+                LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
+                ${whereClause} ${locationFilter}
+                ORDER BY ${sortBy} ${sortDirection}
+                LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+            `;
+        } else {
+            dataQuery = `
+                SELECT 
+                    t.ticket_id,
+                    t.ticket_reference_number,
+                    t.facility_id,
+                    CASE 
+                        WHEN f.facility_id IN (1, 2) THEN NULL 
+                        ELSE f.facility_name 
+                    END as facility_name,
+                    r_facility.region_name as region_name,
+                    p_facility.province_name as province_name,
+                    d_facility.district_name as district_name,
+                    t.fault_description,
+                    t.selected_equipment_id as equipment_id,
+                    COALESCE(e.manufacturer, t.equipment_manufacturer) as equipment_manufacturer,
+                    e.model as equipment_model,
+                    t.priority,
+                    t.ticket_status,
+                    t.assigned_to,
+                    t.created_at,
+                    COALESCE(t.assigned_to_name, CASE WHEN u.user_id IS NOT NULL THEN CONCAT(u.first_name, ' ', u.last_name) ELSE NULL END) as assigned_to_name,
+                    COALESCE(t.assigned_to_email, u.email) as assigned_to_email,
+                    COALESCE(t.assigned_to_phone, u.phone_number) as assigned_to_phone,
+                    t.date_resolved,
+                    f.latitude,
+                    f.longitude
+                FROM tickets t
+                LEFT JOIN facilities f ON t.facility_id = f.facility_id
+                LEFT JOIN equipment e ON t.selected_equipment_id = e.equipment_id
+                LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
+                LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
+                LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
+                LEFT JOIN users u ON t.assigned_to = u.user_id
+                ${whereClause} ${locationFilter}
+                ORDER BY ${sortBy} ${sortDirection}
+                LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+            `;
+        }
 
         const dataParams = [...queryParams, pageSize, offset];
         const result = await db.query(dataQuery, dataParams);

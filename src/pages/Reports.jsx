@@ -12,6 +12,7 @@ import './Reports.css';
 // Import the hook and component
 import { useLocationFilter } from '../hooks/useLocationFilter';
 import LocationFilter from '../components/LocationFilter';
+import { getCachedData, setCachedData } from '../utils/cache';
 
 // Chart Colors matching the platform theme
 const CHART_COLORS = [
@@ -101,14 +102,23 @@ function Reports() {
     const fetchData = async () => {
         try {
             setLoading(true);
+            
+            // Check cache first
+            const cachedTickets = getCachedData('tickets', tenantCode);
+            if (cachedTickets) {
+                setAllTickets(cachedTickets);
+                return;
+            }
+
             const token = localStorage.getItem('token');
             const headers = { 'Authorization': `Bearer ${token}` };
 
-            const response = await fetch(`/api/${tenantCode}/tickets?limit=100000`, { headers });
+            const response = await fetch(`/api/${tenantCode}/tickets?limit=100000&minimal=true`, { headers });
             const data = await response.json();
             const tickets = data.tickets || [];
 
             setAllTickets(tickets);
+            setCachedData('tickets', tenantCode, tickets);
 
         } catch (err) {
             console.error("Failed to load reports", err);
