@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './EquipmentDetailsModal.css';
 
 function EquipmentDetailsModal({ equipment, onClose }) {
+    const [activeTab, setActiveTab] = useState('general');
+
     if (!equipment) return null;
 
     // Field Management
@@ -35,74 +37,97 @@ function EquipmentDetailsModal({ equipment, onClose }) {
                         </svg>
                     </button>
                 </div>
-                <div className="modal-body">
-                    {/* Location Section */}
-                    <div className="detail-section">
-                        <h3 className="section-title">Location</h3>
-                        <div className="detail-grid">
-                            {locationPriority.map(key => (
-                                equipment[key] !== undefined && (
-                                    <div key={key} className="detail-item">
-                                        <label>{getLabel(key)}</label>
-                                        <div className="value">{renderField(key, equipment[key])}</div>
-                                    </div>
-                                )
-                            ))}
-                        </div>
-                    </div>
 
-                    <div className="divider"></div>
-
-                    {/* Equipment Section */}
-                    <div className="detail-section">
-                        <h3 className="section-title">Equipment Information</h3>
-                        <div className="detail-grid">
-                            {/* Explicit Status Field */}
-                            <div className="detail-item">
-                                <label>Functional Status</label>
-                                <div className={`value status-text ${equipment.is_functioning !== false ? 'success' : 'error'}`}>
-                                    {statusValue}
-                                </div>
-                            </div>
-
-                            {/* Remaining Fields */}
-                            {Object.entries(equipment).map(([key, value]) => {
-                                if (locationPriority.includes(key) || hiddenFields.includes(key)) return null;
-                                return (
-                                    <div key={key} className="detail-item">
-                                        <label>{getLabel(key)}</label>
-                                        <div className="value">{renderField(key, value)}</div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    <div className="divider"></div>
-
-                    {/* Integration Section */}
-                    <div className="detail-section">
-                        <h3 className="section-title">Integration & Provenance</h3>
-                        <div className="detail-grid">
-                            <div className="detail-item">
-                                <label>Asset Code</label>
-                                <div className="value">{equipment.asset_code || equipment.item_code || '-'}</div>
-                            </div>
-                            <div className="detail-item">
-                                <label>External ID</label>
-                                <div className="value" style={{ fontFamily: 'monospace' }}>{equipment.external_id || '-'}</div>
-                            </div>
-                            <div className="detail-item">
-                                <label>Source System</label>
-                                <div className="value">
-                                    <span className={`badge ${equipment.source_system && equipment.source_system !== 'Manual' ? 'badge-primary' : 'badge-secondary'}`}>
-                                        {equipment.source_system || 'Manual'}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {/* Tabs Header */}
+                <div className="modal-tabs">
+                    <button 
+                        className={`tab-btn ${activeTab === 'general' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('general')}
+                    >
+                        ⚙️ Details
+                    </button>
+                    <button 
+                        className={`tab-btn ${activeTab === 'location' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('location')}
+                    >
+                        📍 Location
+                    </button>
+                    <button 
+                        className={`tab-btn ${activeTab === 'integration' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('integration')}
+                    >
+                        🔗 Integration
+                    </button>
                 </div>
+
+                <div className="modal-body">
+                    {activeTab === 'general' && (
+                        /* Equipment Section */
+                        <div className="detail-section animate-fade-in">
+                            <div className="detail-grid">
+                                {/* Explicit Status Field */}
+                                <div className="detail-item">
+                                    <label>Functional Status</label>
+                                    <div className={`value status-text ${equipment.is_functioning !== false ? 'success' : 'error'}`}>
+                                        {statusValue}
+                                    </div>
+                                </div>
+
+                                {/* Remaining Fields */}
+                                {Object.entries(equipment).map(([key, value]) => {
+                                    if (locationPriority.includes(key) || hiddenFields.includes(key)) return null;
+                                    return (
+                                        <div key={key} className="detail-item">
+                                            <label>{getLabel(key)}</label>
+                                            <div className="value">{renderField(key, value)}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'location' && (
+                        /* Location Section */
+                        <div className="detail-section animate-fade-in">
+                            <div className="detail-grid">
+                                {locationPriority.map(key => (
+                                    equipment[key] !== undefined && (
+                                        <div key={key} className="detail-item">
+                                            <label>{getLabel(key)}</label>
+                                            <div className="value">{renderField(key, equipment[key])}</div>
+                                        </div>
+                                    )
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'integration' && (
+                        /* Integration Section */
+                        <div className="detail-section animate-fade-in">
+                            <div className="detail-grid">
+                                <div className="detail-item">
+                                    <label>Asset Code</label>
+                                    <div className="value">{equipment.asset_code || equipment.item_code || '-'}</div>
+                                </div>
+                                <div className="detail-item">
+                                    <label>External ID</label>
+                                    <div className="value" style={{ fontFamily: 'monospace' }}>{equipment.external_id || '-'}</div>
+                                </div>
+                                <div className="detail-item">
+                                    <label>Source System</label>
+                                    <div className="value">
+                                        <span className={`badge ${equipment.source_system && equipment.source_system !== 'Manual' ? 'badge-primary' : 'badge-secondary'}`}>
+                                            {equipment.source_system || 'Manual'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <div className="modal-footer">
                     <div className="action-buttons-left">
                         <button className="danger-btn-outline" onClick={() => onClose('report_fault')}>

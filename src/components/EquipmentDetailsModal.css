@@ -176,3 +176,74 @@
     color: #1e293b;
     background-color: #e2e8f0;
 }
+
+/* Modal Tabs Styling */
+.modal-tabs {
+    display: flex;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    padding: 0 1.5rem;
+    gap: 1.5rem;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 1rem 0.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #64748b;
+    position: relative;
+    transition: all 0.2s ease;
+    outline: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tab-btn:hover {
+    color: #1e293b;
+}
+
+.tab-btn.active {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #2563eb;
+    border-radius: 2px 2px 0 0;
+    animation: tabSlide 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Animations */
+@keyframes tabSlide {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
