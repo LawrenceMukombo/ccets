@@ -5,12 +5,14 @@ import './Navigation.css';
 import UserProfileModal from './UserProfileModal';
 import { useSocket } from '../hooks/useSocket';
 import { useTenant } from '../context/TenantContext';
+import { useOffline } from '../context/OfflineContext';
 
 function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTheme }) {
     const navigate = useNavigate();
     const location = useLocation();
     const [showProfile, setShowProfile] = useState(false);
-    const { tenantCode, config } = useTenant();
+    const { tenantCode, config, platformContext } = useTenant();
+    const { isOnline, pendingCount, isSyncing, triggerSync } = useOffline();
 
     // Notifications
     const [showNotifications, setShowNotifications] = useState(false);
@@ -103,7 +105,7 @@ function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTh
 
                     <div className="nav-user">
                         {/* Switch Country */}
-                        {onSwitchCountry && (
+                        {onSwitchCountry && platformContext?.deploymentMode !== 'standalone_country' && !platformContext?.resolvedTenant && (
                             <button
                                 className="nav-item switch-tenant-btn"
                                 onClick={onSwitchCountry}
@@ -117,6 +119,62 @@ function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTh
                                 </svg>
                             </button>
                         )}
+
+                        {/* Offline Status Pill */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '12px' }}>
+                            <span 
+                                className={`badge ${isOnline ? 'badge-success' : 'badge-danger'}`}
+                                style={{ 
+                                    background: isOnline ? '#e6f4ea' : '#fce8e6', 
+                                    color: isOnline ? '#137333' : '#c5221f',
+                                    border: `1px solid ${isOnline ? '#34a853' : '#ea4335'}`,
+                                    padding: '4px 10px',
+                                    borderRadius: '12px',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}
+                            >
+                                <span style={{ 
+                                    width: '6px', 
+                                    height: '6px', 
+                                    borderRadius: '50%', 
+                                    background: isOnline ? '#34a853' : '#ea4335',
+                                    display: 'inline-block'
+                                }}></span>
+                                {isOnline ? 'Online' : 'Offline'}
+                            </span>
+
+                            {!isOnline && pendingCount > 0 && (
+                                <span style={{ fontSize: '0.75rem', color: '#c5221f', fontWeight: '500' }}>
+                                    ({pendingCount} queued)
+                                </span>
+                            )}
+
+                            {isOnline && pendingCount > 0 && (
+                                <button 
+                                    className="btn btn-primary"
+                                    onClick={triggerSync}
+                                    disabled={isSyncing}
+                                    style={{ 
+                                        padding: '4px 10px', 
+                                        fontSize: '0.75rem', 
+                                        borderRadius: '6px',
+                                        background: '#0284c7',
+                                        color: '#fff',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    {isSyncing ? '🔄 Syncing...' : `⚡ Sync (${pendingCount})`}
+                                </button>
+                            )}
+                        </div>
 
                         {/* Theme Toggle */}
                         {toggleTheme && (

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import './UsersTab.css';
+import EnterpriseDataTable from '../Common/EnterpriseDataTable';
 
 const UsersTab = () => {
     const { tenantCode } = useTenant();
@@ -12,9 +13,12 @@ const UsersTab = () => {
     const [filterRole, setFilterRole] = useState('');
 
     // Pagination & Sorting State
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(10);
-    const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [sortBy, setSortBy] = useState('first_name');
+    const [sortDirection, setSortDirection] = useState('asc');
 
     // Modals
     const [showUserModal, setShowUserModal] = useState(false);
@@ -28,29 +32,47 @@ const UsersTab = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        fetchUsers();
         fetchRoles();
     }, []);
 
-    // Reset pagination when search/filter changes
     useEffect(() => {
-        setCurrentPage(1);
-    }, [searchQuery, filterRole]);
+        fetchUsersTableData();
+    }, [page, pageSize, sortBy, sortDirection, searchQuery, filterRole]);
 
-    const fetchUsers = async () => {
+    const fetchUsersTableData = async () => {
         try {
+            setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/${tenantCode}/users`, {
+            const params = new URLSearchParams({
+                page: String(page),
+                pageSize: String(pageSize),
+                sortBy,
+                sortDirection,
+                search: searchQuery,
+                role: filterRole
+            });
+            const response = await fetch(`/api/${tenantCode}/users?${params}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (!response.ok) {
+                throw new Error('Failed to fetch users');
+            }
             const data = await response.json();
             setUsers(data.users || []);
+            setTotalRecords(data.pagination?.totalRecords || (data.users || []).length);
+            setTotalPages(data.pagination?.totalPages || 1);
+            setError('');
         } catch (err) {
             setError('Failed to load users');
             console.error(err);
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchUsers = () => {
+        // Callback for modal success triggers
+        fetchUsersTableData();
     };
 
     const fetchRoles = async () => {
@@ -78,7 +100,7 @@ const UsersTab = () => {
                 },
                 body: JSON.stringify({ is_active: !currentStatus })
             });
-            fetchUsers();
+            fetchUsersTableData();
         } catch (err) {
             setError('Failed to update user status');
         }
@@ -95,7 +117,7 @@ const UsersTab = () => {
 
             if (!response.ok) throw new Error('Failed to delete user');
 
-            fetchUsers();
+            fetchUsersTableData();
             setShowDeleteModal(false);
             setUserToDelete(null);
         } catch (err) {
@@ -115,263 +137,183 @@ const UsersTab = () => {
         return (first + last).toUpperCase() || user.username?.[0]?.toUpperCase() || '?';
     };
 
-    // Sorting Logic
-    const handleSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
-        setSortConfig({ key, direction });
+    const handleClearFilters = () => {
+        setSearchQuery('');
+        setFilterRole('');
+        setPage(1);
     };
 
-    const filteredUsers = users.filter(user => {
-        const matchesSearch = user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.last_name?.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const matchesRole = !filterRole || user.role?.toLowerCase() === filterRole.toLowerCase();
-
-        return matchesSearch && matchesRole;
-    });
-
-    const sortedUsers = [...filteredUsers].sort((a, b) => {
-        if (!sortConfig.key) return 0;
-
-        let aVal = a[sortConfig.key] || '';
-        let bVal = b[sortConfig.key] || '';
-
-        // Handle nested or computed properties if necessary (simplistic for now)
-        if (sortConfig.key === 'full_name') {
-            aVal = ((a.first_name || '') + ' ' + (a.last_name || '')).trim().toLowerCase();
-            bVal = ((b.first_name || '') + ' ' + (b.last_name || '')).trim().toLowerCase();
-        } else if (typeof aVal === 'string') {
-            aVal = aVal.toLowerCase();
-            bVal = bVal.toLowerCase();
+    // Columns Definition
+    const columns = [
+        { 
+            id: 'full_name', 
+            label: 'User', 
+            sortable: true, 
+            defaultVisible: true, 
+            hideable: false,
+            formatter: (val, item) => (
+                <div className="user-cell">
+                    <div className="user-avatar">{getInitials(item)}</div>
+                    <div className="user-info">
+                        <div className="user-name">
+                            {item.first_name && item.last_name
+                                ? `${item.first_name} ${item.last_name}`
+                                : item.username}
+                        </div>
+                        <div className="user-username">@{item.username}</div>
+                    </div>
+                </div>
+            )
+        },
+        { id: 'email', label: 'Email', sortable: true, defaultVisible: true },
+        { 
+            id: 'role', 
+            label: 'Role', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val) => (
+                <span className="role-badge">
+                    {val || 'No Role'}
+                </span>
+            )
+        },
+        { 
+            id: 'is_active', 
+            label: 'Status', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val, item) => (
+                <label className="status-toggle" onClick={(e) => e.stopPropagation()}>
+                    <input
+                        type="checkbox"
+                        checked={val}
+                        onChange={() => toggleUserStatus(item.user_id, val)}
+                    />
+                    <span className={`status-slider ${val ? 'active' : ''}`}>
+                        {val ? 'Active' : 'Inactive'}
+                    </span>
+                </label>
+            )
+        },
+        { 
+            id: 'created_at', 
+            label: 'Date Created', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val) => val ? new Date(val).toLocaleDateString() : '-'
+        },
+        { 
+            id: 'last_login', 
+            label: 'Last Login', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val) => val ? new Date(val).toLocaleDateString() : 'Never'
         }
+    ];
 
-        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    // Pagination Logic
-    const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
-    const paginatedUsers = sortedUsers.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-    const SortIcon = ({ column }) => {
-        if (sortConfig.key !== column) return <span style={{ opacity: 0.3, marginLeft: 4 }}>↕</span>;
-        return <span style={{ marginLeft: 4 }}>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>;
-    };
-
-    if (loading) {
-        return (
-            <div className="users-loading">
-                <div className="spinner"></div>
-                <p>Loading users...</p>
-            </div>
-        );
-    }
+    // Row Actions
+    const rowActions = [
+        {
+            label: 'View Details',
+            icon: '👁️',
+            action: (user) => openModal('view', user)
+        },
+        {
+            label: 'Edit User',
+            icon: '✏️',
+            action: (user) => openModal('edit', user)
+        },
+        {
+            label: 'Reset Password',
+            icon: '🔑',
+            action: (user) => {
+                setSelectedUser(user);
+                setShowResetPasswordModal(true);
+            }
+        },
+        {
+            label: 'Delete User',
+            icon: '🗑️',
+            action: (user) => {
+                setUserToDelete(user);
+                setShowDeleteModal(true);
+            },
+            destructive: true
+        }
+    ];
 
     return (
         <div className="users-tab">
-            <div className="users-header">
+            <div className="users-header" style={{ marginBottom: '16px' }}>
                 <div className="users-title">
-                    <h2>Users ({sortedUsers.length})</h2>
+                    <h2>Users Management</h2>
                     <p>Manage user accounts and permissions</p>
                 </div>
-                <button className="btn-create" onClick={() => openModal('create')}>
+                <button className="btn-create" onClick={() => openModal('create')} style={{ height: '38px', alignSelf: 'center' }}>
                     + Create User
                 </button>
             </div>
 
-            <div className="users-filters">
-                <div className="search-box">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM16.5 16.5l-3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
-                    <input
-                        type="text"
-                        placeholder="Search users by name, email, or username..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+            {error && <div className="error-banner" style={{ marginBottom: '16px' }}>{error}</div>}
+
+            {/* Smart Cascade Filters */}
+            <div className="filters-section" style={{ display: 'flex', gap: '16px', marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: '600', color: '#334155' }}>Role</label>
+                    <select
+                        value={filterRole}
+                        onChange={(e) => { setFilterRole(e.target.value); setPage(1); }}
+                        className="filter-select"
+                        style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd', minWidth: '140px', height: '38px' }}
+                    >
+                        <option value="">All Roles</option>
+                        {roles.map(role => (
+                            <option key={role.role_id} value={role.role_name}>
+                                {role.role_name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
-                <select
-                    className="role-filter"
-                    value={filterRole}
-                    onChange={(e) => setFilterRole(e.target.value)}
-                >
-                    <option value="">All Roles</option>
-                    {roles.map(role => (
-                        <option key={role.role_id} value={role.role_name}>
-                            {role.role_name}
-                        </option>
-                    ))}
-                </select>
             </div>
 
-            {error && <div className="error-banner">{error}</div>}
-
-            <div className="users-table-container">
-                <table className="users-table">
-                    <thead>
-                        <tr>
-                            <th className="sortable-header" onClick={() => handleSort('full_name')}>
-                                User <SortIcon column="full_name" />
-                            </th>
-                            <th className="sortable-header" onClick={() => handleSort('email')}>
-                                Email <SortIcon column="email" />
-                            </th>
-                            <th className="sortable-header" onClick={() => handleSort('role')}>
-                                Role <SortIcon column="role" />
-                            </th>
-                            <th className="sortable-header" onClick={() => handleSort('is_active')}>
-                                Status <SortIcon column="is_active" />
-                            </th>
-                            <th className="sortable-header" onClick={() => handleSort('created_at')}>
-                                Date Created <SortIcon column="created_at" />
-                            </th>
-                            <th className="sortable-header" onClick={() => handleSort('last_login')}>
-                                Last Login <SortIcon column="last_login" />
-                            </th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {paginatedUsers.length === 0 ? (
-                            <tr>
-                                <td colSpan="7" className="no-data">
-                                    No users found
-                                </td>
-                            </tr>
-                        ) : (
-                            paginatedUsers.map(user => (
-                                <tr key={user.user_id}>
-                                    <td>
-                                        <div className="user-cell">
-                                            <div className="user-avatar">{getInitials(user)}</div>
-                                            <div className="user-info">
-                                                <div className="user-name">
-                                                    {user.first_name && user.last_name
-                                                        ? `${user.first_name} ${user.last_name}`
-                                                        : user.username}
-                                                </div>
-                                                <div className="user-username">@{user.username}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{user.email || '-'}</td>
-                                    <td>
-                                        <span className="role-badge">
-                                            {user.role || 'No Role'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <label className="status-toggle">
-                                            <input
-                                                type="checkbox"
-                                                checked={user.is_active}
-                                                onChange={() => toggleUserStatus(user.user_id, user.is_active)}
-                                            />
-                                            <span className={`status-slider ${user.is_active ? 'active' : ''}`}>
-                                                {user.is_active ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        {user.created_at
-                                            ? new Date(user.created_at).toLocaleDateString()
-                                            : '-'}
-                                    </td>
-                                    <td>
-                                        {user.last_login
-                                            ? new Date(user.last_login).toLocaleDateString()
-                                            : 'Never'}
-                                    </td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button
-                                                className="btn-icon"
-                                                title="View Details"
-                                                onClick={() => openModal('view', user)}
-                                            >
-                                                👁️
-                                            </button>
-                                            <button
-                                                className="btn-icon"
-                                                title="Edit User"
-                                                onClick={() => openModal('edit', user)}
-                                            >
-                                                ✏️
-                                            </button>
-                                            <button
-                                                className="btn-icon"
-                                                title="Reset Password"
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setShowResetPasswordModal(true);
-                                                }}
-                                            >
-                                                🔑
-                                            </button>
-                                            <button
-                                                className="btn-icon trash"
-                                                title="Delete User"
-                                                onClick={() => {
-                                                    setUserToDelete(user);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                                style={{ color: '#dc2626' }}
-                                            >
-                                                🗑️
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                    <div className="table-footer">
-                        <div className="pagination-info">
-                            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, sortedUsers.length)} of {sortedUsers.length} users
-                        </div>
-                        <div className="pagination-controls">
-                            <button
-                                className="pagination-btn"
-                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                disabled={currentPage === 1}
-                            >
-                                Previous
-                            </button>
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                <button
-                                    key={page}
-                                    className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                                    style={currentPage === page ? { background: '#3b82f6', color: 'white', borderColor: '#3b82f6' } : {}}
-                                    onClick={() => setCurrentPage(page)}
-                                >
-                                    {page}
-                                </button>
-                            ))}
-                            <button
-                                className="pagination-btn"
-                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
+            {/* Enterprise DataTable */}
+            <EnterpriseDataTable
+                tableName="users"
+                columns={columns}
+                data={users}
+                loading={loading}
+                error={error}
+                serverSide={true}
+                pagination={{
+                    page,
+                    pageSize,
+                    totalRecords,
+                    totalPages,
+                    onPageChange: (newPage) => setPage(newPage),
+                    onPageSizeChange: (newPageSize) => { setPageSize(newPageSize); setPage(1); }
+                }}
+                sort={{
+                    sortBy,
+                    sortDirection,
+                    onSort: (colId, direction) => { setSortBy(colId); setSortDirection(direction); }
+                }}
+                searchValue={searchQuery}
+                onSearchChange={(val) => { setSearchQuery(val); setPage(1); }}
+                filters={{
+                    values: {
+                        role: filterRole
+                    },
+                    onChange: (key, val) => {
+                        if (key === 'role') setFilterRole(val);
+                        setPage(1);
+                    },
+                    onClear: handleClearFilters
+                }}
+                rowActions={rowActions}
+                rowActionKey="user_id"
+                emptyTitle="No users found"
+                emptyMessage="No user accounts match your selected filter criteria."
+            />
 
             {/* UNIFIED USER MODAL */}
             {showUserModal && (

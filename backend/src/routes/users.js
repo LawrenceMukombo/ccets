@@ -3,12 +3,57 @@ const router = express.Router();
 const db = require('../db');
 const authMiddleware = require('../middleware/auth');
 
-// Get all users (with optional role filter)
+// Get all users (with optional role filter, search, and pagination)
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        const { role } = req.query;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(10000, Math.max(1, parseInt(req.query.limit || req.query.pageSize) || 25));
+        const offset = (page - 1) * limit;
 
-        let query = `
+        let whereClause = 'WHERE u.is_active = true';
+        const queryParams = [];
+        let paramIndex = 1;
+
+        const { role, search } = req.query;
+
+        // Filter by role if provided
+        if (role && role !== 'all') {
+            whereClause += ` AND LOWER(r.role_name) = LOWER($${paramIndex})`;
+            queryParams.push(role);
+            paramIndex++;
+        }
+
+        // Search filter
+        if (search) {
+            whereClause += ` AND (u.username ILIKE $${paramIndex} OR u.email ILIKE $${paramIndex} OR u.first_name ILIKE $${paramIndex} OR u.last_name ILIKE $${paramIndex})`;
+            queryParams.push(`%${search}%`);
+            paramIndex++;
+        }
+
+        // Count Total
+        const countQuery = `
+            SELECT COUNT(*) 
+            FROM users u
+            LEFT JOIN roles r ON u.role_id = r.role_id
+            ${whereClause}
+        `;
+        const countResult = await db.query(countQuery, queryParams);
+        const totalRecords = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        // Sorting Allowlist
+        const sortByAllowlist = {
+            username: 'u.username',
+            email: 'u.email',
+            first_name: 'u.first_name',
+            last_name: 'u.last_name',
+            role: 'r.role_name',
+            created_at: 'u.created_at'
+        };
+        const sortBy = sortByAllowlist[req.query.sortBy] || 'u.first_name';
+        const sortDirection = req.query.sortDirection === 'desc' ? 'DESC' : 'ASC';
+
+        const dataQuery = `
             SELECT
                 u.user_id,
                 u.username,
@@ -22,27 +67,32 @@ router.get('/', authMiddleware, async (req, res) => {
                 u.last_login
             FROM users u
             LEFT JOIN roles r ON u.role_id = r.role_id
-            WHERE u.is_active = true
+            ${whereClause}
+            ORDER BY ${sortBy} ${sortDirection}
+            LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
         `;
 
-        const params = [];
-
-        // Filter by role if provided
-        if (role) {
-            query += ' AND LOWER(r.role_name) = LOWER($1)';
-            params.push(role);
-        }
-
-        query += ' ORDER BY u.first_name, u.last_name';
-
-        const result = await db.query(query, params);
+        const dataParams = [...queryParams, limit, offset];
+        const result = await db.query(dataQuery, dataParams);
 
         const users = result.rows.map(user => ({
             ...user,
             full_name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username
         }));
 
-        res.json({ users });
+        res.json({
+            success: true,
+            users,
+            data: users,
+            pagination: {
+                page,
+                pageSize: limit,
+                totalRecords,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1
+            }
+        });
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ message: 'Server error fetching users', error: error.message });

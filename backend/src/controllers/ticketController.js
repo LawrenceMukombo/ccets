@@ -59,65 +59,152 @@ exports.getAllTickets = async (req, res) => {
             }
         }
 
+        // Build where clause and filters
+        let whereClause = 'WHERE (t.is_deleted = false OR t.is_deleted IS NULL)';
+        let paramIndex = queryParams.length + 1;
+
         // Add filter for equipment_id if provided in query
         if (req.query.equipment_id) {
-            locationFilter += ` AND t.selected_equipment_id = ${parseInt(req.query.equipment_id)}`;
+            whereClause += ` AND t.selected_equipment_id = $${paramIndex}`;
+            queryParams.push(parseInt(req.query.equipment_id));
+            paramIndex++;
         }
 
-        const query = `
-      SELECT 
-        t.ticket_id,
-        t.ticket_reference_number,
-        t.facility_id,
-        CASE 
-            WHEN f.facility_id IN (1, 2) THEN NULL 
-            ELSE f.facility_name 
-        END as facility_name,
-        
-        -- Get location names from facility joins
-        r_facility.region_name as region_name,
-        p_facility.province_name as province_name,
-        d_facility.district_name as district_name,
-        
-        t.fault_description,
-        t.selected_equipment_id as equipment_id, -- Corrected column name
-        COALESCE(e.manufacturer, t.equipment_manufacturer) as equipment_manufacturer,
-        e.model as equipment_model,
-        t.priority,
-        t.ticket_status,
-        t.assigned_to,
-        t.created_at,
-        COALESCE(t.assigned_to_name, CASE WHEN u.user_id IS NOT NULL THEN CONCAT(u.first_name, ' ', u.last_name) ELSE NULL END) as assigned_to_name,
-        COALESCE(t.assigned_to_email, u.email) as assigned_to_email,
-        COALESCE(t.assigned_to_phone, u.phone_number) as assigned_to_phone,
-        t.date_resolved,
-        f.latitude,
-        f.longitude
-      FROM tickets t
-      
-      -- Link to Facility
-      LEFT JOIN facilities f ON t.facility_id = f.facility_id
-      
-      -- Link to Equipment
-      LEFT JOIN equipment e ON t.selected_equipment_id = e.equipment_id
+        // search filter
+        if (req.query.search) {
+            whereClause += ` AND (t.ticket_reference_number ILIKE $${paramIndex} OR t.fault_description ILIKE $${paramIndex} OR f.facility_name ILIKE $${paramIndex})`;
+            queryParams.push(`%${req.query.search}%`);
+            paramIndex++;
+        }
 
-      -- Link to Location via Facility
-      LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
-      LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
-      LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
-      
-      -- Assignee
-      LEFT JOIN users u ON t.assigned_to = u.user_id
-        
-      WHERE (t.is_deleted = false OR t.is_deleted IS NULL)
-      ${locationFilter}
-      ORDER BY t.created_at DESC
-    `;
+        // status filter
+        if (req.query.status && req.query.status !== 'all') {
+            whereClause += ` AND t.ticket_status = $${paramIndex}`;
+            queryParams.push(req.query.status);
+            paramIndex++;
+        }
 
-        const result = await db.query(query, queryParams);
+        // priority filter
+        if (req.query.priority && req.query.priority !== 'all') {
+            whereClause += ` AND t.priority = $${paramIndex}`;
+            queryParams.push(req.query.priority);
+            paramIndex++;
+        }
 
-        // Return in expected format
-        res.json({ tickets: result.rows });
+        // location filters (cascading)
+        if (req.query.region && req.query.region !== 'all') {
+            whereClause += ` AND r_facility.region_name = $${paramIndex}`;
+            queryParams.push(req.query.region);
+            paramIndex++;
+        }
+
+        if (req.query.province && req.query.province !== 'all') {
+            whereClause += ` AND p_facility.province_name = $${paramIndex}`;
+            queryParams.push(req.query.province);
+            paramIndex++;
+        }
+
+        if (req.query.district && req.query.district !== 'all') {
+            whereClause += ` AND d_facility.district_name = $${paramIndex}`;
+            queryParams.push(req.query.district);
+            paramIndex++;
+        }
+
+        if (req.query.facility && req.query.facility !== 'all') {
+            whereClause += ` AND f.facility_name = $${paramIndex}`;
+            queryParams.push(req.query.facility);
+            paramIndex++;
+        }
+
+        // Count Total Records
+        const countQuery = `
+            SELECT COUNT(*) 
+            FROM tickets t
+            LEFT JOIN facilities f ON t.facility_id = f.facility_id
+            LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
+            LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
+            LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
+            ${whereClause} ${locationFilter}
+        `;
+
+        const countResult = await db.query(countQuery, queryParams);
+        const totalRecords = parseInt(countResult.rows[0].count);
+
+        // Sorting
+        const sortByAllowlist = {
+            ticket_reference_number: 't.ticket_reference_number',
+            created_at: 't.created_at',
+            priority: 't.priority',
+            ticket_status: 't.ticket_status',
+            assigned_to_name: 'assigned_to_name',
+            facility_name: 'facility_name',
+            region_name: 'region_name',
+            province_name: 'province_name',
+            district_name: 'district_name'
+        };
+        const sortBy = sortByAllowlist[req.query.sortBy] || 't.created_at';
+        const sortDirection = req.query.sortDirection === 'asc' ? 'ASC' : 'DESC';
+
+        // Pagination
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const pageSize = Math.min(10000, Math.max(1, parseInt(req.query.pageSize || req.query.limit) || 25));
+        const offset = (page - 1) * pageSize;
+
+        const dataQuery = `
+            SELECT 
+                t.ticket_id,
+                t.ticket_reference_number,
+                t.facility_id,
+                CASE 
+                    WHEN f.facility_id IN (1, 2) THEN NULL 
+                    ELSE f.facility_name 
+                END as facility_name,
+                r_facility.region_name as region_name,
+                p_facility.province_name as province_name,
+                d_facility.district_name as district_name,
+                t.fault_description,
+                t.selected_equipment_id as equipment_id,
+                COALESCE(e.manufacturer, t.equipment_manufacturer) as equipment_manufacturer,
+                e.model as equipment_model,
+                t.priority,
+                t.ticket_status,
+                t.assigned_to,
+                t.created_at,
+                COALESCE(t.assigned_to_name, CASE WHEN u.user_id IS NOT NULL THEN CONCAT(u.first_name, ' ', u.last_name) ELSE NULL END) as assigned_to_name,
+                COALESCE(t.assigned_to_email, u.email) as assigned_to_email,
+                COALESCE(t.assigned_to_phone, u.phone_number) as assigned_to_phone,
+                t.date_resolved,
+                f.latitude,
+                f.longitude
+            FROM tickets t
+            LEFT JOIN facilities f ON t.facility_id = f.facility_id
+            LEFT JOIN equipment e ON t.selected_equipment_id = e.equipment_id
+            LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
+            LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
+            LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
+            LEFT JOIN users u ON t.assigned_to = u.user_id
+            ${whereClause} ${locationFilter}
+            ORDER BY ${sortBy} ${sortDirection}
+            LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+        `;
+
+        const dataParams = [...queryParams, pageSize, offset];
+        const result = await db.query(dataQuery, dataParams);
+        const totalPages = Math.ceil(totalRecords / pageSize);
+
+        res.json({
+            success: true,
+            tickets: result.rows,
+            data: result.rows,
+            pagination: {
+                page,
+                pageSize,
+                totalRecords,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1
+            }
+        });
     } catch (error) {
         console.error('Error fetching tickets:', error);
         res.status(500).json({ message: 'Server error fetching tickets', error: error.message });
@@ -140,7 +227,8 @@ exports.createTicket = async (req, res) => {
         manufacturer,
         model,
         serialNumber,
-        refrigerantGas
+        refrigerantGas,
+        idempotencyKey
     } = req.body;
 
     // Manual validation
@@ -148,7 +236,24 @@ exports.createTicket = async (req, res) => {
         return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    const client = await db.pool.connect();
     try {
+        const tenant = require('../middleware/tenantStore').getStore();
+        const schema = tenant && tenant.schema_name ? tenant.schema_name : 'public';
+        await client.query(`SET search_path TO "${schema}", public`);
+
+        await client.query('BEGIN');
+
+        // Idempotency check
+        if (idempotencyKey) {
+            const dupCheck = await client.query('SELECT * FROM tickets WHERE idempotency_key = $1', [idempotencyKey]);
+            if (dupCheck.rows.length > 0) {
+                await client.query('COMMIT');
+                console.log(`ℹ️ Duplicate ticket submission intercepted for idempotency key: ${idempotencyKey}`);
+                return res.status(200).json(dupCheck.rows[0]);
+            }
+        }
+
         const query = `
       INSERT INTO tickets (
         facility_id, 
@@ -163,8 +268,9 @@ exports.createTicket = async (req, res) => {
         equipment_manufacturer,
         equipment_model,
         equipment_serial_number,
-        equipment_refrigerant_gas
-      ) VALUES ($1, $2, $3, $4, $5, 'New', $6, $7, $8, $9, $10, $11, $12)
+        equipment_refrigerant_gas,
+        idempotency_key
+      ) VALUES ($1, $2, $3, $4, $5, 'New', $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *
     `;
 
@@ -180,20 +286,16 @@ exports.createTicket = async (req, res) => {
             manufacturer || null,
             model || null,
             serialNumber || null,
-            refrigerantGas || null
+            refrigerantGas || null,
+            idempotencyKey || null
         ];
 
-        const result = await db.query(query, values);
+        const result = await client.query(query, values);
 
         // REFRESH the ticket to get the generated reference number (from the trigger)
         const newTicketId = result.rows[0].ticket_id;
-        const refreshedTicketRes = await db.query('SELECT * FROM tickets WHERE ticket_id = $1', [newTicketId]);
+        const refreshedTicketRes = await client.query('SELECT * FROM tickets WHERE ticket_id = $1', [newTicketId]);
         const newTicket = refreshedTicketRes.rows[0];
-
-        // Send notifications in the background (non-blocking)
-        notifyTicketCreation(req.app, newTicket, facilityId).catch(notifError => {
-            console.error('Background notification error:', notifError);
-        });
 
         // Audit Log
         await logAudit(
@@ -205,11 +307,21 @@ exports.createTicket = async (req, res) => {
             req
         );
 
+        await client.query('COMMIT');
+
+        // Send notifications in the background (non-blocking)
+        notifyTicketCreation(req.app, newTicket, facilityId).catch(notifError => {
+            console.error('Background notification error:', notifError);
+        });
+
         res.status(201).json(newTicket);
 
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Error creating ticket:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
         res.status(500).json({ message: 'Server error creating ticket', error: error.message });
+    } finally {
+        client.release();
     }
 };
 

@@ -5,10 +5,10 @@ import { useTenant } from '../context/TenantContext';
  * Reusable Location Filter Component
  * Renders dynamic location dropdowns based on tenant hierarchy.
  */
-const LocationFilter = ({ filters, options, onFilterChange, className = '', compactMode = false, labelColor }) => {
+const LocationFilter = ({ filters, options, onFilterChange, className = '', compactMode = false, labelColor, hierarchy: hierarchyOverride }) => {
     const { config } = useTenant();
     
-    const hierarchy = config?.hierarchy || [
+    const hierarchy = hierarchyOverride || config?.hierarchy || [
         { id: 'province', name: 'Province' },
         { id: 'district', name: 'District' }
     ];
@@ -54,7 +54,7 @@ const LocationFilter = ({ filters, options, onFilterChange, className = '', comp
         if (id === 'region') return options.regions || [];
         if (id === 'province') return options.provinces || [];
         if (id === 'district') return options.districts || [];
-        return [];
+        return options[id + 's'] || options[id] || [];
     };
 
     return (
@@ -91,7 +91,7 @@ const LocationFilter = ({ filters, options, onFilterChange, className = '', comp
                     onChange={(e) => onFilterChange('facility', e.target.value)}
                     className="filter-select"
                     style={selectStyle}
-                    disabled={filters[hierarchy[hierarchy.length-1].id] === 'all'}
+                    disabled={hierarchy.length > 0 && filters[hierarchy[hierarchy.length-1].id] === 'all'}
                 >
                     <option value="all">All Facilities</option>
                     {options.facilities?.map(f => (
@@ -104,3 +104,4 @@ const LocationFilter = ({ filters, options, onFilterChange, className = '', comp
 };
 
 export default LocationFilter;
+

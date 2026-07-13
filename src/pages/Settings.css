@@ -21,6 +21,7 @@
     margin-bottom: 0.5rem;
     background: var(--primary-gradient);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -519,3 +520,56 @@ input:checked + .slider:before {
     color: var(--text-secondary);
     font-style: italic;
 }
+
+/* Upgraded Phase 3 Styles */
+.disabled-level {
+    border-left-style: dashed !important;
+    background: rgba(148, 163, 184, 0.03) !important;
+}
+
+.history-section-panel {
+    animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Spacing and Card Optimizations */
+.config-grid {
+    gap: 1.2rem !important;
+}
+
+.settings-content {
+    padding: 2rem !important;
+}
+
+.profile-card {
+    padding: 1.2rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.settings-section {
+    padding: 0.5rem 0;
+}
+
+/* Phase 5 Portability Styles */
+.comparison-table th {
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.comparison-table tr:hover {
+    background: rgba(148, 163, 184, 0.02) !important;
+}
+
+.portability-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.portability-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+}
+
+

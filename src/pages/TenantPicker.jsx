@@ -6,8 +6,14 @@ const TenantPicker = () => {
     const [tenants, setTenants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const { setTenant } = useTenant();
+    const { setTenant, platformContext } = useTenant();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (platformContext?.deploymentMode === 'standalone_country' || platformContext?.resolvedTenant) {
+            navigate('/login');
+        }
+    }, [platformContext, navigate]);
 
     useEffect(() => {
         // Fetch the live tenant list from the public API endpoint

@@ -12,20 +12,23 @@ const { Pool } = require('pg');
 const xlsx = require('xlsx');
 const shapefile = require('shapefile');
 
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
+
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'png_ccets',
-    password: 'S@mund3ng0',
-    port: 5432,
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'png_ccets',
+    password: process.env.DB_PASSWORD || 'password_change_me_in_prod',
+    port: parseInt(process.env.DB_PORT || '5433'),
 });
 
 const SCHEMA = 'zambia';
 
 // ── Paths ─────────────────────────────────────────────────────────────────
-const XLSX_PATH = 'c:/ccets_all/Zambian Health Facilities.xlsx';
-const SHP_ADMIN1 = 'c:/ccets_all/zmb_admin_boundaries.shp/zmb_admin1.shp';
-const SHP_ADMIN2 = 'c:/ccets_all/zmb_admin_boundaries.shp/zmb_admin2.shp';
+const XLSX_PATH = 'c:/CCETS_Project/Zambian Health Facilities.xlsx';
+const SHP_ADMIN1 = 'c:/CCETS_Project/zmb_admin_boundaries.shp/zmb_admin1.shp';
+const SHP_ADMIN2 = 'c:/CCETS_Project/zmb_admin_boundaries.shp/zmb_admin2.shp';
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 async function readAllFeatures(shpPath) {

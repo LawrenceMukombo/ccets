@@ -36,12 +36,20 @@ exports.login = async (req, res) => {
         try {
             isPasswordValid = await bcrypt.compare(password, user.password_hash);
         } catch (bcryptError) {
-            // If bcrypt fails, try pgcrypto (for legacy users)
-            const passwordMatchResult = await db.query(
-                `SELECT (password_hash = crypt($1, password_hash)) AS match FROM users WHERE user_id = $2`,
-                [password, user.user_id]
-            );
-            isPasswordValid = passwordMatchResult.rows[0]?.match || false;
+            console.error('Bcrypt comparison encountered an error:', bcryptError);
+        }
+
+        if (!isPasswordValid) {
+            try {
+                // Fallback: try pgcrypto (for legacy users or crypt-generated hashes)
+                const passwordMatchResult = await db.query(
+                    `SELECT (password_hash = crypt($1, password_hash)) AS match FROM users WHERE user_id = $2`,
+                    [password, user.user_id]
+                );
+                isPasswordValid = passwordMatchResult.rows[0]?.match || false;
+            } catch (fallbackError) {
+                console.error('pgcrypto fallback comparison failed:', fallbackError);
+            }
         }
 
         if (!isPasswordValid) {

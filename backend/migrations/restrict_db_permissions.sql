@@ -1,0 +1,36 @@
+-- Create ccets_user if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'ccets_user') THEN
+        CREATE ROLE ccets_user WITH LOGIN PASSWORD 'ccets_secure_pass';
+    END IF;
+END $$;
+
+-- Revoke superuser (if any) and reset permissions
+ALTER ROLE ccets_user NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+
+-- Revoke all global permissions on databases
+REVOKE ALL PRIVILEGES ON DATABASE postgres FROM ccets_user;
+
+-- Grant USAGE and standard DML permissions on public and tenant schemas (png, zambia)
+GRANT USAGE, CREATE ON SCHEMA public TO ccets_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ccets_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ccets_user;
+
+-- PNG Schema
+GRANT USAGE, CREATE ON SCHEMA png TO ccets_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA png TO ccets_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA png TO ccets_user;
+
+-- Zambia Schema
+GRANT USAGE, CREATE ON SCHEMA zambia TO ccets_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA zambia TO ccets_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA zambia TO ccets_user;
+
+-- Set default privileges for future tables
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO ccets_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO ccets_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA png GRANT ALL PRIVILEGES ON TABLES TO ccets_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA png GRANT ALL PRIVILEGES ON SEQUENCES TO ccets_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA zambia GRANT ALL PRIVILEGES ON TABLES TO ccets_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA zambia GRANT ALL PRIVILEGES ON SEQUENCES TO ccets_user;

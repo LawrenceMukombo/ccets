@@ -5,12 +5,26 @@ import { useLocationFilter } from '../hooks/useLocationFilter';
 import LocationFilter from '../components/LocationFilter';
 import EquipmentDetailsModal from '../components/EquipmentDetailsModal';
 import ReportFaultModal from '../components/ReportFaultModal';
+import EnterpriseDataTable from '../components/Common/EnterpriseDataTable';
 
 function Equipment() {
     const { tenantCode, config } = useTenant();
+    
+    // Table states
     const [equipment, setEquipment] = useState([]);
+    const [allEquipmentForOptions, setAllEquipmentForOptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    
+    // Pagination & Sort states
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(50);
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [sortBy, setSortBy] = useState('facility_name');
+    const [sortDirection, setSortDirection] = useState('asc');
+    
+    // Filter states
     const [searchFilter, setSearchFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [selectedItem, setSelectedItem] = useState(null);
@@ -23,29 +37,42 @@ function Equipment() {
         { id: 'district', name: 'District' }
     ];
 
-    // Pagination state
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(50);
-    const [totalPages, setTotalPages] = useState(0);
-    const [totalCount, setTotalCount] = useState(0);
-    const [uniqueFacilityCount, setUniqueFacilityCount] = useState(0);
-
-    // Use the custom hook for location filtering
+    // Location Filter options calculated from in-memory metadata list
     const {
         filters: locationFilters,
         handleFilterChange: handleLocationFilterChange,
-        filteredData: locationFilteredEquipment,
+        clearFilters: clearLocationFilters,
         options
-    } = useLocationFilter(equipment, {
+    } = useLocationFilter(allEquipmentForOptions, {
         hierarchy: hierarchy,
         facilityField: 'facility_name'
     });
 
+    // 1. Fetch metadata once for dropdown options
     useEffect(() => {
-        fetchEquipment();
-    }, []); // Only fetch once on mount
+        const fetchMetadata = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` })
+                };
+                const response = await fetch(`/api/${tenantCode}/equipment?limit=10000`, { headers });
+                const data = await response.json();
+                setAllEquipmentForOptions(data.data || data.equipment || []);
+            } catch (err) {
+                console.error('Error fetching equipment metadata:', err);
+            }
+        };
+        fetchMetadata();
+    }, [tenantCode]);
 
-    const fetchEquipment = async () => {
+    // 2. Fetch active page of data whenever pagination, sorting, or filters change
+    useEffect(() => {
+        fetchTableData();
+    }, [page, pageSize, sortBy, sortDirection, searchFilter, statusFilter, locationFilters]);
+
+    const fetchTableData = async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
@@ -54,197 +81,100 @@ function Equipment() {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
 
-            // Fetch ALL equipment data (no pagination on backend)
-            const response = await fetch(`/api/${tenantCode}/equipment?limit=10000`, { headers });
+            const params = new URLSearchParams({
+                page: String(page),
+                pageSize: String(pageSize),
+                sortBy,
+                sortDirection,
+                search: searchFilter,
+                status: statusFilter,
+                region: locationFilters.region || 'all',
+                province: locationFilters.province || 'all',
+                district: locationFilters.district || 'all',
+                facility: locationFilters.facility || 'all'
+            });
+
+            const response = await fetch(`/api/${tenantCode}/equipment?${params}`, { headers });
+            if (!response.ok) {
+                throw new Error('Failed to retrieve equipment from server');
+            }
             const data = await response.json();
 
-            console.log('API Response:', { status: response.status, data });
-
-            if (data.success) {
-                const equipmentList = data.equipment || [];
-                setEquipment(equipmentList);
-                setTotalCount(data.total || equipmentList.length);
-                setUniqueFacilityCount(data.uniqueFacilities || 0);
-                setError(null);
-            } else {
-                console.error('API Error:', data);
-                setError(data.message || 'Failed to load equipment');
-            }
+            setEquipment(data.data || data.equipment || []);
+            setTotalRecords(data.pagination?.totalRecords || (data.data || data.equipment || []).length);
+            setTotalPages(data.pagination?.totalPages || 1);
+            setError(null);
         } catch (err) {
-            console.error('Fetch Error:', err);
+            console.error('Error fetching equipment table data:', err);
             setError('Failed to load equipment data. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
-    const handlePageChange = (newPage) => {
-        const maxPage = Math.ceil(filteredEquipment.length / limit);
-        if (newPage >= 1 && newPage <= maxPage) {
-            setPage(newPage);
-        }
-    };
-
-    const handleLimitChange = (newLimit) => {
-        setLimit(newLimit);
-        setPage(1); // Reset to first page when changing limit
-    };
-
-    // Pagination Controls Component
-    const PaginationControls = ({ position }) => {
-        const displayTotal = filteredEquipment.length;
-        const displayTotalPages = calculatedTotalPages;
-        const start = displayTotal > 0 ? (page - 1) * limit + 1 : 0;
-        const end = Math.min(page * limit, displayTotal);
-
-        const pageNumbers = [];
-        const maxPagesToShow = 5;
-        let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
-        let endPage = Math.min(displayTotalPages, startPage + maxPagesToShow - 1);
-
-        if (endPage - startPage < maxPagesToShow - 1) {
-            startPage = Math.max(1, endPage - maxPagesToShow + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pageNumbers.push(i);
-        }
-
-        return (
-            <div className={`pagination-controls ${position}`}>
-                <div className="pagination-info">
-                    Showing {start}-{end} of {displayTotal} equipment items
+    // Columns Definition
+    const columns = [
+        { 
+            id: 'facility_name', 
+            label: 'Facility', 
+            sortable: true, 
+            defaultVisible: true, 
+            hideable: false,
+            formatter: (val, item) => (
+                <div className="facility-name-cell">
+                    {val || 'Unnamed Facility'}
+                    <span style={{ fontSize: '11px', display: 'block', color: '#64748b' }}>
+                        {hierarchy.map(level => item[level.id]).filter(Boolean).join(', ')}
+                    </span>
                 </div>
-                <div className="pagination-actions">
-                    <button
-                        className="page-btn"
-                        onClick={() => handlePageChange(1)}
-                        disabled={page === 1}
-                    >
-                        First
-                    </button>
-                    <button
-                        className="page-btn"
-                        onClick={() => handlePageChange(page - 1)}
-                        disabled={page === 1}
-                    >
-                        ← Prev
-                    </button>
-
-                    <select
-                        className="page-select"
-                        value={page}
-                        onChange={(e) => handlePageChange(parseInt(e.target.value))}
-                    >
-                        {Array.from({ length: displayTotalPages }, (_, i) => i + 1).map(num => (
-                            <option key={num} value={num}>
-                                Page {num}
-                            </option>
-                        ))}
-                    </select>
-
-                    <button
-                        className="page-btn"
-                        onClick={() => handlePageChange(page + 1)}
-                        disabled={page === displayTotalPages}
-                    >
-                        Next →
-                    </button>
-                    <button
-                        className="page-btn"
-                        onClick={() => handlePageChange(displayTotalPages)}
-                        disabled={page === displayTotalPages}
-                    >
-                        Last
-                    </button>
-
-                    <select
-                        className="page-select"
-                        value={limit}
-                        onChange={(e) => handleLimitChange(parseInt(e.target.value))}
-                    >
-                        <option value={25}>25 per page</option>
-                        <option value={50}>50 per page</option>
-                        <option value={100}>100 per page</option>
-                        <option value={200}>200 per page</option>
-                    </select>
-                </div>
-            </div>
-        );
-    };
-
-    // Apply search filter on top of location filters (but NOT status filter yet)
-    const searchFilteredEquipment = locationFilteredEquipment.filter(item => {
-        if (searchFilter) {
-            const searchLower = searchFilter.toLowerCase();
-            return (
-                item.facility_name?.toLowerCase().includes(searchLower) ||
-                item.serial_number?.toLowerCase().includes(searchLower) ||
-                item.model?.toLowerCase().includes(searchLower) ||
-                item.item_type?.toLowerCase().includes(searchLower)
-            );
+            )
+        },
+        { id: 'item_type', label: 'Type', sortable: true, defaultVisible: true },
+        { id: 'manufacturer', label: 'Manufacturer', sortable: true, defaultVisible: true },
+        { id: 'model', label: 'Model', sortable: true, defaultVisible: true },
+        { id: 'serial_number', label: 'Serial No', sortable: true, defaultVisible: true },
+        { 
+            id: 'is_functioning', 
+            label: 'Status', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val) => (
+                <span className={`status-badge ${val !== false ? 'status-functioning' : 'status-not-functioning'}`}>
+                    {val !== false ? 'Functioning' : 'Not Functioning'}
+                </span>
+            )
         }
-        return true;
-    });
+    ];
 
-    // Calculate stats from searchFilteredEquipment (before status filter)
-    // This ensures stats are accurate regardless of which status card is clicked
-    const stats = {
-        totalEquipment: searchFilteredEquipment.length,
-        totalFacilities: new Set(searchFilteredEquipment.map(e => e.facility_name)).size,
-        functioning: searchFilteredEquipment.filter(e => e.is_functioning !== false).length,
-        notFunctioning: searchFilteredEquipment.filter(e => e.is_functioning === false).length
-    };
-
-    // NOW apply status filter for display
-    const filteredEquipment = searchFilteredEquipment.filter(item => {
-        if (statusFilter !== 'all') {
-            return statusFilter === 'functioning' ? (item.is_functioning !== false) : (item.is_functioning === false);
+    // Row dropdown actions
+    const rowActions = [
+        {
+            label: 'View Details',
+            icon: '👁️',
+            action: (item) => {
+                setSelectedItem(item);
+            }
+        },
+        {
+            label: 'Report Fault',
+            icon: '⚠️',
+            action: (item) => {
+                setSelectedEquipmentForReport(item);
+                setReportModalOpen(true);
+            }
         }
-        return true;
-    });
+    ];
 
-    // Handle stat card clicks to filter equipment
-    const handleStatCardClick = (filterType) => {
-        setStatusFilter(filterType);
-        setPage(1); // Reset to first page when filtering
+    const handleClearFilters = () => {
+        setSearchFilter('');
+        setStatusFilter('all');
+        clearLocationFilters();
+        setPage(1);
     };
-
-    // Calculate totalPages based on filtered results
-    const calculatedTotalPages = Math.ceil(filteredEquipment.length / limit);
-
-    // Get paginated slice of filtered equipment for display
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedEquipment = filteredEquipment.slice(startIndex, endIndex);
-
-    console.log('Equipment Stats:', {
-        totalFromBackend: totalCount,
-        uniqueFacilitiesFromBackend: uniqueFacilityCount,
-        allEquipmentLoaded: equipment.length,
-        locationFilters,
-        locationFilteredCount: locationFilteredEquipment.length,
-        finalFilteredCount: filteredEquipment.length,
-        currentPage: page,
-        totalPages: calculatedTotalPages,
-        displayingItems: paginatedEquipment.length,
-        statsShown: stats
-    });
-
-    if (loading) {
-        return (
-            <div className="equipment-container">
-                <div className="loading-spinner">
-                    <div className="spinner"></div>
-                    <p>Loading equipment data...</p>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="equipment-container">
-            {/* Header ... */}
+            {/* Header */}
             <div className="equipment-header">
                 <div className="header-content">
                     <div>
@@ -256,125 +186,75 @@ function Equipment() {
                 </div>
             </div>
 
-            {error && (
-                <div className="error-banner">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                    {error}
-                </div>
-            )}
-
-            {/* Filters ... */}
-            <div className="filters-section">
-                <div className="search-box">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                    </svg>
-                    <input
-                        type="text"
-                        placeholder="Search equipment..."
-                        value={searchFilter}
-                        onChange={(e) => setSearchFilter(e.target.value)}
-                    />
-                </div>
-
-                <div className="filter-group">
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="status-filter"
-                    >
-                        <option value="all">All Status</option>
-                        <option value="functioning">Functioning</option>
-                        <option value="not-functioning">Not Functioning</option>
-                    </select>
-
+            {/* Smart Cascade Filters */}
+            <div className="filters-section" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '13px', fontWeight: '600', color: '#334155' }}>Status</label>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                            className="filter-select"
+                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd', minWidth: '140px', height: '38px' }}
+                        >
+                            <option value="all">All Status</option>
+                            <option value="functioning">Functioning</option>
+                            <option value="not-functioning">Not Functioning</option>
+                        </select>
+                    </div>
+                    
                     <LocationFilter
                         filters={locationFilters}
                         options={options}
-                        onFilterChange={handleLocationFilterChange}
+                        onFilterChange={(key, value) => { handleLocationFilterChange(key, value); setPage(1); }}
+                        compactMode={false}
                     />
                 </div>
             </div>
 
-            {/* Equipment Table */}
-            {filteredEquipment.length === 0 ? (
-                <div className="empty-state">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                        <path d="M20 7h-9M14 17H5M16 21V3M3 21V9m0 12h18M3 9l9-6 9 6" />
-                    </svg>
-                    <p>No equipment data found</p>
-                    <span>Try adjusting your filters</span>
-                </div>
-            ) : (
-                <>
-                    <PaginationControls position="top" />
-                    <div className="table-container">
-                        <table className="equipment-table">
-                            <thead>
-                                <tr>
-                                    <th>FACILITY</th>
-                                    <th>TYPE</th>
-                                    <th>MANUFACTURER</th>
-                                    <th>MODEL</th>
-                                    <th>SERIAL NO</th>
-                                    <th>STATUS</th>
-                                    <th>ACTIONS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {paginatedEquipment.map((item) => (
-                                    <tr
-                                        key={item.equipment_id}
-                                        onClick={() => setSelectedItem(item)}
-                                        style={{ cursor: 'pointer' }}
-                                        className="equipment-row-clickable"
-                                    >
-                                        <td>
-                                            <div className="facility-name-cell">
-                                                {item.facility_name || 'Unnamed Facility'}
-                                                <span style={{ fontSize: '11px', display: 'block', color: '#64748b' }}>
-                                                    {hierarchy.map(level => item[level.id]).filter(Boolean).join(', ')}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>{item.item_type || '-'}</td>
-                                        <td>{item.manufacturer || '-'}</td>
-                                        <td>{item.model || '-'}</td>
-                                        <td className="font-mono text-sm">{item.serial_number || '-'}</td>
-                                        <td>
-                                            <span className={`status-badge ${item.is_functioning !== false ? 'status-functioning' : 'status-not-functioning'}`}>
-                                                {item.is_functioning !== false ? 'Functioning' : 'Not Functioning'}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className="action-buttons">
-                                                <button
-                                                    className="icon-btn view-btn"
-                                                    title="View Details"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setSelectedItem(item);
-                                                    }}
-                                                >
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    <PaginationControls position="bottom" />
-                </>
-            )}
+            {/* Enterprise DataTable */}
+            <EnterpriseDataTable
+                tableName="equipment"
+                columns={columns}
+                data={equipment}
+                loading={loading}
+                error={error}
+                serverSide={true}
+                pagination={{
+                    page,
+                    pageSize,
+                    totalRecords,
+                    totalPages,
+                    onPageChange: (newPage) => setPage(newPage),
+                    onPageSizeChange: (newPageSize) => { setPageSize(newPageSize); setPage(1); }
+                }}
+                sort={{
+                    sortBy,
+                    sortDirection,
+                    onSort: (colId, direction) => { setSortBy(colId); setSortDirection(direction); }
+                }}
+                searchValue={searchFilter}
+                onSearchChange={(val) => { setSearchFilter(val); setPage(1); }}
+                filters={{
+                    values: {
+                        status: statusFilter,
+                        ...locationFilters
+                    },
+                    onChange: (key, val) => {
+                        if (key === 'status') setStatusFilter(val);
+                        else handleLocationFilterChange(key, val);
+                        setPage(1);
+                    },
+                    onClear: handleClearFilters
+                }}
+                rowActions={rowActions}
+                rowActionKey="equipment_id"
+                emptyTitle="No equipment found"
+                emptyMessage="No cold chain equipment matching your active filters was found."
+                onRowClick={(item) => setSelectedItem(item)}
+            />
 
-            {/* Modal */}
+            {/* Modals */}
             <EquipmentDetailsModal
                 equipment={selectedItem}
                 onClose={(action) => {
@@ -391,14 +271,11 @@ function Equipment() {
                 onClose={() => setReportModalOpen(false)}
                 equipment={selectedEquipmentForReport}
                 onSuccess={() => {
-                    // Refresh data to show updated status potentially? 
-                    // Though tickets don't immediately change equipment status unless we program it.
-                    fetchEquipment();
+                    fetchTableData();
                 }}
             />
         </div>
     );
 }
 
-export default Equipment; // Ensure export works cleanly if mistakenly nested or duplicate
-
+export default Equipment;

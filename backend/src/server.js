@@ -41,9 +41,27 @@ const dashboardRoutes = require('./routes/dashboard');
 const koboRoutes = require('./routes/koboRoutes'); // ODK Integration
 
 const resolveTenant = require('./middleware/tenant.middleware');
+const rateLimit = require('./middleware/rateLimiter');
+
+const authRateLimiter = rateLimit({ 
+    windowMs: 60 * 1000, 
+    max: 10, 
+    message: 'Too many authentication attempts. Please try again after 1 minute.' 
+});
+
+const apiRateLimiter = rateLimit({ 
+    windowMs: 60 * 1000, 
+    max: 100,
+    message: 'Too many requests. Please try again later.'
+});
 
 // Create a router for tenant-specific endpoints
 const tenantRouter = express.Router({ mergeParams: true });
+
+// Apply rate limiting
+tenantRouter.use(apiRateLimiter);
+tenantRouter.use('/auth/login', authRateLimiter);
+
 tenantRouter.use('/auth', authRoutes);
 tenantRouter.use('/facilities', facilityRoutes);
 tenantRouter.use('/tickets', ticketRoutes);
@@ -58,6 +76,7 @@ tenantRouter.use('/spare-parts', sparePartsRoutes);
 tenantRouter.use('/notifications', notificationRoutes);
 tenantRouter.use('/boundaries', require('./routes/boundaries'));
 tenantRouter.use('/settings', require('./routes/settings'));
+tenantRouter.use('/integration', require('./routes/integration'));
 tenantRouter.use('/hooks/kobo', koboRoutes); // Mount ODK webhook
 
 // ── Public tenant listing (no auth required — used by TenantPicker) ──────────
@@ -78,12 +97,16 @@ app.get('/api/tenants', async (req, res) => {
     }
 });
 
-// Mount the tenant router with the resolveTenant middleware
-app.use('/api/:tenantCode', resolveTenant, tenantRouter);
+// Platform routes (deployment mode and context resolver)
+const platformRoutes = require('./routes/platform');
+app.use('/api/platform', platformRoutes);
 
 // Super-admin routes
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
+
+// Mount the tenant router with the resolveTenant middleware
+app.use('/api/:tenantCode', resolveTenant, tenantRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -113,6 +136,8 @@ const io = new Server(server, {
 
 // Store io instance in app for access in controllers
 app.set('io', io);
+const socketService = require('./services/socketService');
+socketService.setIO(io);
 
 io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);

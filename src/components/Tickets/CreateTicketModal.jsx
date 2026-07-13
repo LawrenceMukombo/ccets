@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
+import { useOffline } from '../../context/OfflineContext';
 import './CreateTicketModal.css';
 
 const CreateTicketModal = ({ onClose, onSuccess }) => {
     const { tenantCode, config } = useTenant();
+    const { isOnline, updatePendingCount } = useOffline();
     const [activeTab, setActiveTab] = useState('location'); // location, details, reporter
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -60,9 +62,59 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
 
     // --- Data Fetching ---
 
+    // Load cached data when offline
+    useEffect(() => {
+        if (isOnline) return;
+        
+        const loadOfflineData = async () => {
+            try {
+                const { getCachedMetadata } = await import('../../utils/offlineDb');
+                const cachedFacs = await getCachedMetadata('facilities') || [];
+                const cachedEquips = await getCachedMetadata('equipment') || [];
+                
+                if (cachedFacs.length > 0) {
+                    const uniqueDistricts = [];
+                    const seenDistricts = new Set();
+                    const uniqueProvinces = [];
+                    const seenProvinces = new Set();
+                    const uniqueRegions = [];
+                    const seenRegions = new Set();
+                    
+                    cachedFacs.forEach(f => {
+                        if (f.district_id && !seenDistricts.has(f.district_id)) {
+                            seenDistricts.add(f.district_id);
+                            uniqueDistricts.push({ district_id: f.district_id, district_name: f.district_name, province_id: f.province_id });
+                        }
+                        if (f.province_id && !seenProvinces.has(f.province_id)) {
+                            seenProvinces.add(f.province_id);
+                            uniqueProvinces.push({ province_id: f.province_id, province_name: f.province_name, region_id: f.region_id });
+                        }
+                        if (f.region_id && !seenRegions.has(f.region_id)) {
+                            seenRegions.add(f.region_id);
+                            uniqueRegions.push({ region_id: f.region_id, region_name: f.region_name });
+                        }
+                    });
+                    
+                    setRegions(uniqueRegions);
+                    setProvinces(uniqueProvinces);
+                    window._offlineDistricts = uniqueDistricts;
+                    window._offlineFacilities = cachedFacs;
+                    window._offlineEquipment = cachedEquips;
+                    
+                    setDistricts(uniqueDistricts);
+                    setFacilities(cachedFacs);
+                }
+            } catch (err) {
+                console.error('Error loading offline cached data', err);
+            }
+        };
+        
+        loadOfflineData();
+    }, [isOnline]);
+
     // Fetch Regions on mount (if needed)
     useEffect(() => {
-        if (!hasLevel('region')) return;
+        if (!isOnline || !hasLevel('region')) return;
         const fetchRegions = async () => {
             try {
                 const res = await fetch(`/api/${tenantCode}/facilities/regions`, { headers: getAuthHeaders() });
@@ -72,11 +124,11 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
             }
         };
         fetchRegions();
-    }, []);
+    }, [isOnline]);
 
     // Fetch Provinces on mount (if needed) OR when Region changes
     useEffect(() => {
-        if (!hasLevel('province')) return;
+        if (!isOnline || !hasLevel('province')) return;
         const fetchProvinces = async () => {
             try {
                 const res = await fetch(`/api/${tenantCode}/facilities/provinces`, { headers: getAuthHeaders() });
@@ -86,7 +138,7 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
             }
         };
         fetchProvinces();
-    }, []);
+    }, [isOnline]);
 
     // Filter Provinces by selectedRegion (if region exists in hierarchy)
     const filteredProvinces = hasLevel('region') && selectedRegion
@@ -100,19 +152,20 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
             return;
         }
 
-        // Parent can be Province or Region
         const parentId = hasLevel('province') ? selectedProvince : selectedRegion;
-
         if (!parentId) {
             setDistricts([]);
             return;
         }
 
+        if (!isOnline) {
+            const allDists = window._offlineDistricts || [];
+            setDistricts(allDists.filter(d => d.province_id?.toString() === parentId.toString() || d.region_id?.toString() === parentId.toString()));
+            return;
+        }
+
         const fetchDistricts = async () => {
             try {
-                // If the parent is a region, we might need a different endpoint or use the province id
-                // But usually the backend getDistricts expects a provinceId.
-                // In Malawi, we use region_id as province_id, so it works.
                 const res = await fetch(`/api/${tenantCode}/facilities/districts/${parentId}`, { headers: getAuthHeaders() });
                 if (res.ok) setDistricts(await res.json());
             } catch (err) {
@@ -120,12 +173,18 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
             }
         };
         fetchDistricts();
-    }, [selectedProvince, selectedRegion]);
+    }, [selectedProvince, selectedRegion, isOnline]);
 
     // Fetch Facilities when District changes
     useEffect(() => {
         if (!selectedDistrict) {
             setFacilities([]);
+            return;
+        }
+
+        if (!isOnline) {
+            const allFacs = window._offlineFacilities || [];
+            setFacilities(allFacs.filter(f => f.district_id?.toString() === selectedDistrict.toString()));
             return;
         }
 
@@ -138,12 +197,18 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
             }
         };
         fetchFacilities();
-    }, [selectedDistrict]);
+    }, [selectedDistrict, isOnline]);
 
     // Fetch Equipment when Facility changes
     useEffect(() => {
         if (!formData.facilityId) {
             setEquipmentList([]);
+            return;
+        }
+
+        if (!isOnline) {
+            const allEquip = window._offlineEquipment || [];
+            setEquipmentList(allEquip.filter(eq => eq.facility_id?.toString() === formData.facilityId.toString()));
             return;
         }
 
@@ -156,7 +221,7 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
             }
         };
         fetchEquipment();
-    }, [formData.facilityId]);
+    }, [formData.facilityId, isOnline]);
 
     // --- Handlers ---
     const nextTab = (tab) => {
@@ -199,9 +264,37 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
         }
         if (!formData.description) {
             setError("Fault description is required.");
-            // Switch to details tab if validation fails there?
             if (activeTab !== 'details') setActiveTab('details');
             setLoading(false);
+            return;
+        }
+
+        // Offline storage fallback
+        if (!isOnline) {
+            try {
+                const { saveOfflineTicket } = await import('../../utils/offlineDb');
+                await saveOfflineTicket({
+                    facilityId: formData.facilityId,
+                    equipmentId: formData.equipmentId,
+                    priority: formData.priority,
+                    description: formData.description,
+                    reportedByName: formData.reportedByName,
+                    reportedByPhone: formData.reportedByPhone,
+                    reportedByEmail: formData.reportedByEmail,
+                    manufacturer: formData.manufacturer,
+                    model: formData.model,
+                    serialNumber: formData.serialNumber,
+                    refrigerantGas: formData.refrigerantGas
+                });
+                alert("📶 Device is offline. Ticket has been queued locally and will be synchronized automatically when connection is restored.");
+                if (updatePendingCount) updatePendingCount();
+                if (onSuccess) onSuccess();
+                onClose();
+            } catch (err) {
+                setError("Failed to save ticket offline: " + err.message);
+            } finally {
+                setLoading(false);
+            }
             return;
         }
 

@@ -14,6 +14,41 @@ export const TenantProvider = ({ children }) => {
     const [config, setConfig] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [platformContext, setPlatformContext] = useState(null);
+
+    useEffect(() => {
+        const fetchPlatformContext = async () => {
+            try {
+                const response = await fetch('/api/platform/context');
+                const data = await response.json();
+                if (data.success) {
+                    setPlatformContext(data);
+                    
+                    if (data.redirectUrl) {
+                        window.location.replace(data.redirectUrl);
+                        return;
+                    }
+
+                    if (data.resolvedTenant) {
+                        const resolvedCode = data.resolvedTenant.code;
+                        if (localStorage.getItem('tenantCode') !== resolvedCode) {
+                            localStorage.setItem('tenantCode', resolvedCode);
+                            setTenantCode(resolvedCode);
+                        }
+                    } else if (data.deploymentMode === 'standalone_country' && data.tenants?.length > 0) {
+                        const defaultCode = data.defaultTenant || data.tenants[0].code;
+                        if (localStorage.getItem('tenantCode') !== defaultCode) {
+                            localStorage.setItem('tenantCode', defaultCode);
+                            setTenantCode(defaultCode);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching platform context:', err);
+            }
+        };
+        fetchPlatformContext();
+    }, []);
 
     const refreshConfig = async (code) => {
         const targetCode = code || tenantCode;
@@ -92,7 +127,7 @@ export const TenantProvider = ({ children }) => {
     };
 
     return (
-        <TenantContext.Provider value={{ tenantCode, setTenant, config, loading, error, refreshConfig }}>
+        <TenantContext.Provider value={{ tenantCode, setTenant, config, loading, error, refreshConfig, platformContext }}>
             {children}
         </TenantContext.Provider>
     );

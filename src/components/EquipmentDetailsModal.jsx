@@ -8,7 +8,8 @@ function EquipmentDetailsModal({ equipment, onClose }) {
     const locationPriority = ['facility_name', 'facility_code', 'region', 'province', 'district'];
     const hiddenFields = [
         'facility_id', 'equipment_id', 'province_id', 'district_id', 'region_id',
-        'is_del', 'created_by', 'updated_by', 'is_functioning'
+        'is_del', 'created_by', 'updated_by', 'is_functioning',
+        'external_id', 'source_system', 'asset_code'
     ];
 
     // Status Handling (Derived)
@@ -74,6 +75,31 @@ function EquipmentDetailsModal({ equipment, onClose }) {
                                     </div>
                                 );
                             })}
+                        </div>
+                    </div>
+
+                    <div className="divider"></div>
+
+                    {/* Integration Section */}
+                    <div className="detail-section">
+                        <h3 className="section-title">Integration & Provenance</h3>
+                        <div className="detail-grid">
+                            <div className="detail-item">
+                                <label>Asset Code</label>
+                                <div className="value">{equipment.asset_code || equipment.item_code || '-'}</div>
+                            </div>
+                            <div className="detail-item">
+                                <label>External ID</label>
+                                <div className="value" style={{ fontFamily: 'monospace' }}>{equipment.external_id || '-'}</div>
+                            </div>
+                            <div className="detail-item">
+                                <label>Source System</label>
+                                <div className="value">
+                                    <span className={`badge ${equipment.source_system && equipment.source_system !== 'Manual' ? 'badge-primary' : 'badge-secondary'}`}>
+                                        {equipment.source_system || 'Manual'}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

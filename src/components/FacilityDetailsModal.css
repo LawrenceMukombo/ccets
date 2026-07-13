@@ -111,29 +111,6 @@
     border-color: #94a3b8;
 }
 
-.action-buttons-left {
-    margin-right: auto;
-}
-
-.danger-btn-outline {
-    padding: 0.5rem 1rem;
-    border: 1px solid #fda4af;
-    background: #fff1f2;
-    color: #e11d48;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.danger-btn-outline:hover {
-    background: #ffe4e6;
-    border-color: #fb7185;
-}
-
 .divider {
     height: 1px;
     background-color: #e2e8f0;
@@ -153,6 +130,16 @@
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+.status-text.success {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.status-text.error {
+    color: #ef4444;
+    font-weight: 600;
 }
 
 .badge {

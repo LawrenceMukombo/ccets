@@ -1,23 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTenant } from '../context/TenantContext';
 import { STATUS_COLORS } from '../constants/colors';
 import './Audit.css';
+import EnterpriseDataTable from '../components/Common/EnterpriseDataTable';
 
 function Audit() {
     const { tenantCode } = useTenant();
+    
+    // Table states
     const [auditLogs, setAuditLogs] = useState([]);
-    const [filteredLogs, setFilteredLogs] = useState([]);
+    const [allLogsForOptions, setAllLogsForOptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    
+    // Pagination & Sort states
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [sortBy, setSortBy] = useState('created_at');
+    const [sortDirection, setSortDirection] = useState('desc');
+
+    // Filter states
+    const [searchFilter, setSearchFilter] = useState('');
     const [filters, setFilters] = useState({
         action: 'all',
-        user: 'all',
         entity: 'all',
-        search: ''
+        user: 'all'
     });
-    const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
-    const [users, setUsers] = useState([]);
-    const [selectedTicket, setSelectedTicket] = useState(null);
+
     const [stats, setStats] = useState({
         total: 0,
         today: 0,
@@ -25,18 +36,34 @@ function Audit() {
         critical: 0
     });
 
-    useEffect(() => {
-        fetchAuditLogs();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-        if (!loading) {
-            applyFilters();
+    // 1. Fetch metadata once to populate dropdown options and stats
+    const fetchMetadata = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+            const response = await fetch(`/api/${tenantCode}/audit?limit=200`, { headers });
+            const data = await response.json();
+            const logs = data.data || data.logs || [];
+            setAllLogsForOptions(logs);
+            calculateStats(logs);
+        } catch (err) {
+            console.error('Error fetching audit metadata:', err);
         }
-    }, [filters, auditLogs, sortConfig, loading]);
+    };
 
-    const fetchAuditLogs = async () => {
+    useEffect(() => {
+        fetchMetadata();
+    }, [tenantCode]);
+
+    // 2. Fetch active page of data whenever pagination, sorting, or filters change
+    useEffect(() => {
+        fetchTableData();
+    }, [page, pageSize, sortBy, sortDirection, searchFilter, filters]);
+
+    const fetchTableData = async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
@@ -45,30 +72,31 @@ function Audit() {
                 ...(token && { 'Authorization': `Bearer ${token}` })
             };
 
-            const response = await fetch(`/api/${tenantCode}/audit?limit=200`, { headers });
+            const params = new URLSearchParams({
+                page: String(page),
+                pageSize: String(pageSize),
+                sortBy,
+                sortDirection,
+                search: searchFilter,
+                action: filters.action,
+                entity: filters.entity,
+                user: filters.user
+            });
 
-            if (response.ok) {
-                const data = await response.json();
-                const logs = data.logs || [];
-                setAuditLogs(logs);
-                setFilteredLogs(logs);
-
-                // Extract unique users
-                const uniqueUsers = [...new Set(logs.map(log => log.user_name).filter(Boolean))];
-                setUsers(uniqueUsers.sort());
-
-                // Calculate stats
-                calculateStats(logs);
-                setLoading(false);
-            } else {
-                const errData = await response.json().catch(() => ({}));
-                console.error('Audit fetch error:', errData);
-                setError(errData.message || errData.error || 'Failed to load audit logs');
-                setLoading(false);
+            const response = await fetch(`/api/${tenantCode}/audit?${params}`, { headers });
+            if (!response.ok) {
+                throw new Error('Failed to retrieve audit logs from server');
             }
+            const data = await response.json();
+
+            setAuditLogs(data.data || data.logs || []);
+            setTotalRecords(data.pagination?.totalRecords || (data.data || data.logs || []).length);
+            setTotalPages(data.pagination?.totalPages || 1);
+            setError(null);
         } catch (err) {
-            console.error('Error fetching audit logs:', err);
-            setError('Could not connect to audit service: ' + err.message);
+            console.error('Error fetching audit table data:', err);
+            setError('Failed to load audit logs. Please try again.');
+        } finally {
             setLoading(false);
         }
     };
@@ -90,61 +118,11 @@ function Audit() {
         });
     };
 
-    const applyFilters = () => {
-        let filtered = [...auditLogs];
-
-        if (filters.action !== 'all') {
-            filtered = filtered.filter(log => log.action === filters.action);
-        }
-
-        if (filters.user !== 'all') {
-            filtered = filtered.filter(log => log.user_name === filters.user);
-        }
-
-        if (filters.entity !== 'all') {
-            filtered = filtered.filter(log => log.entity_type === filters.entity);
-        }
-
-        if (filters.search) {
-            const searchLower = filters.search.toLowerCase();
-            filtered = filtered.filter(log =>
-                log.user_name?.toLowerCase().includes(searchLower) ||
-                log.action?.toLowerCase().includes(searchLower) ||
-                log.entity_type?.toLowerCase().includes(searchLower) ||
-                log.ip_address?.toLowerCase().includes(searchLower)
-            );
-        }
-
-        // Apply Sorting
-        if (sortConfig.key) {
-            filtered.sort((a, b) => {
-                let aValue = a[sortConfig.key];
-                let bValue = b[sortConfig.key];
-
-                // Handle string comparisons case-insensitively
-                if (typeof aValue === 'string') aValue = aValue.toLowerCase();
-                if (typeof bValue === 'string') bValue = bValue.toLowerCase();
-
-                if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-                if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-                return 0;
-            });
-        }
-
-        setFilteredLogs(filtered);
-    };
-
-    const handleSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const handleFilterChange = (key, value) => {
-        setFilters(prev => ({ ...prev, [key]: value }));
-    };
+    // Extract unique users for filtering
+    const uniqueUsers = useMemo(() => {
+        const users = allLogsForOptions.map(log => log.user_name).filter(Boolean);
+        return [...new Set(users)].sort();
+    }, [allLogsForOptions]);
 
     const handleExport = async () => {
         try {
@@ -155,7 +133,6 @@ function Audit() {
             const data = await response.json();
 
             if (data.success) {
-                // Convert to CSV
                 const headers = ['Timestamp', 'User', 'Action', 'Entity Type', 'Entity ID', 'IP Address'];
                 const rows = data.logs.map(log => [
                     new Date(log.created_at).toLocaleString(),
@@ -187,13 +164,13 @@ function Audit() {
         if (!action) return '#64748b';
         const normalized = action.toLowerCase();
 
-        if (normalized.includes('create')) return STATUS_COLORS['Resolved']; // Greenish
-        if (normalized.includes('update')) return STATUS_COLORS['New']; // Blueish
-        if (normalized.includes('delete')) return STATUS_COLORS['Escalated']; // Reddish
-        if (normalized.includes('resolv')) return STATUS_COLORS['Resolved']; // Greenish
-        if (normalized.includes('login')) return STATUS_COLORS['On Hold']; // Orangeish
-        if (normalized.includes('assign')) return STATUS_COLORS['Assigned']; // Yellowish
-        if (normalized.includes('view')) return STATUS_COLORS['Assigned'];
+        if (normalized.includes('create')) return STATUS_COLORS['Resolved'] || '#10b981';
+        if (normalized.includes('update')) return STATUS_COLORS['New'] || '#3b82f6';
+        if (normalized.includes('delete')) return STATUS_COLORS['Escalated'] || '#ef4444';
+        if (normalized.includes('resolv')) return STATUS_COLORS['Resolved'] || '#10b981';
+        if (normalized.includes('login')) return STATUS_COLORS['On Hold'] || '#f59e0b';
+        if (normalized.includes('assign')) return STATUS_COLORS['Assigned'] || '#8b5cf6';
+        if (normalized.includes('view')) return STATUS_COLORS['Assigned'] || '#8b5cf6';
 
         return '#64748b';
     };
@@ -210,24 +187,65 @@ function Audit() {
         });
     };
 
-    if (loading) {
-        return (
-            <div className="audit-container">
-                <div className="loading-box">
-                    <div className="spinner"></div>
-                    <p>Loading audit trail...</p>
-                </div>
-            </div>
-        );
-    }
-
-
-
-    // Helper to render sort arrow
-    const renderSortArrow = (key) => {
-        if (sortConfig.key !== key) return null;
-        return <span style={{ marginLeft: '4px' }}>{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>;
+    const handleFilterChange = (key, value) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+        setPage(1);
     };
+
+    const handleClearFilters = () => {
+        setSearchFilter('');
+        setFilters({
+            action: 'all',
+            entity: 'all',
+            user: 'all'
+        });
+        setPage(1);
+    };
+
+    // Columns Definition
+    const columns = [
+        { 
+            id: 'created_at', 
+            label: 'Timestamp', 
+            sortable: true, 
+            defaultVisible: true, 
+            hideable: false,
+            formatter: (val) => formatDate(val)
+        },
+        { 
+            id: 'user_name', 
+            label: 'User', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val) => val || 'System'
+        },
+        { 
+            id: 'action', 
+            label: 'Action', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val) => (
+                <span className="action-badge" style={{
+                    backgroundColor: getActionColor(val) + '20',
+                    color: getActionColor(val),
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: '600'
+                }}>
+                    {val}
+                </span>
+            )
+        },
+        { 
+            id: 'entity_type', 
+            label: 'Entity', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val, item) => `${val} #${item.entity_id || 'N/A'}`
+        },
+        { id: 'ip_address', label: 'IP Address', sortable: true, defaultVisible: true }
+    ];
 
     return (
         <div className="audit-container">
@@ -276,120 +294,100 @@ function Audit() {
                     </div>
                 </div>
 
-                {/* Filters */}
-                <div className="filters-section">
-                    <div className="search-box">
-                        <input
-                            type="text"
-                            placeholder="Search logs..."
-                            value={filters.search}
-                            onChange={(e) => handleFilterChange('search', e.target.value)}
-                        />
-                    </div>
-
-                    <select value={filters.action} onChange={(e) => handleFilterChange('action', e.target.value)}>
-                        <option value="all">All Actions</option>
-                        <option value="Created">Created</option>
-                        <option value="Updated">Updated</option>
-                        <option value="Deleted">Deleted</option>
-                        <option value="Viewed">Viewed</option>
-                        <option value="Login">Login</option>
-                        <option value="Assigned">Assigned</option>
-                        <option value="Resolved">Resolved</option>
-                    </select>
-
-                    <select value={filters.entity} onChange={(e) => handleFilterChange('entity', e.target.value)}>
-                        <option value="all">All Entities</option>
-                        <option value="Ticket">Tickets</option>
-                        <option value="User">Users</option>
-                        <option value="Facility">Facilities</option>
-                        <option value="Equipment">Equipment</option>
-                    </select>
-
-                    {users.length > 0 && (
-                        <select value={filters.user} onChange={(e) => handleFilterChange('user', e.target.value)}>
-                            <option value="all">All Users</option>
-                            {users.map(user => (
-                                <option key={user} value={user}>{user}</option>
-                            ))}
+                {/* Smart Cascade Filters */}
+                <div className="filters-section" style={{ display: 'flex', gap: '16px', marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '13px', fontWeight: '600', color: '#334155' }}>Action</label>
+                        <select
+                            value={filters.action}
+                            onChange={(e) => handleFilterChange('action', e.target.value)}
+                            className="filter-select"
+                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd', minWidth: '140px', height: '38px' }}
+                        >
+                            <option value="all">All Actions</option>
+                            <option value="Created">Created</option>
+                            <option value="Updated">Updated</option>
+                            <option value="Deleted">Deleted</option>
+                            <option value="Viewed">Viewed</option>
+                            <option value="Login">Login</option>
+                            <option value="Assigned">Assigned</option>
+                            <option value="Resolved">Resolved</option>
                         </select>
-                    )}
-
-                    <div className="results-count">
-                        Showing {filteredLogs.length} of {auditLogs.length} logs
                     </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '13px', fontWeight: '600', color: '#334155' }}>Entity</label>
+                        <select
+                            value={filters.entity}
+                            onChange={(e) => handleFilterChange('entity', e.target.value)}
+                            className="filter-select"
+                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd', minWidth: '140px', height: '38px' }}
+                        >
+                            <option value="all">All Entities</option>
+                            <option value="Ticket">Tickets</option>
+                            <option value="User">Users</option>
+                            <option value="Facility">Facilities</option>
+                            <option value="Equipment">Equipment</option>
+                        </select>
+                    </div>
+
+                    {uniqueUsers.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <label style={{ fontSize: '13px', fontWeight: '600', color: '#334155' }}>User</label>
+                            <select
+                                value={filters.user}
+                                onChange={(e) => handleFilterChange('user', e.target.value)}
+                                className="filter-select"
+                                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd', minWidth: '140px', height: '38px' }}
+                            >
+                                <option value="all">All Users</option>
+                                {uniqueUsers.map(user => (
+                                    <option key={user} value={user}>{user}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                 </div>
 
-                {error && <div className="error-banner">⚠️ {error}</div>}
-
-                {/* Audit Table */}
-                {filteredLogs.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="empty-icon">📋</div>
-                        <p>No audit logs found</p>
-                        <span>Try adjusting your filters</span>
-                    </div>
-                ) : (
-                    <div className="audit-table-container">
-                        <table className="audit-table">
-                            <thead>
-                                <tr>
-                                    <th onClick={() => handleSort('created_at')} style={{ cursor: 'pointer' }}>
-                                        Timestamp {renderSortArrow('created_at')}
-                                    </th>
-                                    <th onClick={() => handleSort('user_name')} style={{ cursor: 'pointer' }}>
-                                        User {renderSortArrow('user_name')}
-                                    </th>
-                                    <th onClick={() => handleSort('action')} style={{ cursor: 'pointer' }}>
-                                        Action {renderSortArrow('action')}
-                                    </th>
-                                    <th onClick={() => handleSort('entity_type')} style={{ cursor: 'pointer' }}>
-                                        Entity {renderSortArrow('entity_type')}
-                                    </th>
-                                    <th onClick={() => handleSort('ip_address')} style={{ cursor: 'pointer' }}>
-                                        IP Address {renderSortArrow('ip_address')}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredLogs.map((log) => (
-                                    <tr key={log.id} className="audit-row">
-                                        <td className="timestamp">{formatDate(log.created_at)}</td>
-                                        <td className="user-name">{log.user_name || 'System'}</td>
-                                        <td>
-                                            <span className="action-badge" style={{
-                                                backgroundColor: getActionColor(log.action) + '20',
-                                                color: getActionColor(log.action),
-                                            }}>
-                                                {log.action}
-                                            </span>
-                                        </td>
-                                        <td>{log.entity_type} #{log.entity_id || 'N/A'}</td>
-                                        <td className="ip-address">{log.ip_address || 'N/A'}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )
-                }
+                {/* Enterprise DataTable */}
+                <EnterpriseDataTable
+                    tableName="audit_trail"
+                    columns={columns}
+                    data={auditLogs}
+                    loading={loading}
+                    error={error}
+                    serverSide={true}
+                    pagination={{
+                        page,
+                        pageSize,
+                        totalRecords,
+                        totalPages,
+                        onPageChange: (newPage) => setPage(newPage),
+                        onPageSizeChange: (newPageSize) => { setPageSize(newPageSize); setPage(1); }
+                    }}
+                    sort={{
+                        sortBy,
+                        sortDirection,
+                        onSort: (colId, direction) => { setSortBy(colId); setSortDirection(direction); }
+                    }}
+                    searchValue={searchFilter}
+                    onSearchChange={(val) => { setSearchFilter(val); setPage(1); }}
+                    filters={{
+                        values: filters,
+                        onChange: handleFilterChange,
+                        onClear: handleClearFilters
+                    }}
+                    emptyTitle="No audit logs found"
+                    emptyMessage="No activity logs match your selected filter criteria."
+                />
 
                 {/* Copyright Footer */}
-                <div className="audit-footer">
+                <div className="audit-footer" style={{ marginTop: '20px' }}>
                     <p>© {new Date().getFullYear()} CCETS - Cold Chain Equipment Ticketing System</p>
                     <p className="footer-dev">Developed by <a href="mailto:lawrencemukombo2@gmail.com">Lawrence Mukombo</a></p>
                 </div>
-            </div >
-
-            {selectedTicket && (
-                <TicketDetailsModal
-                    isOpen={true}
-                    ticket={selectedTicket}
-                    onClose={() => setSelectedTicket(null)}
-                />
-            )
-            }
-        </div >
+            </div>
+        </div>
     );
 }
 

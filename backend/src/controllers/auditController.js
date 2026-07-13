@@ -4,9 +4,64 @@ const { logAudit } = require('../services/auditService');
 // Get all audit logs with filtering
 const getAuditLogs = async (req, res) => {
     try {
-        const { action, user_id, entity_type, limit = 100 } = req.query;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(10000, Math.max(1, parseInt(req.query.limit || req.query.pageSize) || 25));
+        const offset = (page - 1) * limit;
 
-        let query = `
+        let whereClause = 'WHERE 1=1';
+        const queryParams = [];
+        let paramIndex = 1;
+
+        const action = req.query.action || req.query.action_filter;
+        if (action && action !== 'all') {
+            whereClause += ` AND al.action = $${paramIndex}`;
+            queryParams.push(action);
+            paramIndex++;
+        }
+
+        const userId = req.query.user_id || req.query.user;
+        if (userId && userId !== 'all') {
+            whereClause += ` AND al.user_id = $${paramIndex}`;
+            queryParams.push(parseInt(userId));
+            paramIndex++;
+        }
+
+        const entityType = req.query.entity_type || req.query.entity;
+        if (entityType && entityType !== 'all') {
+            whereClause += ` AND al.table_name = $${paramIndex}`;
+            queryParams.push(entityType);
+            paramIndex++;
+        }
+
+        // search filter
+        if (req.query.search) {
+            whereClause += ` AND (al.action ILIKE $${paramIndex} OR al.table_name ILIKE $${paramIndex} OR u.first_name ILIKE $${paramIndex} OR u.last_name ILIKE $${paramIndex})`;
+            queryParams.push(`%${req.query.search}%`);
+            paramIndex++;
+        }
+
+        // Count Total Records
+        const countQuery = `
+            SELECT COUNT(*) 
+            FROM audit_trail al
+            LEFT JOIN users u ON al.user_id = u.user_id
+            ${whereClause}
+        `;
+        const countResult = await db.query(countQuery, queryParams);
+        const totalRecords = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        // Sorting
+        const sortByAllowlist = {
+            created_at: 'al.timestamp',
+            action: 'al.action',
+            entity_type: 'al.table_name',
+            user_name: 'user_name'
+        };
+        const sortBy = sortByAllowlist[req.query.sortBy] || 'al.timestamp';
+        const sortDirection = req.query.sortDirection === 'asc' ? 'ASC' : 'DESC';
+
+        const dataQuery = `
             SELECT 
                 al.audit_id AS id,
                 al.action,
@@ -20,39 +75,27 @@ const getAuditLogs = async (req, res) => {
                 u.email as user_email
             FROM audit_trail al
             LEFT JOIN users u ON al.user_id = u.user_id
-            WHERE 1=1
+            ${whereClause}
+            ORDER BY ${sortBy} ${sortDirection}
+            LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
         `;
 
-        const params = [];
-        let paramCount = 1;
-
-        if (action && action !== 'all') {
-            query += ` AND al.action = $${paramCount}`;
-            params.push(action);
-            paramCount++;
-        }
-
-        if (user_id && user_id !== 'all') {
-            query += ` AND al.user_id = $${paramCount}`;
-            params.push(user_id);
-            paramCount++;
-        }
-
-        if (entity_type && entity_type !== 'all') {
-            query += ` AND al.table_name = $${paramCount}`;
-            params.push(entity_type);
-            paramCount++;
-        }
-
-        query += ` ORDER BY al.timestamp DESC LIMIT $${paramCount}`;
-        params.push(limit);
-
-        const result = await db.query(query, params);
+        const dataParams = [...queryParams, limit, offset];
+        const result = await db.query(dataQuery, dataParams);
 
         res.json({
             success: true,
             logs: result.rows,
-            count: result.rows.length
+            count: result.rows.length,
+            data: result.rows,
+            pagination: {
+                page,
+                pageSize: limit,
+                totalRecords,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1
+            }
         });
     } catch (error) {
         console.error('Error fetching audit logs:', error);

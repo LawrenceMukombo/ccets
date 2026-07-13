@@ -41,6 +41,24 @@ module.exports = {
             const tenant = tenantStore.getStore();
             const schema = tenant && tenant.schema_name ? tenant.schema_name : 'public';
             
+            // Tenant isolation safety guard
+            if (schema === 'public') {
+                const tenantTables = [
+                    'facilities', 'equipment', 'tickets', 'users', 'roles', 'groups', 
+                    'permissions', 'audit_trail', 'ticket_activity_log', 'spare_parts', 
+                    'faults', 'notifications', 'connector_registry', 'integration_sync_runs', 
+                    'integration_sync_logs', 'staging_odk_submissions', 'staging_facilities', 
+                    'staging_equipment'
+                ];
+                const queryLower = text.toLowerCase();
+                const hasTenantTable = tenantTables.some(table => 
+                    new RegExp(`\\b${table}\\b`).test(queryLower)
+                );
+                if (hasTenantTable) {
+                    throw new Error('Tenant isolation leak blocked: Attempted to query tenant-specific table outside active tenant context');
+                }
+            }
+
             // Set search path for this client transaction
             await client.query(`SET search_path TO "${schema}", public`);
             

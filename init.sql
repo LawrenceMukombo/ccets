@@ -9,7 +9,7 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
+-- -- SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -415,7 +415,7 @@ DROP TYPE IF EXISTS public.sync_type_enum;
 DROP TYPE IF EXISTS public.priority_enum;
 DROP TYPE IF EXISTS public.notification_type_enum;
 DROP TYPE IF EXISTS public.notification_event_enum;
-DROP EXTENSION IF EXISTS postgis;
+-- DROP EXTENSION IF EXISTS postgis;
 DROP EXTENSION IF EXISTS pgcrypto;
 --
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -

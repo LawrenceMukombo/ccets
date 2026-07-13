@@ -2,6 +2,10 @@ const db = require('../db');
 
 exports.getAllFacilities = async (req, res) => {
     try {
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(10000, Math.max(1, parseInt(req.query.limit || req.query.pageSize) || 50));
+        const offset = (page - 1) * limit;
+
         const locationScope = req.user?.locationScope;
 
         // LBAC Filter Construction
@@ -46,62 +50,190 @@ exports.getAllFacilities = async (req, res) => {
             }
         }
 
-        const result = await db.query(`
-            -- Real Facilities
-            SELECT 
-                f.facility_id,
-                f.facility_name,
-                f.facility_code,
-                f.type,
-                f.is_functioning,
-                f.gps_coordinates,
-                f.latitude,
-                f.longitude,
-                p.province_name as province,
-                d.district_name as district,
-                r.region_name as region,
-                (SELECT COUNT(*) FROM equipment e WHERE e.facility_id = f.facility_id) as equipment_count
-            FROM facilities f
-            LEFT JOIN provinces p ON f.province_id = p.province_id
-            LEFT JOIN districts d ON f.district_id = d.district_id
-            LEFT JOIN regions r ON p.region_id = r.region_id
-            ${mainWhere}
+        // Build outer query filters
+        let outerWhere = 'WHERE 1=1';
 
-            UNION ALL
+        // search filter
+        if (req.query.search) {
+            outerWhere += ` AND (uf.facility_name ILIKE $${paramIndex} OR uf.facility_code ILIKE $${paramIndex})`;
+            queryParams.push(`%${req.query.search}%`);
+            paramIndex++;
+        }
 
-            -- Implied Facilities from Tickets (Ghosts)
-            SELECT
-                t.facility_id,
-                'Facility #' || t.facility_id as facility_name,
-                'UNKNOWN' as facility_code,
-                'Unknown' as type,
-                NULL as is_functioning,
-                NULL as gps_coordinates,
-                NULL as latitude,
-                NULL as longitude,
-                p.province_name as province,
-                d.district_name as district,
-                r.region_name as region,
-                (SELECT COUNT(*) FROM equipment e WHERE e.facility_id = t.facility_id) as equipment_count
-            FROM (
-                SELECT DISTINCT ON (facility_id)
-                    facility_id,
-                    province_id,
-                    district_id,
-                    region_id
-                FROM tickets
-                WHERE facility_id IS NOT NULL
-                AND facility_id NOT IN (SELECT facility_id FROM facilities)
-            ) t
-            LEFT JOIN provinces p ON t.province_id = p.province_id
-            LEFT JOIN districts d ON t.district_id = d.district_id
-            LEFT JOIN regions r ON t.region_id = r.region_id
-            ${ghostWhere}
+        // status filter
+        if (req.query.status && req.query.status !== 'all') {
+            const isFunc = req.query.status === 'functioning' || req.query.status === 'true';
+            outerWhere += ` AND uf.is_functioning = $${paramIndex}`;
+            queryParams.push(isFunc);
+            paramIndex++;
+        }
 
-            ORDER BY 2 ASC -- Order by facility_name
-        `, queryParams);
+        // location cascading filters
+        if (req.query.region && req.query.region !== 'all') {
+            outerWhere += ` AND uf.region = $${paramIndex}`;
+            queryParams.push(req.query.region);
+            paramIndex++;
+        }
 
-        res.json(result.rows);
+        if (req.query.province && req.query.province !== 'all') {
+            outerWhere += ` AND uf.province = $${paramIndex}`;
+            queryParams.push(req.query.province);
+            paramIndex++;
+        }
+
+        if (req.query.district && req.query.district !== 'all') {
+            outerWhere += ` AND uf.district = $${paramIndex}`;
+            queryParams.push(req.query.district);
+            paramIndex++;
+        }
+
+        // Count query
+        const countQuery = `
+            SELECT COUNT(*) FROM (
+                -- Real Facilities
+                SELECT 
+                    f.facility_id,
+                    f.facility_name,
+                    f.facility_code,
+                    f.type,
+                    f.is_functioning,
+                    p.province_name as province,
+                    d.district_name as district,
+                    r.region_name as region
+                FROM facilities f
+                LEFT JOIN provinces p ON f.province_id = p.province_id
+                LEFT JOIN districts d ON f.district_id = d.district_id
+                LEFT JOIN regions r ON p.region_id = r.region_id
+                ${mainWhere}
+
+                UNION ALL
+
+                -- Implied Facilities from Tickets (Ghosts)
+                SELECT
+                    t.facility_id,
+                    'Facility #' || t.facility_id as facility_name,
+                    'UNKNOWN' as facility_code,
+                    'Unknown' as type,
+                    NULL as is_functioning,
+                    p.province_name as province,
+                    d.district_name as district,
+                    r.region_name as region
+                FROM (
+                    SELECT DISTINCT ON (facility_id)
+                        facility_id,
+                        province_id,
+                        district_id,
+                        region_id
+                    FROM tickets
+                    WHERE facility_id IS NOT NULL
+                    AND facility_id NOT IN (SELECT facility_id FROM facilities)
+                ) t
+                LEFT JOIN provinces p ON t.province_id = p.province_id
+                LEFT JOIN districts d ON t.district_id = d.district_id
+                LEFT JOIN regions r ON t.region_id = r.region_id
+                ${ghostWhere}
+            ) uf
+            ${outerWhere}
+        `;
+
+        const countResult = await db.query(countQuery, queryParams);
+        const totalRecords = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        // Sorting
+        const sortByAllowlist = {
+            facility_name: 'uf.facility_name',
+            facility_code: 'uf.facility_code',
+            type: 'uf.type',
+            is_functioning: 'uf.is_functioning',
+            province: 'uf.province',
+            district: 'uf.district',
+            region: 'uf.region',
+            equipment_count: 'uf.equipment_count'
+        };
+        const sortBy = sortByAllowlist[req.query.sortBy] || 'uf.facility_name';
+        const sortDirection = req.query.sortDirection === 'desc' ? 'DESC' : 'ASC';
+
+        // Data query
+        const dataQuery = `
+            SELECT * FROM (
+                -- Real Facilities
+                SELECT 
+                    f.facility_id,
+                    f.facility_name,
+                    f.facility_code,
+                    f.type,
+                    f.is_functioning,
+                    f.gps_coordinates,
+                    f.latitude,
+                    f.longitude,
+                    f.external_id,
+                    f.source_system,
+                    p.province_name as province,
+                    d.district_name as district,
+                    r.region_name as region,
+                    (SELECT COUNT(*) FROM equipment e WHERE e.facility_id = f.facility_id) as equipment_count
+                FROM facilities f
+                LEFT JOIN provinces p ON f.province_id = p.province_id
+                LEFT JOIN districts d ON f.district_id = d.district_id
+                LEFT JOIN regions r ON p.region_id = r.region_id
+                ${mainWhere}
+
+                UNION ALL
+
+                -- Implied Facilities from Tickets (Ghosts)
+                SELECT
+                    t.facility_id,
+                    'Facility #' || t.facility_id as facility_name,
+                    'UNKNOWN' as facility_code,
+                    'Unknown' as type,
+                    NULL as is_functioning,
+                    NULL as gps_coordinates,
+                    NULL as latitude,
+                    NULL as longitude,
+                    NULL as external_id,
+                    'Manual' as source_system,
+                    p.province_name as province,
+                    d.district_name as district,
+                    r.region_name as region,
+                    (SELECT COUNT(*) FROM equipment e WHERE e.facility_id = t.facility_id) as equipment_count
+                FROM (
+                    SELECT DISTINCT ON (facility_id)
+                        facility_id,
+                        province_id,
+                        district_id,
+                        region_id
+                    FROM tickets
+                    WHERE facility_id IS NOT NULL
+                    AND facility_id NOT IN (SELECT facility_id FROM facilities)
+                ) t
+                LEFT JOIN provinces p ON t.province_id = p.province_id
+                LEFT JOIN districts d ON t.district_id = d.district_id
+                LEFT JOIN regions r ON t.region_id = r.region_id
+                ${ghostWhere}
+            ) uf
+            ${outerWhere}
+            ORDER BY ${sortBy} ${sortDirection}
+            LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+        `;
+
+        const dataParams = [...queryParams, limit, offset];
+        const result = await db.query(dataQuery, dataParams);
+
+        // Keep direct array support for backward compatibility with older pages, but provide full pagination object
+        res.json({
+            success: true,
+            facilities: result.rows,
+            data: result.rows,
+            pagination: {
+                page,
+                pageSize: limit,
+                totalRecords,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1
+            }
+        });
     } catch (error) {
         console.error('Error fetching facilities:', error);
         res.status(500).json({ message: 'Server error fetching facilities' });

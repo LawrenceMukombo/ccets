@@ -7,7 +7,7 @@ const getSpareParts = async (req, res) => {
 
         // Query the spareparts table
         const result = await db.query(`
-            SELECT * FROM public.spareparts 
+            SELECT * FROM spareparts 
             WHERE is_active = true 
             ORDER BY category, sparepart_name
         `);
@@ -46,7 +46,7 @@ const getSparePartsByCategory = async (req, res) => {
 
     try {
         const result = await db.query(
-            'SELECT * FROM public.spareparts WHERE is_active = true AND category = $1 ORDER BY sparepart_name',
+            'SELECT * FROM spareparts WHERE is_active = true AND category = $1 ORDER BY sparepart_name',
             [category]
         );
 

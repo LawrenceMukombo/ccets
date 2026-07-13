@@ -1,15 +1,16 @@
-require('dotenv').config({ path: '../../.env' }); // try resolving .env in root or backend
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') }); // resolve backend/.env
 const { Pool } = require('pg');
 const fs = require('fs');
 const { execSync } = require('child_process');
 
 async function migrate() {
     const pool = new Pool({
-        user: 'postgres',
-        host: 'localhost',
-        database: 'png_ccets',
-        password: 'S@mund3ng0',
-        port: 5432,
+        user: process.env.DB_USER || 'postgres',
+        host: process.env.DB_HOST || 'localhost',
+        database: process.env.DB_NAME || 'png_ccets',
+        password: process.env.DB_PASSWORD || 'password_change_me_in_prod',
+        port: parseInt(process.env.DB_PORT || '5433'),
     });
 
 
@@ -83,11 +84,10 @@ async function migrate() {
         // 5. Clone png to zambia using pg_dump logic
         console.log('Cloning png schema to zambia...');
         try {
-            // Dump the png schema (schema-only or with data if needed, here we use full dump to get lookup tables, but let's just do schema-only for structure)
-            // Wait, we probably want data as well for lookup tables. Let's do full dump.
-            execSync(`pg_dump -U postgres -h localhost -d png_ccets -n png -f temp_dump.sql`, {
-                env: { ...process.env, PGPASSWORD: 'S@mund3ng0' }
-            });
+            // Dump the png schema inside container
+            execSync(`docker exec ccets_db pg_dump -U postgres -d png_ccets -n png -f /tmp/temp_dump.sql`);
+            execSync(`docker cp ccets_db:/tmp/temp_dump.sql temp_dump.sql`);
+            execSync(`docker exec ccets_db rm /tmp/temp_dump.sql`);
 
             // Read the dump and replace 'png' with 'zambia'
             let dumpContent = fs.readFileSync('temp_dump.sql', 'utf8');
@@ -103,12 +103,12 @@ async function migrate() {
             
             fs.writeFileSync('temp_zambia_dump.sql', dumpContent);
 
-            // Import back to the database
-            execSync(`psql -U postgres -h localhost -d png_ccets -f temp_zambia_dump.sql`, {
-                env: { ...process.env, PGPASSWORD: 'S@mund3ng0' }
-            });
+            // Copy to container and import back to the database
+            execSync(`docker cp temp_zambia_dump.sql ccets_db:/tmp/temp_zambia_dump.sql`);
+            execSync(`docker exec ccets_db psql -U postgres -d png_ccets -f /tmp/temp_zambia_dump.sql`);
+            execSync(`docker exec ccets_db rm /tmp/temp_zambia_dump.sql`);
             
-            // Clean up
+            // Clean up local files
             fs.unlinkSync('temp_dump.sql');
             fs.unlinkSync('temp_zambia_dump.sql');
             

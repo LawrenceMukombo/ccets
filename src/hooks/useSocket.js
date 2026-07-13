@@ -1,64 +1,121 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
+let socket = null;
+let useCount = 0;
+const listeners = new Set();
+let notificationsList = [];
+let globalUnreadCount = 0;
+
+const addListener = (callback) => {
+    listeners.add(callback);
+};
+
+const removeListener = (callback) => {
+    listeners.delete(callback);
+};
+
+const notifyAll = () => {
+    listeners.forEach(cb => cb({
+        notifications: [...notificationsList],
+        unreadCount: globalUnreadCount
+    }));
+};
+
 export const useSocket = (userId) => {
-    const [notifications, setNotifications] = useState([]);
-    const [unreadCount, setUnreadCount] = useState(0);
-    const socketRef = useRef();
+    const [state, setState] = useState({
+        notifications: notificationsList,
+        unreadCount: globalUnreadCount
+    });
 
     useEffect(() => {
         if (!userId) return;
 
-        // Get tenant from localStorage
-        const tenantCode = localStorage.getItem('tenantCode');
+        useCount++;
+        const handleUpdate = (updatedState) => {
+            setState(updatedState);
+        };
+        addListener(handleUpdate);
 
-        // Connect to the server defined in proxy or absolute URL
-        // Using "" connects to window.location.host, which is proxied by Vite
-        socketRef.current = io('', {
-            path: '/socket.io',
-            transports: ['websocket', 'polling']
-        });
+        if (!socket) {
+            // Point to backend port 5050 directly in local dev mode to avoid Vite proxy closed errors
+            const socketUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? 'http://localhost:5050' 
+                : '';
+            const tenantCode = localStorage.getItem('tenantCode');
 
-        const socket = socketRef.current;
+            socket = io(socketUrl, {
+                path: '/socket.io',
+                transports: ['websocket', 'polling']
+            });
 
-        socket.on('connect', () => {
-            console.log('Connected to socket server');
-            // If we have a tenant, scope the room
-            if (tenantCode) {
-                socket.emit('join_user', `${tenantCode}_${userId}`);
-            } else {
-                socket.emit('join_user', userId);
-            }
-        });
+            socket.on('connect', () => {
+                console.log('Connected to socket server');
+                if (tenantCode) {
+                    socket.emit('join_user', `${tenantCode}_${userId}`);
+                } else {
+                    socket.emit('join_user', userId);
+                }
+            });
 
-        socket.on('notification', (notification) => {
-            console.log('New notification:', notification);
-            setNotifications(prev => [notification, ...prev]);
-            setUnreadCount(prev => prev + 1);
+            socket.on('notification', (notification) => {
+                console.log('New notification:', notification);
+                notificationsList = [notification, ...notificationsList];
+                globalUnreadCount++;
+                notifyAll();
 
-            // Optional: Request browser notification permission and show
-            if (Notification.permission === 'granted') {
-                new Notification('New Ticket Update', { body: notification.message });
-            }
-        });
+                if (Notification.permission === 'granted') {
+                    new Notification('New Ticket Update', { body: notification.message });
+                }
+            });
 
-        socket.on('disconnect', () => {
-            console.log('Disconnected from socket server');
-        });
+            socket.on('integration_sync_alert', (data) => {
+                console.log('Integration sync alert received:', data);
+                const notification = {
+                    id: Date.now(),
+                    type: 'integration_sync',
+                    message: data.message,
+                    timestamp: new Date()
+                };
+                notificationsList = [notification, ...notificationsList];
+                globalUnreadCount++;
+                notifyAll();
+
+                // Dispatch a window event for direct component listening (e.g. settings page health tab)
+                const event = new CustomEvent('integration_sync_alert', { detail: data });
+                window.dispatchEvent(event);
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from socket server');
+            });
+        }
 
         return () => {
-            socket.disconnect();
+            removeListener(handleUpdate);
+            useCount--;
+            if (useCount === 0 && socket) {
+                socket.disconnect();
+                socket = null;
+            }
         };
     }, [userId]);
 
     const markAllRead = () => {
-        setUnreadCount(0);
+        globalUnreadCount = 0;
+        notifyAll();
     };
 
     const clearNotifications = () => {
-        setNotifications([]);
-        setUnreadCount(0);
+        notificationsList = [];
+        globalUnreadCount = 0;
+        notifyAll();
     };
 
-    return { notifications, unreadCount, markAllRead, clearNotifications };
+    return { 
+        notifications: state.notifications, 
+        unreadCount: state.unreadCount, 
+        markAllRead, 
+        clearNotifications 
+    };
 };

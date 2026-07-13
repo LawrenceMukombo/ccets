@@ -3,8 +3,8 @@ const db = require('../db');
 // Get all equipment across all facilities
 const getEquipment = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 50;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(10000, Math.max(1, parseInt(req.query.limit || req.query.pageSize) || 50));
         const offset = (page - 1) * limit;
 
         const locationScope = req.user?.locationScope;
@@ -45,8 +45,47 @@ const getEquipment = async (req, res) => {
             }
         }
 
+        // Search filter
+        if (req.query.search) {
+            whereClause += ` AND (e.asset_code ILIKE $${paramIndex} OR e.serial_number ILIKE $${paramIndex} OR e.manufacturer ILIKE $${paramIndex} OR e.model ILIKE $${paramIndex} OR e.item_type ILIKE $${paramIndex} OR f.facility_name ILIKE $${paramIndex})`;
+            queryParams.push(`%${req.query.search}%`);
+            paramIndex++;
+        }
+
+        // Functioning status filter
+        if (req.query.status && req.query.status !== 'all') {
+            const isFunc = req.query.status === 'functioning' || req.query.status === 'true';
+            whereClause += ` AND e.is_functioning = $${paramIndex}`;
+            queryParams.push(isFunc);
+            paramIndex++;
+        }
+
+        // Location cascading filters
+        if (req.query.region && req.query.region !== 'all') {
+            whereClause += ` AND r.region_name = $${paramIndex}`;
+            queryParams.push(req.query.region);
+            paramIndex++;
+        }
+
+        if (req.query.province && req.query.province !== 'all') {
+            whereClause += ` AND p.province_name = $${paramIndex}`;
+            queryParams.push(req.query.province);
+            paramIndex++;
+        }
+
+        if (req.query.district && req.query.district !== 'all') {
+            whereClause += ` AND d.district_name = $${paramIndex}`;
+            queryParams.push(req.query.district);
+            paramIndex++;
+        }
+
+        if (req.query.facility && req.query.facility !== 'all') {
+            whereClause += ` AND f.facility_name = $${paramIndex}`;
+            queryParams.push(req.query.facility);
+            paramIndex++;
+        }
+
         // Get Total Count
-        // Count query does not need LIMIT/OFFSET parameters, reusing queryParams is safe.
         const countResult = await db.query(`
             SELECT COUNT(*) 
             FROM equipment e
@@ -59,22 +98,31 @@ const getEquipment = async (req, res) => {
         const totalRecords = parseInt(countResult.rows[0].count);
         const totalPages = Math.ceil(totalRecords / limit);
 
-        // Get Total Facility Count (all facilities in system)
+        // Get Total Facility Count
         const uniqueFacilitiesResult = await db.query(`
             SELECT COUNT(*) as unique_facilities
             FROM facilities
         `);
-
         const uniqueFacilities = parseInt(uniqueFacilitiesResult.rows[0].unique_facilities);
 
-        // Get Data
-        // Add Limit and Offset to params. Spread existing queryParams then add Limit and Offset.
-        const dataParams = [...queryParams, limit, offset];
-        // paramIndex for LIMIT is (queryParams.length + 1), OFFSET is (queryParams.length + 2)
-        const limitParamIndex = queryParams.length + 1;
-        const offsetParamIndex = queryParams.length + 2;
+        // Sorting
+        const sortByAllowlist = {
+            item_type: 'e.item_type',
+            manufacturer: 'e.manufacturer',
+            model: 'e.model',
+            serial_number: 'e.serial_number',
+            asset_code: 'e.asset_code',
+            is_functioning: 'e.is_functioning',
+            facility_name: 'f.facility_name',
+            region: 'r.region_name',
+            province: 'p.province_name',
+            district: 'd.district_name'
+        };
+        const sortBy = sortByAllowlist[req.query.sortBy] || 'f.facility_name';
+        const sortDirection = req.query.sortDirection === 'desc' ? 'DESC' : 'ASC';
 
-        const result = await db.query(`
+        // Get Data
+        const dataQuery = `
             SELECT 
                 e.*,
                 f.facility_name,
@@ -88,9 +136,12 @@ const getEquipment = async (req, res) => {
             LEFT JOIN districts d ON f.district_id = d.district_id
             LEFT JOIN regions r ON p.region_id = r.region_id
             ${whereClause}
-            ORDER BY f.facility_name ASC, e.item_type ASC
-            LIMIT $${limitParamIndex} OFFSET $${offsetParamIndex}
-        `, dataParams);
+            ORDER BY ${sortBy} ${sortDirection}
+            LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+        `;
+
+        const dataParams = [...queryParams, limit, offset];
+        const result = await db.query(dataQuery, dataParams);
 
         res.json({
             success: true,
@@ -99,7 +150,16 @@ const getEquipment = async (req, res) => {
             uniqueFacilities,
             page,
             totalPages,
-            equipment: result.rows
+            equipment: result.rows,
+            data: result.rows,
+            pagination: {
+                page,
+                pageSize: limit,
+                totalRecords,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1
+            }
         });
     } catch (error) {
         console.error('Error fetching equipment:', error);
