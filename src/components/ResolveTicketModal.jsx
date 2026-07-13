@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 import './ModalExtensions.css';
 
 const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
+    const { tenantCode } = useTenant();
     const [resolutionNotes, setResolutionNotes] = useState('');
     const [workPerformed, setWorkPerformed] = useState('');
     const [closeTicket, setCloseTicket] = useState(false);
@@ -30,8 +32,8 @@ const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
             const headers = { 'Authorization': `Bearer ${token}` };
 
             const [statusRes, categoriesRes] = await Promise.all([
-                fetch('/api/faults/functional-statuses', { headers }),
-                fetch('/api/faults/categories', { headers })
+                fetch(`/api/${tenantCode}/faults/functional-statuses`, { headers }),
+                fetch(`/api/${tenantCode}/faults/categories`, { headers })
             ]);
 
             if (statusRes.ok && categoriesRes.ok) {
@@ -87,7 +89,7 @@ const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
             };
 
             // 1. Save Fault Categorization
-            await fetch(`/api/faults/ticket/${ticket.ticket_id}/issues`, {
+            await fetch(`/api/${tenantCode}/faults/ticket/${ticket.ticket_id}/issues`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({
@@ -99,7 +101,7 @@ const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
             });
 
             // 2. Resolve Ticket
-            const response = await fetch(`/api/tickets/${ticket.ticket_id}/resolve`, {
+            const response = await fetch(`/api/${tenantCode}/tickets/${ticket.ticket_id}/resolve`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({

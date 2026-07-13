@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './ReportFaultModal.css';
 
 function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
+    const { tenantCode } = useTenant();
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedIssue, setSelectedIssue] = useState('');
@@ -32,7 +34,7 @@ function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/faults/categories', {
+            const response = await fetch(`/api/${tenantCode}/faults/categories`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -86,7 +88,7 @@ function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
                 refrigerantGas: equipment.refrigerant_gas
             };
 
-            const response = await fetch('/api/tickets', {
+            const response = await fetch(`/api/${tenantCode}/tickets`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -105,7 +107,7 @@ function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
 
                 // Link the fault issue
                 if (data.ticket_id) {
-                    await fetch(`/api/faults/ticket/${data.ticket_id}/issues`, {
+                    await fetch(`/api/${tenantCode}/faults/ticket/${data.ticket_id}/issues`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
