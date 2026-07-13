@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTenant } from '../context/TenantContext';
 import './Facilities.css';
 import { useLocationFilter } from '../hooks/useLocationFilter';
