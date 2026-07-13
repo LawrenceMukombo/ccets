@@ -5,6 +5,26 @@ const DEFAULT_HIERARCHY = [
     { id: 'district', name: 'District' }
 ];
 
+const isFilterableLevel = (level) => {
+    if (!level || !level.id) return false;
+    
+    const idLower = level.id.toLowerCase();
+    const nameLower = (level.name || '').toLowerCase();
+    
+    const nonFilteringTerms = [
+        'national', 'country', 'facility', 'health_facility', 'healthfacility', 'system'
+    ];
+    
+    const isExcluded = nonFilteringTerms.some(term => 
+        idLower.includes(term) || nameLower.includes(term)
+    );
+    
+    if (idLower === 'level_3' && nameLower === 'national') return false;
+    if (idLower === 'level_4' && nameLower === 'health facility') return false;
+    
+    return !isExcluded;
+};
+
 /**
  * Hook to manage cascading location filters with dynamic hierarchy support.
  * 
@@ -14,9 +34,13 @@ const DEFAULT_HIERARCHY = [
  */
 export function useLocationFilter(data = [], config = {}) {
     const {
-        hierarchy = DEFAULT_HIERARCHY,
+        hierarchy: rawHierarchy = DEFAULT_HIERARCHY,
         facilityField = 'facility_name'
     } = config;
+
+    const hierarchy = useMemo(() => {
+        return (rawHierarchy || []).filter(isFilterableLevel);
+    }, [rawHierarchy]);
 
     // Helper to find the actual field in the data object
     const getFieldForLevel = (item, levelId) => {

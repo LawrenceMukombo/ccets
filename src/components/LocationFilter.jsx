@@ -3,15 +3,40 @@ import { useTenant } from '../context/TenantContext';
 
 /**
  * Reusable Location Filter Component
+ */
+const isFilterableLevel = (level) => {
+    if (!level || !level.id) return false;
+    
+    const idLower = level.id.toLowerCase();
+    const nameLower = (level.name || '').toLowerCase();
+    
+    const nonFilteringTerms = [
+        'national', 'country', 'facility', 'health_facility', 'healthfacility', 'system'
+    ];
+    
+    const isExcluded = nonFilteringTerms.some(term => 
+        idLower.includes(term) || nameLower.includes(term)
+    );
+    
+    if (idLower === 'level_3' && nameLower === 'national') return false;
+    if (idLower === 'level_4' && nameLower === 'health facility') return false;
+    
+    return !isExcluded;
+};
+
+/**
+ * Reusable Location Filter Component
  * Renders dynamic location dropdowns based on tenant hierarchy.
  */
 const LocationFilter = ({ filters, options, onFilterChange, className = '', compactMode = false, labelColor, hierarchy: hierarchyOverride }) => {
     const { config } = useTenant();
     
-    const hierarchy = hierarchyOverride || config?.hierarchy || [
+    const rawHierarchy = hierarchyOverride || config?.hierarchy || [
         { id: 'province', name: 'Province' },
         { id: 'district', name: 'District' }
     ];
+
+    const hierarchy = (rawHierarchy || []).filter(isFilterableLevel);
 
     const selectStyle = compactMode
         ? { 
