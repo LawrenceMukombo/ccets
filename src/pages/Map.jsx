@@ -307,24 +307,22 @@ function Map({ tickets: propTickets }) {
     const statusCounts = useMemo(() => {
         const counts = { 'Escalated': 0, 'New': 0, 'Assigned': 0, 'In Progress': 0, 'On Hold': 0, 'Resolved': 0, 'Closed': 0, 'No Tickets': 0 };
         
-        filteredFacilities.forEach(fac => {
-            const facTickets = tickets.filter(t => String(t.facility_id) === String(fac.facility_id));
-            if (facTickets.length === 0) {
-                counts['No Tickets']++;
-            } else {
-                const openTickets = facTickets.filter(t => !['Resolved', 'Closed'].includes(getEffectiveStatus(t)));
-                if (openTickets.length === 0) {
-                    counts['Resolved']++;
-                } else {
-                    const statuses = openTickets.map(t => getEffectiveStatus(t));
-                    if (statuses.includes('Escalated')) counts['Escalated']++;
-                    else if (statuses.includes('On Hold')) counts['On Hold']++;
-                    else if (statuses.includes('In Progress')) counts['In Progress']++;
-                    else if (statuses.includes('Assigned')) counts['Assigned']++;
-                    else counts['New']++;
-                }
+        tickets.forEach(t => {
+            const status = getEffectiveStatus(t);
+            if (counts[status] !== undefined) {
+                counts[status]++;
             }
         });
+
+        const facilitiesWithTickets = new Set(tickets.map(t => String(t.facility_id)));
+        let noTicketsCount = 0;
+        filteredFacilities.forEach(fac => {
+            if (!facilitiesWithTickets.has(String(fac.facility_id))) {
+                noTicketsCount++;
+            }
+        });
+        counts['No Tickets'] = noTicketsCount;
+
         return counts;
     }, [filteredFacilities, tickets]);
 
@@ -410,26 +408,31 @@ function Map({ tickets: propTickets }) {
 
                 // CROSS-FILTER: If a status filter is active, only show markers that match that status
                 if (statusFilter) {
-                    // Map the dominant status to the filter name
-                    let dominantStatus = 'No Tickets';
-                    if (facilityTickets.length > 0) {
-                        const openTickets = facilityTickets.filter(t => !['Resolved', 'Closed'].includes(getEffectiveStatus(t)));
-                        if (openTickets.length === 0) {
-                            dominantStatus = 'Resolved'; // Or 'Closed', but the legend uses Resolved for green
-                        } else {
-                            const statuses = openTickets.map(t => getEffectiveStatus(t));
-                            if (statuses.includes('Escalated')) dominantStatus = 'Escalated';
-                            else if (statuses.includes('On Hold')) dominantStatus = 'On Hold';
-                            else if (statuses.includes('In Progress')) dominantStatus = 'In Progress';
-                            else if (statuses.includes('Assigned')) dominantStatus = 'Assigned';
-                            else if (statuses.includes('New')) dominantStatus = 'New';
-                        }
+                    if (statusFilter === 'No Tickets') {
+                        if (facilityTickets.length > 0) return;
+                    } else {
+                        const hasMatchingTicket = facilityTickets.some(t => getEffectiveStatus(t) === statusFilter);
+                        if (!hasMatchingTicket) return;
                     }
-
-                    if (statusFilter !== dominantStatus) return;
                 }
 
-                const icon = createHealthIcon(style.fillColor);
+                let fillColor = style.fillColor;
+                // Color the pin by the selected status for visual clarity
+                if (statusFilter) {
+                    const statusColors = {
+                        'Escalated': '#ef4444',
+                        'New': '#3b82f6',
+                        'Assigned': '#8b5cf6',
+                        'In Progress': '#6366f1',
+                        'On Hold': '#f59e0b',
+                        'Resolved': '#10b981',
+                        'Closed': '#64748b',
+                        'No Tickets': '#94a3b8'
+                    };
+                    fillColor = statusColors[statusFilter] || fillColor;
+                }
+
+                const icon = createHealthIcon(fillColor);
 
                 markers.push(
                     <Marker

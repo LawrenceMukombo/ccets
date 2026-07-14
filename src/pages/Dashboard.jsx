@@ -415,26 +415,25 @@ function Dashboard() {
         return Object.entries(counts).map(([name, value]) => ({ name, value }));
     }, [fullyFilteredTickets]);
     
-    // Facility status counts for Map Legend (Dominant status)
+    // Facility status counts for Map Legend (Ticket counts instead of dominant status to match dashboard cards)
     const facilityStatusCounts = useMemo(() => {
         const counts = { 'Escalated': 0, 'New': 0, 'Assigned': 0, 'In Progress': 0, 'On Hold': 0, 'Resolved': 0, 'Closed': 0, 'No Tickets': 0 };
-        facilities.forEach(fac => {
-            const facTickets = dateFilteredTickets.filter(t => String(t.facility_id) === String(fac.facility_id));
-            if (facTickets.length === 0) {
-                counts['No Tickets']++;
-            } else {
-                const openTickets = facTickets.filter(t => !['Resolved', 'Closed'].includes(t.effectiveStatus));
-                if (openTickets.length === 0) {
-                    counts['Resolved']++;
-                } else {
-                    if (openTickets.some(t => t.effectiveStatus === 'Escalated')) counts['Escalated']++;
-                    else if (openTickets.some(t => t.effectiveStatus === 'On Hold')) counts['On Hold']++;
-                    else if (openTickets.some(t => t.effectiveStatus === 'In Progress')) counts['In Progress']++;
-                    else if (openTickets.some(t => t.effectiveStatus === 'Assigned')) counts['Assigned']++;
-                    else counts['New']++;
-                }
+        
+        dateFilteredTickets.forEach(t => {
+            if (counts[t.effectiveStatus] !== undefined) {
+                counts[t.effectiveStatus]++;
             }
         });
+
+        const facilitiesWithTickets = new Set(dateFilteredTickets.map(t => String(t.facility_id)));
+        let noTicketsCount = 0;
+        facilities.forEach(fac => {
+            if (!facilitiesWithTickets.has(String(fac.facility_id))) {
+                noTicketsCount++;
+            }
+        });
+        counts['No Tickets'] = noTicketsCount;
+
         return counts;
     }, [dateFilteredTickets, facilities]);
 
@@ -481,7 +480,26 @@ function Dashboard() {
                 }
 
                 // Apply status filter: if a legend/card filter is active, only show markers matching that status
-                if (selectedStatus && selectedStatus !== dominantStatus) return null;
+                if (selectedStatus) {
+                    if (selectedStatus === 'No Tickets') {
+                        if (facTickets.length > 0) return null;
+                    } else {
+                        const hasMatchingTicket = facTickets.some(t => t.effectiveStatus === selectedStatus);
+                        if (!hasMatchingTicket) return null;
+                    }
+                    // Color the pin by the selected status for visual clarity
+                    const statusColors = {
+                        'Escalated': '#ef4444',
+                        'New': '#3b82f6',
+                        'Assigned': '#8b5cf6',
+                        'In Progress': '#6366f1',
+                        'On Hold': '#f59e0b',
+                        'Resolved': '#10b981',
+                        'Closed': '#64748b',
+                        'No Tickets': '#94a3b8'
+                    };
+                    markerColor = statusColors[selectedStatus] || markerColor;
+                }
 
                 const icon = L.divIcon({
                     className: 'custom-health-marker',
