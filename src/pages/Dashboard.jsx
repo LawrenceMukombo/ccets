@@ -464,18 +464,23 @@ function Dashboard() {
                         dominantStatus = 'Resolved';
                         markerColor = '#10b981'; // Green
                     } else {
-                        // Priority order for coloring
-                        if (openTickets.some(t => t.effectiveStatus === 'Escalated')) {
-                            dominantStatus = 'Escalated'; markerColor = '#ef4444';
-                        } else if (openTickets.some(t => t.effectiveStatus === 'On Hold')) {
-                            dominantStatus = 'On Hold'; markerColor = '#f59e0b';
-                        } else if (openTickets.some(t => t.effectiveStatus === 'In Progress')) {
-                            dominantStatus = 'In Progress'; markerColor = '#6366f1';
-                        } else if (openTickets.some(t => t.effectiveStatus === 'Assigned')) {
-                            dominantStatus = 'Assigned'; markerColor = '#8b5cf6';
-                        } else {
-                            dominantStatus = 'New'; markerColor = '#3b82f6';
-                        }
+                        // Distribute colors deterministically by facility ID for a varied map visualization
+                        const openList = [...openTickets];
+                        openList.sort((a, b) => (a.ticket_id || 0) - (b.ticket_id || 0));
+                        const index = fac.facility_id % openList.length;
+                        const chosenTicket = openList[index];
+                        dominantStatus = chosenTicket.effectiveStatus;
+                        
+                        const statusColors = {
+                            'Escalated': '#ef4444',
+                            'New': '#3b82f6',
+                            'Assigned': '#8b5cf6',
+                            'In Progress': '#6366f1',
+                            'On Hold': '#f59e0b',
+                            'Resolved': '#10b981',
+                            'Closed': '#64748b'
+                        };
+                        markerColor = statusColors[dominantStatus] || '#3b82f6';
                     }
                 }
 

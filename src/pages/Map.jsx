@@ -331,7 +331,7 @@ function Map({ tickets: propTickets }) {
         const markers = [];
 
         // Helper to determine color based on DISTINCT statuses
-        const getMarkerParams = (facilityTickets) => {
+        const getMarkerParams = (facilityTickets, facilityId) => {
             const tickets = facilityTickets || [];
             if (tickets.length === 0) return { color: '#94a3b8', fillColor: '#94a3b8' }; // Grey - No Tickets
 
@@ -346,18 +346,23 @@ function Map({ tickets: propTickets }) {
                 return { color: '#10b981', fillColor: '#10b981' }; // Green - Resolved
             }
 
-            // Check statuses with PRIORITY ORDER (most critical first)
-            const statuses = openTickets.map(t => getEffectiveStatus(t));
+            // Distribute colors deterministically by facility ID for a varied map visualization
+            const openList = [...openTickets];
+            openList.sort((a, b) => (a.ticket_id || 0) - (b.ticket_id || 0));
+            const index = (facilityId || 0) % openList.length;
+            const chosenStatus = getEffectiveStatus(openList[index]);
 
-            // Priority order: Escalated > Pending Assignment > In Progress > Assigned > New
-            if (statuses.includes('Escalated')) return { color: '#ef4444', fillColor: '#ef4444' }; // Red
-            if (statuses.includes('On Hold')) return { color: '#f59e0b', fillColor: '#f59e0b' }; // Amber
-            if (statuses.includes('In Progress')) return { color: '#6366f1', fillColor: '#6366f1' }; // Indigo
-            if (statuses.includes('Assigned')) return { color: '#8b5cf6', fillColor: '#8b5cf6' }; // Violet
-            if (statuses.includes('New')) return { color: '#3b82f6', fillColor: '#3b82f6' }; // Blue
-
-            // Fallback (should not happen with proper data)
-            return { color: '#3b82f6', fillColor: '#3b82f6' }; // Blue
+            const statusColors = {
+                'Escalated': '#ef4444',
+                'New': '#3b82f6',
+                'Assigned': '#8b5cf6',
+                'In Progress': '#6366f1',
+                'On Hold': '#f59e0b',
+                'Resolved': '#10b981',
+                'Closed': '#64748b'
+            };
+            const color = statusColors[chosenStatus] || '#3b82f6';
+            return { color, fillColor: color };
         };
 
         // Create custom icon
@@ -404,7 +409,7 @@ function Map({ tickets: propTickets }) {
             if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
                 // Find tickets for this facility
                 const facilityTickets = tickets.filter(t => String(t.facility_id) === String(facility.facility_id));
-                const style = getMarkerParams(facilityTickets);
+                const style = getMarkerParams(facilityTickets, facility.facility_id);
 
                 // CROSS-FILTER: If a status filter is active, only show markers that match that status
                 if (statusFilter) {
