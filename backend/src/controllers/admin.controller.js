@@ -42,9 +42,15 @@ exports.login = async (req, res) => {
 
 exports.getTenants = async (req, res) => {
     try {
-        const tenantsResult = await db.pool.query(
-            'SELECT id, code, name, schema_name, is_active, created_at FROM public.tenants ORDER BY id'
-        );
+        const tenantsResult = await db.pool.query(`
+            SELECT 
+                t.id, t.code, t.name, t.schema_name, t.is_active, t.created_at,
+                tc.emblem, tc.map_center, tc.map_zoom, tc.contact_email, tc.hierarchy,
+                tc.currency_code, tc.currency_symbol, tc.time_zone, tc.phone_prefix
+            FROM public.tenants t
+            LEFT JOIN public.tenant_config tc ON t.code = tc.tenant_code
+            ORDER BY t.id
+        `);
         res.json(tenantsResult.rows);
     } catch (error) {
         console.error('Error fetching tenants:', error);
@@ -53,10 +59,27 @@ exports.getTenants = async (req, res) => {
 };
 
 exports.createTenant = async (req, res) => {
-    const { code, name } = req.body;
+    const { 
+        code, 
+        name, 
+        currency_code, 
+        currency_symbol, 
+        time_zone, 
+        phone_prefix, 
+        map_center, 
+        map_zoom, 
+        hierarchy, 
+        admin_email, 
+        admin_password 
+    } = req.body;
 
     if (!code || !name) {
         return res.status(400).json({ message: 'Tenant code and name are required' });
+    }
+
+    const tenantCode = code.toLowerCase().trim();
+    if (!/^[a-z0-9_]+$/.test(tenantCode)) {
+        return res.status(400).json({ message: 'Tenant code must contain only lowercase alphanumeric characters and underscores.' });
     }
 
     const client = await db.pool.connect();
@@ -65,7 +88,7 @@ exports.createTenant = async (req, res) => {
         await client.query('BEGIN');
         
         // Ensure tenant doesn't already exist
-        const existsResult = await client.query('SELECT 1 FROM public.tenants WHERE code = $1', [code]);
+        const existsResult = await client.query('SELECT 1 FROM public.tenants WHERE code = $1', [tenantCode]);
         if (existsResult.rows.length > 0) {
             await client.query('ROLLBACK');
             return res.status(400).json({ message: 'Tenant code already exists' });
@@ -74,26 +97,134 @@ exports.createTenant = async (req, res) => {
         // 1. Create tenant record
         const insertResult = await client.query(
             'INSERT INTO public.tenants (code, name, schema_name) VALUES ($1, $2, $1) RETURNING *',
-            [code, name]
+            [tenantCode, name]
         );
         const newTenant = insertResult.rows[0];
 
-        // 2. Provision schema
-        // In a real production system, this would run pg_dump --schema-only on the template schema (png)
-        // and apply it to the new schema. For simplicity in this controller, we just create the schema.
-        // A dedicated provisioning job would normally handle the DB clone.
-        await client.query(`CREATE SCHEMA IF NOT EXISTS "${code}"`);
-        
+        // 2. Create schema
+        await client.query(`CREATE SCHEMA IF NOT EXISTS "${tenantCode}"`);
+
+        // 3. Clone all tables from template schema 'png'
+        console.log(`Cloning tables from png to ${tenantCode}...`);
+        const tablesResult = await client.query(`
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'png' 
+              AND table_type = 'BASE TABLE'
+              AND table_name NOT IN ('spatial_ref_sys')
+        `);
+
+        for (const r of tablesResult.rows) {
+            const table = r.table_name;
+            await client.query(`CREATE TABLE "${tenantCode}"."${table}" (LIKE png."${table}" INCLUDING ALL)`);
+        }
+
+        // 4. Update sequence column defaults pointing to 'png'
+        const seqResult = await client.query(`
+            SELECT table_name, column_name, column_default 
+            FROM information_schema.columns 
+            WHERE table_schema = 'png' 
+              AND column_default LIKE 'nextval%'
+        `);
+
+        for (const r of seqResult.rows) {
+            const table = r.table_name;
+            const column = r.column_name;
+            const def = r.column_default;
+            
+            // Extract original sequence name (e.g. regions_region_id_seq)
+            const match = def.match(/nextval\('"?([^'"]+)"?'::regclass\)/);
+            if (match) {
+                const fullSeqName = match[1];
+                const seqName = fullSeqName.includes('.') ? fullSeqName.split('.')[1] : fullSeqName;
+                
+                await client.query(`CREATE SEQUENCE IF NOT EXISTS "${tenantCode}"."${seqName}" START 1`);
+                await client.query(`ALTER TABLE "${tenantCode}"."${table}" ALTER COLUMN "${column}" SET DEFAULT nextval('"${tenantCode}"."${seqName}"')`);
+                await client.query(`ALTER SEQUENCE "${tenantCode}"."${seqName}" OWNED BY "${tenantCode}"."${table}"."${column}"`);
+            }
+        }
+
+        // 5. Clone views from 'png'
+        const viewsResult = await client.query(`
+            SELECT table_name, view_definition 
+            FROM information_schema.views 
+            WHERE table_schema = 'png'
+        `);
+
+        for (const r of viewsResult.rows) {
+            const viewName = r.table_name;
+            let def = r.view_definition;
+            // Replace occurrences of png schema in view definition
+            def = def.replace(/png\./g, `"${tenantCode}".`);
+            def = def.replace(/"png"\./g, `"${tenantCode}".`);
+            await client.query(`CREATE OR REPLACE VIEW "${tenantCode}"."${viewName}" AS ${def}`);
+        }
+
+        // 6. Seed reference data
+        console.log(`Seeding reference data into ${tenantCode}...`);
+        const seedTables = ['roles', 'permissions', 'role_permissions', 'fault_categories', 'fault_issues', 'energy_sources'];
+        for (const table of seedTables) {
+            await client.query(`INSERT INTO "${tenantCode}"."${table}" SELECT * FROM png."${table}"`);
+        }
+
+        // Fix sequence values for seeded tables
+        await client.query(`SELECT setval('"${tenantCode}"."roles_role_id_seq"', COALESCE((SELECT MAX(role_id) FROM "${tenantCode}"."roles"), 1))`);
+        await client.query(`SELECT setval('"${tenantCode}"."permissions_permission_id_seq"', COALESCE((SELECT MAX(permission_id) FROM "${tenantCode}"."permissions"), 1))`);
+        await client.query(`SELECT setval('"${tenantCode}"."fault_categories_category_id_seq"', COALESCE((SELECT MAX(category_id) FROM "${tenantCode}"."fault_categories"), 1))`);
+        await client.query(`SELECT setval('"${tenantCode}"."fault_issues_issue_id_seq"', COALESCE((SELECT MAX(issue_id) FROM "${tenantCode}"."fault_issues"), 1))`);
+
+        // 7. Seed National Admin user if email and password are provided
+        if (admin_email && admin_password) {
+            console.log(`Creating national admin user ${admin_email}...`);
+            const hash = await bcrypt.hash(admin_password, 10);
+            const roleRes = await client.query(`SELECT role_id FROM "${tenantCode}"."roles" WHERE role_name = 'Administrator' LIMIT 1`);
+            const roleId = roleRes.rows.length > 0 ? roleRes.rows[0].role_id : 1;
+
+            await client.query(`
+                INSERT INTO "${tenantCode}"."users" 
+                (username, email, password_hash, role_id, is_active, first_name, last_name, is_national_access) 
+                VALUES ($1, $1, $2, $3, true, 'National', 'Admin', true)
+            `, [admin_email.trim(), hash, roleId]);
+        }
+
+        // 8. Insert tenant configuration details
+        const mapCenterVal = map_center ? JSON.stringify(map_center) : '[-13.133897, 27.849332]';
+        const mapZoomVal = map_zoom ? parseInt(map_zoom) : 6;
+        const hierarchyVal = hierarchy ? JSON.stringify(hierarchy) : '[{"id": "province", "name": "Province", "color": "#be123c"}, {"id": "district", "name": "District", "color": "#0369a1"}]';
+        const emblemUrl = `/default_emblem.png`;
+
+        await client.query(`
+            INSERT INTO public.tenant_config 
+            (tenant_code, name, emblem, map_center, map_zoom, contact_email, hierarchy, currency_code, currency_symbol, date_format, time_zone, phone_prefix, language)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            ON CONFLICT (tenant_code) DO NOTHING
+        `, [
+            tenantCode,
+            name,
+            emblemUrl,
+            mapCenterVal,
+            mapZoomVal,
+            admin_email || 'support@ccets.gov',
+            hierarchyVal,
+            currency_code || 'USD',
+            currency_symbol || '$',
+            'DD/MM/YYYY',
+            time_zone || 'UTC',
+            phone_prefix || '+1',
+            'en'
+        ]);
+
         await client.query('COMMIT');
         
         res.status(201).json({
-            message: 'Tenant created successfully. Note: Schema is empty and requires provisioning script to run.',
+            success: true,
+            message: 'Tenant and schema created and provisioned successfully.',
             tenant: newTenant
         });
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error creating tenant:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ success: false, message: 'Internal Server Error: ' + error.message });
     } finally {
         client.release();
     }
