@@ -14,8 +14,11 @@ router.get('/context', async (req, res) => {
         let resolvedTenant = null;
         let redirectUrl = null;
 
-        // Check if there is a domain mapping for the incoming hostname
-        const domainQuery = await db.pool.query(
+        // Check if there is a domain mapping for the incoming hostname.
+        // Local development must stay selectable from the tenant picker; otherwise a
+        // localhost domain row can pin every login attempt to one country.
+        const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(domain);
+        const domainQuery = isLocalhost ? { rows: [] } : await db.pool.query(
             `SELECT d.is_primary, d.is_active, t.code, t.name, t.schema_name 
              FROM public.instance_domains d
              JOIN public.tenants t ON d.tenant_id = t.id

@@ -10,33 +10,60 @@
 .nav-container {
     width: 100%;
     margin: 0;
-    padding: 0 20px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 60px;
-    gap: 10px;
+    gap: 12px;
+    overflow: hidden;
 }
 
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-    max-width: 200px;
+    gap: 10px;
+    flex: 0 0 clamp(190px, 24vw, 320px);
+    min-width: 0;
+    overflow: hidden;
 }
 
 .brand-icon {
-    flex-shrink: 0;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.brand-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.brand-text {
+    min-width: 0;
+    overflow: hidden;
 }
 
 .brand-text h1 {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: white;
     margin: 0;
     line-height: 1.1;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .brand-text p {
@@ -45,17 +72,20 @@
     margin: 0;
     line-height: 1;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     opacity: 0.8;
 }
 
 .nav-menu {
     display: flex;
     gap: 2px;
-    flex: 1;
-    min-width: 0;
+    flex: 1 1 auto;
+    min-width: 80px;
     justify-content: flex-start;
-    margin: 0 8px;
+    margin: 0;
     overflow-x: auto;
+    overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
     height: 100%;
@@ -113,7 +143,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-shrink: 0;
+    flex: 0 0 auto;
+    min-width: max-content;
 }
 
 .user-info {

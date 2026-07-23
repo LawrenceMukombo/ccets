@@ -99,11 +99,16 @@ const getEquipment = async (req, res) => {
         const totalRecords = parseInt(countResult.rows[0].count);
         const totalPages = Math.ceil(totalRecords / limit);
 
-        // Get Total Facility Count
+        // Unique facilities that match the current filter (consistent with the result set below)
         const uniqueFacilitiesResult = await db.query(`
-            SELECT COUNT(*) as unique_facilities
-            FROM facilities
-        `);
+            SELECT COUNT(DISTINCT f.facility_id) as unique_facilities
+            FROM equipment e
+            LEFT JOIN facilities f ON e.facility_id = f.facility_id
+            LEFT JOIN provinces p ON f.province_id = p.province_id
+            LEFT JOIN districts d ON f.district_id = d.district_id
+            LEFT JOIN regions r ON p.region_id = r.region_id
+            ${whereClause}
+        `, queryParams);
         const uniqueFacilities = parseInt(uniqueFacilitiesResult.rows[0].unique_facilities);
 
         // Sorting
@@ -175,7 +180,14 @@ const getEquipment = async (req, res) => {
 // Get equipment statistics
 const getEquipmentStats = async (req, res) => {
     try {
-        const result = await db.query('SELECT COUNT(*) as total_facilities FROM facilities');
+        const result = await db.query(`
+            SELECT
+                COUNT(*)::int                                                  AS total_equipment,
+                COUNT(CASE WHEN is_functioning = true  THEN 1 END)::int       AS functioning,
+                COUNT(CASE WHEN is_functioning = false THEN 1 END)::int       AS not_functioning,
+                COUNT(DISTINCT facility_id)::int                              AS facilities_with_equipment
+            FROM equipment
+        `);
 
         res.json({
             success: true,

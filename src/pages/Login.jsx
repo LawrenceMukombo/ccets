@@ -9,7 +9,7 @@ function Login({ onLogin }) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { tenantCode, config, loading: configLoading } = useTenant();
+    const { tenantCode, config, loading: configLoading, error: configError } = useTenant();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -42,10 +42,29 @@ function Login({ onLogin }) {
         }
     };
 
-    if (configLoading || !config) {
+    if (configLoading) {
         return (
             <div className="login-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div className="spinner"></div>
+            </div>
+        );
+    }
+
+    if (!config) {
+        return (
+            <div className="login-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+                <div className="login-card" style={{ maxWidth: '520px' }}>
+                    <div className="login-header">
+                        <div className="logo-section">
+                            <h1>Unable to load country configuration</h1>
+                            <p className="subtitle">{configError || 'The API server may be offline, or no country is selected.'}</p>
+                        </div>
+                    </div>
+                    <div className="login-form">
+                        <div className="error-message">Check that the backend and frontend servers are running, then refresh this page.</div>
+                        <button type="button" className="login-button" onClick={() => navigate('/switch')}>Switch Country</button>
+                    </div>
+                </div>
             </div>
         );
     }

@@ -81,10 +81,10 @@ exports.login = async (req, res) => {
             [user.user_id]
         );
 
-        // Notify user
+        // Notify user of new login (fire-and-await inside isolated try/catch to not block response)
         try {
             const { sendNotification } = require('../services/notificationService');
-            sendNotification(req.app, {
+            await sendNotification(req.app, {
                 userId: user.user_id,
                 ticketId: null,
                 type: 'login',
@@ -303,7 +303,26 @@ exports.changePassword = async (req, res) => {
         const user = userResult.rows[0];
 
         // 2. Verify current password
-        const isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+        let isPasswordValid = false;
+        try {
+            isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+        } catch (bcryptError) {
+            console.error('Bcrypt comparison in changePassword encountered an error:', bcryptError);
+        }
+
+        if (!isPasswordValid) {
+            try {
+                // Fallback: try pgcrypto (for legacy users or crypt-generated hashes)
+                const passwordMatchResult = await db.query(
+                    `SELECT (password_hash = crypt($1, password_hash)) AS match FROM users WHERE user_id = $2`,
+                    [currentPassword, userId]
+                );
+                isPasswordValid = passwordMatchResult.rows[0]?.match || false;
+            } catch (fallbackError) {
+                console.error('pgcrypto fallback comparison in changePassword failed:', fallbackError);
+            }
+        }
+
         if (!isPasswordValid) {
             return res.status(401).json({ success: false, message: 'Invalid current password' });
         }

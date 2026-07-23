@@ -16,8 +16,13 @@ const rateLimit = (options = {}) => {
     }, windowMs * 2);
 
     return (req, res, next) => {
-        // Handle behind proxies or direct connections
-        const ip = req.headers['x-forwarded-for'] || req.ip || req.socket.remoteAddress;
+        // When behind a reverse proxy, x-forwarded-for may be a comma-separated
+        // list: "clientIP, proxy1IP, proxy2IP".  We want only the leftmost value
+        // (the originating client IP) as our rate-limit key.
+        const rawForwarded = req.headers['x-forwarded-for'];
+        const ip = (rawForwarded
+            ? rawForwarded.split(',')[0].trim()
+            : null) || req.ip || req.socket.remoteAddress;
         const now = Date.now();
 
         if (!ipRequestStore.has(ip)) {

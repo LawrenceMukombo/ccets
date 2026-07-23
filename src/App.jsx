@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import WelcomeBanner from './components/WelcomeBanner';
@@ -28,7 +28,7 @@ const SwitchTenant = ({ onLogout, setTenantFn }) => {
         localStorage.removeItem('user');
         if (onLogout) onLogout();
         if (setTenantFn) setTenantFn(null);
-    }, []);
+    }, [onLogout, setTenantFn]);
     return <Navigate to="/" replace />;
 };
 
@@ -59,6 +59,13 @@ function App() {
         setTheme(prev => prev === 'light' ? 'dark' : 'light');
     };
 
+    const handleLogout = useCallback(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+    }, []);
+
     useEffect(() => {
         if (isAuthenticated && tenantCode) {
             // Fetch fresh current user details from API
@@ -85,18 +92,11 @@ function App() {
                     }
                 });
         }
-    }, [isAuthenticated, tenantCode]);
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setIsAuthenticated(false);
-        setCurrentUser(null);
-    };
+    }, [isAuthenticated, tenantCode, handleLogout]);
 
     const { setTenant } = useTenant();
 
-    const handleSwitchCountry = () => {
+    const handleSwitchCountry = useCallback(() => {
         // Full reset — clears tenant, auth state, and user
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -104,7 +104,7 @@ function App() {
         setIsAuthenticated(false);
         setCurrentUser(null);
         setTenant(null);
-    };
+    }, [setTenant]);
 
     // Auto Logout Logic (10 minutes)
     useEffect(() => {
@@ -143,7 +143,14 @@ function App() {
     const ProtectedRoute = ({ children, allowedRoles, requiredPermission }) => {
         if (!tenantCode) return <Navigate to="/" replace />;
         if (!isAuthenticated) return <Navigate to="/login" replace />;
-        if (!currentUser) return null; // Wait for user to load
+        if (!currentUser) {
+            return (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh', flexDirection: 'column' }}>
+                    <div className="spinner" />
+                    <p style={{ marginTop: '15px', color: 'var(--text-secondary, #666)', fontSize: '0.95rem' }}>Loading session...</p>
+                </div>
+            );
+        }
 
         // Normalize role check (handle potential case sensitivity or missing roles)
         const userRole = currentUser.role_name;

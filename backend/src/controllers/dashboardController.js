@@ -47,14 +47,10 @@ const buildFilters = (req) => {
         values.push(priority);
     }
 
-    // Role-based Access: Apply location scope filtering
+    // Role-based Access: Apply location scope filtering for non-national users
     if (req.user && req.user.locationScope) {
-        console.log('User Location Scope:', JSON.stringify(req.user.locationScope));
         const { level, scopes } = req.user.locationScope;
 
-        // TEMPORARILY DISABLED for debugging - will re-enable after verifying user scope assignments
-        /*
-        // Only apply filtering if user is not national-level
         if (level !== 'national') {
             if (level === 'facility' && scopes.facilities && scopes.facilities.length > 0) {
                 conditions.push(`f.facility_id = ANY($${pIndex++})`);
@@ -70,12 +66,12 @@ const buildFilters = (req) => {
                 values.push(scopes.regions);
             }
         }
-        */
     }
 
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
     return { whereClause, values };
 };
+
 
 exports.getOperationsOverview = async (req, res) => {
     try {
@@ -153,7 +149,7 @@ exports.getOperationsOverview = async (req, res) => {
                     COUNT(*)::int as count
                 FROM tickets t
                 ${joinClause}
-                ${whereClause} AND ticket_status NOT IN ('Closed', 'Resolved')
+                ${whereClause ? whereClause + " AND ticket_status NOT IN ('Closed', 'Resolved')" : "WHERE ticket_status NOT IN ('Closed', 'Resolved')"}
                 GROUP BY 1
                 ORDER BY 1
             `;
@@ -181,6 +177,7 @@ exports.getOperationsOverview = async (req, res) => {
         } catch (err) {
             console.error('Trends Query Error:', err.message);
         }
+
 
         // 4. Technician Workload
         try {

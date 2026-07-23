@@ -9,11 +9,24 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5050;
 
+// ── CORS configuration ────────────────────────────────────────────────────
+// In production restrict to the known frontend origin; allow all in dev.
+const corsOrigin = process.env.NODE_ENV === 'production'
+    ? (process.env.FRONTEND_URL || false)   // false = deny all unlisted origins
+    : true;                                  // true  = allow any origin
+
+const corsOptions = {
+    origin: corsOrigin,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+};
+
 // Middleware
 app.use(helmet()); // Security Headers
 app.use(compression()); // Response Compression
-app.use(cors());
-app.use(express.json());
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '50mb' }));
 
 // Request logging (sanitized)
 app.use((req, res, next) => {
@@ -76,6 +89,7 @@ tenantRouter.use('/spare-parts', sparePartsRoutes);
 tenantRouter.use('/notifications', notificationRoutes);
 tenantRouter.use('/boundaries', require('./routes/boundaries'));
 tenantRouter.use('/settings', require('./routes/settings'));
+tenantRouter.use('/reference-import', require('./routes/referenceImport'));
 tenantRouter.use('/integration', require('./routes/integration'));
 tenantRouter.use('/hooks/kobo', koboRoutes); // Mount ODK webhook
 
@@ -129,8 +143,10 @@ const { Server } = require('socket.io');
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow all origins for development
-        methods: ["GET", "POST"]
+        // Mirror the same origin policy used by Express CORS above
+        origin: corsOrigin,
+        methods: ['GET', 'POST'],
+        credentials: true
     }
 });
 

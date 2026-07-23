@@ -11,6 +11,7 @@ function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTh
     const navigate = useNavigate();
     const location = useLocation();
     const [showProfile, setShowProfile] = useState(false);
+    const [emblemFailed, setEmblemFailed] = useState(false);
     const { tenantCode, config, platformContext } = useTenant();
     const { isOnline, pendingCount, isSyncing, triggerSync } = useOffline();
 
@@ -25,6 +26,8 @@ function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTh
     });
 
     const user = propUser || localUser;
+
+    React.useEffect(() => { setEmblemFailed(false); }, [config?.emblem]);
 
     const handleLogout = () => {
         if (onLogout) {
@@ -79,11 +82,15 @@ function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTh
             <nav className="top-navigation">
                 <div className="nav-container">
                     <div className="nav-brand">
-                        <div className="brand-icon">
-                            {config?.emblem && <img src={config.emblem} alt={`${config?.name} Emblem`} style={{ width: '40px', height: 'auto' }} />}
+                        <div className="brand-icon" aria-hidden="true">
+                            {config?.emblem && !emblemFailed ? (
+                                <img src={config.emblem} alt="" onError={() => setEmblemFailed(true)} />
+                            ) : (
+                                <span>{(config?.name || 'CCETS').slice(0, 2).toUpperCase()}</span>
+                            )}
                         </div>
                         <div className="brand-text">
-                            <h1>{config?.name?.toUpperCase() === 'PAPUA NEW GUINEA' ? 'PNG' : config?.name?.toUpperCase() || 'CCETS'} CCETS</h1>
+                            <h1 title={(config?.name || 'CCETS') + ' CCETS'}>{config?.name?.toUpperCase() === 'PAPUA NEW GUINEA' ? 'PNG' : config?.name?.toUpperCase() || 'CCETS'} CCETS</h1>
                             <p>Cold Chain Equipment Ticketing System</p>
                         </div>
                     </div>

@@ -110,6 +110,27 @@ const getAuditLogs = async (req, res) => {
 // Export logs (formatted for CSV)
 const exportAuditLogs = async (req, res) => {
     try {
+        const conditions = [];
+        const params = [];
+        let paramIdx = 1;
+
+        // Optional filters
+        if (req.query.startDate) {
+            conditions.push(`al.timestamp >= $${paramIdx++}`);
+            params.push(req.query.startDate);
+        }
+        if (req.query.endDate) {
+            conditions.push(`al.timestamp <= $${paramIdx++}`);
+            params.push(req.query.endDate);
+        }
+        if (req.query.action) {
+            conditions.push(`al.action ILIKE $${paramIdx++}`);
+            params.push(`%${req.query.action}%`);
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+        // Cap at 10,000 rows; use a background job / streaming for larger exports
         const logs = await db.query(`
             SELECT 
                 al.timestamp AS created_at,
@@ -117,13 +138,16 @@ const exportAuditLogs = async (req, res) => {
                 al.action,
                 al.table_name AS entity_type,
                 al.record_id AS entity_id,
+                -- ip_address / user_agent are schema placeholders (not yet captured in audit_trail)
                 NULL::text AS ip_address,
+                NULL::text AS user_agent,
                 json_build_object('old_value', al.old_value, 'new_value', al.new_value) AS details
             FROM audit_trail al
             LEFT JOIN users u ON al.user_id = u.user_id
+            ${whereClause}
             ORDER BY al.timestamp DESC
-            LIMIT 1000
-        `);
+            LIMIT 10000
+        `, params);
 
         res.json({
             success: true,
@@ -137,6 +161,7 @@ const exportAuditLogs = async (req, res) => {
         });
     }
 };
+
 
 module.exports = {
     getAuditLogs,

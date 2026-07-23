@@ -3,6 +3,37 @@ import './Settings.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
 import { useTenant } from '../context/TenantContext';
 
+const ADMIN_LEVEL_PRESETS = [
+    { id: 'level_0', name: 'National', color: '#1d4ed8' },
+    { id: 'level_1', name: 'State / Province', color: '#be123c' },
+    { id: 'level_2', name: 'County / District', color: '#0369a1' },
+    { id: 'level_3', name: 'Payam / Sub-district', color: '#7c3aed' },
+    { id: 'level_4', name: 'Boma / Community', color: '#15803d' }
+];
+
+const createDefaultHierarchy = () => ADMIN_LEVEL_PRESETS.slice(0, 3).map(level => ({ ...level, enabled: true }));
+
+const normalizeHierarchy = (hierarchy) => {
+    if (!Array.isArray(hierarchy) || hierarchy.length === 0) return createDefaultHierarchy();
+    return hierarchy.map((level, index) => ({
+        id: level.id || ADMIN_LEVEL_PRESETS[index]?.id || 'level_' + index,
+        name: level.name || ADMIN_LEVEL_PRESETS[index]?.name || 'Level ' + index,
+        color: level.color || ADMIN_LEVEL_PRESETS[index]?.color || '#3b82f6',
+        enabled: level.enabled !== false
+    }));
+};
+
+const getBoundaryLevels = (hierarchy) => normalizeHierarchy(hierarchy)
+    .filter(level => level.enabled !== false)
+    .filter(level => !['facility', 'health_facility', 'healthfacility'].includes(String(level.id).toLowerCase()));
+
+const fileToBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || '').split(',')[1] || '');
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+});
+
 const Settings = () => {
     const { tenantCode, config: contextConfig, refreshConfig, loading: configLoading, platformContext } = useTenant();
     const [activeTab, setActiveTab] = useState('account');
@@ -54,6 +85,29 @@ const Settings = () => {
     const [selectedRunLogs, setSelectedRunLogs] = useState(null);
     const [showLogsModal, setShowLogsModal] = useState(false);
     const [deploymentSubTab, setDeploymentSubTab] = useState('promote'); // promote, integration, staging
+
+    // Country Onboarding States
+    const [countries, setCountries] = useState([]);
+    const [countriesLoading, setCountriesLoading] = useState(false);
+    const [showAddCountryModal, setShowAddCountryModal] = useState(false);
+    const [newCountry, setNewCountry] = useState({
+        code: '',
+        name: '',
+        currency_code: '',
+        currency_symbol: '',
+        time_zone: '',
+        phone_prefix: '',
+        map_center_lat: '',
+        map_center_lng: '',
+        map_zoom: '6',
+        admin_email: '',
+        admin_password: '',
+        hierarchy: createDefaultHierarchy()
+    });
+    const [boundaryUploads, setBoundaryUploads] = useState({});
+    const [boundaryUploadStatus, setBoundaryUploadStatus] = useState({});
+    const [referenceImportLoading, setReferenceImportLoading] = useState({});
+    const [referenceImportStatus, setReferenceImportStatus] = useState({});
 
     // Reconciliation Workbench States
     const [reconcileFacilities, setReconcileFacilities] = useState([]);
@@ -300,6 +354,129 @@ const Settings = () => {
         }
     };
 
+    const downloadImportTemplate = (type) => {
+        const token = localStorage.getItem('token');
+        fetch(`/api/${tenantCode}/reference-import/template/${type}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to download template');
+                return res.blob();
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `ccets_${type}_template.csv`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Template download failed', error);
+                setReferenceImportStatus(prev => ({ ...prev, [type]: { type: 'error', text: 'Template download failed.' } }));
+            });
+    };
+
+    const handleReferenceCsvImport = async (type, file) => {
+        if (!file) return;
+
+        setReferenceImportLoading(prev => ({ ...prev, [type]: true }));
+        setReferenceImportStatus(prev => ({ ...prev, [type]: { type: 'info', text: 'Reading CSV file...' } }));
+
+        try {
+            const csv = await file.text();
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/${tenantCode}/reference-import/${type}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ csv })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                const summary = data.summary || {};
+                setReferenceImportStatus(prev => ({
+                    ...prev,
+                    [type]: {
+                        type: summary.failed > 0 ? 'warning' : 'success',
+                        text: `Imported ${summary.imported || 0}, skipped ${summary.skipped || 0}, failed ${summary.failed || 0}.`
+                    }
+                }));
+            } else {
+                setReferenceImportStatus(prev => ({ ...prev, [type]: { type: 'error', text: data.message || 'CSV import failed.' } }));
+            }
+        } catch (error) {
+            console.error(`${type} CSV import failed`, error);
+            setReferenceImportStatus(prev => ({ ...prev, [type]: { type: 'error', text: 'Upload a valid CSV file.' } }));
+        } finally {
+            setReferenceImportLoading(prev => ({ ...prev, [type]: false }));
+        }
+    };
+    const handleBoundaryUpload = async (levelId, fileList) => {
+        const files = Array.from(fileList || []);
+        if (files.length === 0) return;
+
+        setBoundaryUploads(prev => ({ ...prev, [levelId]: true }));
+        setBoundaryUploadStatus(prev => ({ ...prev, [levelId]: { type: 'info', text: 'Reading boundary file...' } }));
+
+        try {
+            const token = localStorage.getItem('token');
+            const firstFile = files[0];
+            const lowerNames = files.map(file => file.name.toLowerCase());
+            const isGeoJson = files.length === 1 && (firstFile.name.toLowerCase().endsWith('.json') || firstFile.name.toLowerCase().endsWith('.geojson'));
+
+            let payload;
+            if (isGeoJson) {
+                const fileText = await firstFile.text();
+                payload = { level: levelId, geojson: JSON.parse(fileText) };
+            } else {
+                if (!lowerNames.some(name => name.endsWith('.shp'))) {
+                    throw new Error('Select a GeoJSON file or the shapefile .shp component. Include .dbf when available.');
+                }
+
+                const encodedFiles = await Promise.all(files.map(async file => ({
+                    name: file.name,
+                    content: await fileToBase64(file)
+                })));
+                payload = { level: levelId, files: encodedFiles };
+            }
+
+            const res = await fetch(`/api/${tenantCode}/boundaries/upload`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                setBoundaryUploadStatus(prev => ({
+                    ...prev,
+                    [levelId]: { type: 'success', text: data.message || 'Boundary layer uploaded successfully.' }
+                }));
+            } else {
+                setBoundaryUploadStatus(prev => ({
+                    ...prev,
+                    [levelId]: { type: 'error', text: data.message || 'Boundary upload failed.' }
+                }));
+            }
+        } catch (error) {
+            console.error('Boundary upload failed', error);
+            setBoundaryUploadStatus(prev => ({
+                ...prev,
+                [levelId]: { type: 'error', text: error.message || 'Upload a valid GeoJSON or shapefile boundary layer.' }
+            }));
+        } finally {
+            setBoundaryUploads(prev => ({ ...prev, [levelId]: false }));
+        }
+    };
     const fetchCountries = async () => {
         setCountriesLoading(true);
         try {
@@ -319,7 +496,7 @@ const Settings = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 'onboarding') {
+        if (activeTab === 'onboarding' && canManageCountries) {
             fetchCountries();
         }
     }, [activeTab]);
@@ -379,10 +556,7 @@ const Settings = () => {
                     map_zoom: '6',
                     admin_email: '',
                     admin_password: '',
-                    hierarchy: [
-                        { id: 'province', name: 'Province', color: '#be123c' },
-                        { id: 'district', name: 'District', color: '#0369a1' }
-                    ]
+                    hierarchy: createDefaultHierarchy()
                 });
             } else {
                 setMessage({ text: data.message || 'Failed to onboard country.', type: 'error' });
@@ -558,14 +732,15 @@ const Settings = () => {
                 map_center: typeof contextConfig.map_center === 'string' 
                     ? JSON.parse(contextConfig.map_center) 
                     : contextConfig.map_center,
-                hierarchy: typeof contextConfig.hierarchy === 'string'
+                hierarchy: normalizeHierarchy(typeof contextConfig.hierarchy === 'string'
                     ? JSON.parse(contextConfig.hierarchy)
-                    : contextConfig.hierarchy
+                    : contextConfig.hierarchy)
             });
         }
     }, [contextConfig]);
 
-    const isAdmin = user?.role_name === 'Admin' || user?.role_name === 'SuperAdmin' || user?.role_name === 'Administrator' || user?.is_admin;
+    const isAdmin = user?.role_name === 'Admin' || user?.role_name === 'SuperAdmin' || user?.role_name === 'Administrator' || user?.role_name === 'National Manager' || user?.is_admin;
+    const canManageCountries = user?.role_name === 'SuperAdmin' || user?.is_platform_admin === true;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -585,12 +760,23 @@ const Settings = () => {
         setFormData(prev => ({ ...prev, hierarchy: newHierarchy }));
     };
 
-    const addHierarchyLevel = () => {
-        const newHierarchy = [...formData.hierarchy];
-        const newLevelId = `level_${newHierarchy.length + 1}`;
+    const applyLevelTemplate = () => {
         setFormData(prev => ({
             ...prev,
-            hierarchy: [...newHierarchy, { id: newLevelId, name: 'New Level', color: '#3b82f6', enabled: true }]
+            hierarchy: ADMIN_LEVEL_PRESETS.map(level => ({ ...level, enabled: true }))
+        }));
+    };
+
+    const addHierarchyLevel = () => {
+        const newHierarchy = normalizeHierarchy(formData.hierarchy);
+        const nextPreset = ADMIN_LEVEL_PRESETS.find(preset => !newHierarchy.some(level => level.id === preset.id));
+        if (!nextPreset) {
+            setMessage({ text: 'Administrative hierarchy supports levels 0 through 4.', type: 'warning' });
+            return;
+        }
+        setFormData(prev => ({
+            ...prev,
+            hierarchy: [...newHierarchy, { ...nextPreset, enabled: true }]
         }));
     };
 
@@ -1052,14 +1238,17 @@ const Settings = () => {
                         <div className="hierarchy-edit-section" style={{ marginTop: '2rem' }}>
                             <div className="section-header-row">
                                 <h3>Administrative Hierarchy</h3>
-                                <span style={{ fontSize: '12px', color: '#64748b' }}>{formData.hierarchy.length} levels defined</span>
+                                <span style={{ fontSize: '12px', color: '#64748b' }}>{getBoundaryLevels(formData.hierarchy).length} of 5 levels enabled</span>
                             </div>
-                            <p className="sub-desc">Define reporting levels. Toggle enable/disable or move levels to reorder.</p>
+                            <p className="sub-desc">Choose any administrative levels from level 0 to level 4, rename them for the country, then upload boundary files for each enabled level from Reference Data.</p>
+                            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '0.8rem' }}>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={applyLevelTemplate}>Use Level 0-4 Template</button>
+                            </div>
                             
                             {impactLoading && <p style={{ fontSize: '12px', color: 'var(--primary-color)' }}>Loading impact analysis...</p>}
 
                             <div className="hierarchy-edit-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-                                {formData.hierarchy.map((level, idx) => {
+                                {normalizeHierarchy(formData.hierarchy).map((level, idx) => {
                                     const impact = hierarchyImpacts[level.id] || { facilities: 0, tickets: 0 };
                                     const isEnabled = level.enabled !== false;
                                     
@@ -1067,7 +1256,7 @@ const Settings = () => {
                                         <div key={idx} className={`hierarchy-edit-item ${!isEnabled ? 'disabled-level' : ''}`} style={{ opacity: isEnabled ? 1 : 0.6, borderLeft: `4px solid ${level.color || '#3b82f6'}`, padding: '1rem', background: 'var(--bg-light)', borderRadius: '8px', position: 'relative' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                                                 <div className="level-icon" style={{ background: level.color || '#3b82f6', color: 'white', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                                                    {idx + 1}
+                                                    {String(level.id || '').replace('level_', 'L') || idx + 1}
                                                 </div>
                                                 
                                                 <div style={{ display: 'flex', gap: '10px', flex: 1, minWidth: '240px' }}>
@@ -1080,7 +1269,7 @@ const Settings = () => {
                                                     />
                                                     <input 
                                                         type="text" 
-                                                        placeholder="ID (e.g. province)" 
+                                                        placeholder="Fixed level id" 
                                                         value={level.id} 
                                                         onChange={(e) => handleHierarchyChange(idx, 'id', e.target.value)}
                                                         style={{ flex: 1, padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}
@@ -1170,13 +1359,13 @@ const Settings = () => {
                                     const isEnabled = level.enabled !== false;
                                     return (
                                         <div key={level.id} className="hierarchy-item" style={{ borderLeftColor: level.color || '#3b82f6', opacity: isEnabled ? 1 : 0.5 }}>
-                                            <div className="level-icon" style={{ background: level.color || '#3b82f6' }}>{idx + 1}</div>
+                                            <div className="level-icon" style={{ background: level.color || '#3b82f6' }}>{String(level.id || '').replace('level_', 'L') || idx + 1}</div>
                                             <div className="level-info">
                                                 <div style={{ fontWeight: 600, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     {level.name}
                                                     {!isEnabled && <span className="badge badge-secondary" style={{ fontSize: '10px' }}>DISABLED</span>}
                                                 </div>
-                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ID: {level.id} | Level {idx + 1}</div>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ID: {level.id} | Level {String(level.id || '').replace('level_', 'L') || idx + 1}</div>
                                             </div>
                                         </div>
                                     );
@@ -2842,6 +3031,84 @@ const Settings = () => {
         </div>
     );
 
+    const renderReferenceDataSetup = () => {
+        const importTypes = [
+            { key: 'facilities', title: 'Health Facilities', description: 'Import active stores, health facilities, GPS coordinates, and location IDs.' },
+            { key: 'equipment', title: 'Equipment', description: 'Import cold chain assets after facilities exist, using facility_id or facility_code.' },
+            { key: 'users', title: 'Users', description: 'Import tenant users with role_name or role_id. Imported users must change passwords after first sign-in.' }
+        ];
+
+        return (
+            <div className="settings-section">
+                <h2 className="section-title">Reference Data</h2>
+                <p className="section-desc">Load setup data only for the active tenant: {tenantCode?.toUpperCase()}.</p>
+
+                <div style={{ background: 'var(--bg-white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.4rem 0' }}>Administrative boundaries</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '0 0 1.2rem 0', lineHeight: 1.5 }}>
+                        Upload GeoJSON FeatureCollection files or shapefile components for the country you are currently signed into. For shapefiles, select the .shp file together with its .dbf/.shx/.prj companions when available.
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                        {getBoundaryLevels(contextConfig?.hierarchy).map(level => {
+                            const status = boundaryUploadStatus[level.id];
+                            return (
+                                <div key={level.id} style={{ border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1rem', background: 'var(--bg-light)', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                                    <label htmlFor={`reference-boundary-upload-${level.id}`} style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>{level.name || level.id}</label>
+                                    <input
+                                        id={`reference-boundary-upload-${level.id}`}
+                                        type="file"
+                                        accept=".json,.geojson,.shp,.dbf,.shx,.prj,application/geo+json,application/json"
+                                        multiple
+                                        disabled={!!boundaryUploads[level.id]}
+                                        onChange={e => handleBoundaryUpload(level.id, e.target.files)}
+                                        style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}
+                                    />
+                                    {status && (
+                                        <span style={{ fontSize: '0.75rem', color: status.type === 'success' ? '#15803d' : status.type === 'error' ? '#b91c1c' : 'var(--text-secondary)' }}>
+                                            {status.text}
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+                    {importTypes.map(item => {
+                        const status = referenceImportStatus[item.key];
+                        return (
+                            <div key={item.key} style={{ border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1rem', background: 'var(--bg-light)', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                <div>
+                                    <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>{item.title}</h4>
+                                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.45 }}>{item.description}</p>
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => downloadImportTemplate(item.key)}>Download Template</button>
+                                    <label className="btn btn-primary btn-sm" style={{ cursor: 'pointer', margin: 0 }}>
+                                        {referenceImportLoading[item.key] ? 'Importing...' : 'Import CSV'}
+                                        <input
+                                            type="file"
+                                            accept=".csv,text/csv"
+                                            disabled={!!referenceImportLoading[item.key]}
+                                            onChange={e => handleReferenceCsvImport(item.key, e.target.files?.[0])}
+                                            style={{ display: 'none' }}
+                                        />
+                                    </label>
+                                </div>
+                                {status && (
+                                    <span style={{ fontSize: '0.78rem', color: status.type === 'success' ? '#15803d' : status.type === 'error' ? '#b91c1c' : status.type === 'warning' ? '#a16207' : 'var(--text-secondary)' }}>
+                                        {status.text}
+                                    </span>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
     const renderCountryOnboarding = () => {
         return (
             <div className="settings-section country-onboarding-section">
@@ -2887,7 +3154,7 @@ const Settings = () => {
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <div style={{ width: '20px', height: '20px', background: '#3b82f6', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 600 }}>2</div>
                             <div>
-                                <strong>Load administrative boundaries:</strong> Open Boundary Manager and upload GeoJSON province and district polygons.
+                                <strong>Load administrative boundaries:</strong> Open Reference Data and upload GeoJSON or shapefile boundaries for each enabled administrative level.
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '12px' }}>
@@ -2905,6 +3172,75 @@ const Settings = () => {
                     </div>
                 </div>
 
+                {/* Reference Data Setup */}
+                <div style={{ background: 'var(--bg-white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.2rem' }}>
+                        <div>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Reference data setup for {tenantCode?.toUpperCase()}</h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0 0', lineHeight: 1.5 }}>
+                                Upload administrative boundary GeoJSON or shapefiles for the country you are currently signed into. Facilities and equipment can be loaded through their registers or pulled through integration connectors.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                        <div style={{ border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1rem', background: 'var(--bg-light)' }}>
+                            <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>Administrative boundaries</h4>
+                            <p style={{ margin: '0 0 1rem 0', color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.45 }}>
+                                Use GeoJSON FeatureCollection files, or select shapefile components together (.shp plus .dbf/.shx/.prj when available).
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                {getBoundaryLevels(contextConfig?.hierarchy).map(level => {
+                                    const status = boundaryUploadStatus[level.id];
+                                    return (
+                                        <div key={level.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                                            <label htmlFor={`boundary-upload-${level.id}`} style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>{level.name || level.id}</label>
+                                            <input
+                                                id={`boundary-upload-${level.id}`}
+                                                type="file"
+                                                accept=".json,.geojson,.shp,.dbf,.shx,.prj,application/geo+json,application/json"
+                                        multiple
+                                                disabled={!!boundaryUploads[level.id]}
+                                                onChange={e => handleBoundaryUpload(level.id, e.target.files)}
+                                                style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}
+                                            />
+                                            {status && (
+                                                <span style={{ fontSize: '0.75rem', color: status.type === 'success' ? '#15803d' : status.type === 'error' ? '#b91c1c' : 'var(--text-secondary)' }}>
+                                                    {status.text}
+                                                </span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                                {(contextConfig?.hierarchy || []).length === 0 && (
+                                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Configure the country hierarchy first, then upload boundary layers.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div style={{ border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1rem', background: 'var(--bg-light)' }}>
+                            <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>Facilities</h4>
+                            <p style={{ margin: '0 0 1rem 0', color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.45 }}>
+                                Review the active facility registry, then use integrations or staging reconciliation when pulling from HMIS, ODK, Kobo, or another system.
+                            </p>
+                            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => { window.location.href = '/facilities'; }}>Open Facilities</button>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setActiveTab('deployment'); setDeploymentSubTab('integration'); fetchConnectors(); fetchSyncRuns(); fetchStagingData(); }}>Integration Hub</button>
+                            </div>
+                        </div>
+
+                        <div style={{ border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1rem', background: 'var(--bg-light)' }}>
+                            <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>Equipment</h4>
+                            <p style={{ margin: '0 0 1rem 0', color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.45 }}>
+                                Load or reconcile assets after facilities exist, so equipment can be linked to the correct store or health facility.
+                            </p>
+                            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => { window.location.href = '/equipment'; }}>Open Equipment</button>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setActiveTab('deployment'); setDeploymentSubTab('integration'); fetchConnectors(); fetchSyncRuns(); fetchStagingData(); }}>Reconcile Staging</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {/* Active Countries Grid */}
                 <div>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -2932,6 +3268,9 @@ const Settings = () => {
                                         <div>💵 <strong>Currency:</strong> {c.currency_symbol} ({c.currency_code})</div>
                                         <div>🕒 <strong>Time Zone:</strong> {c.time_zone || 'N/A'}</div>
                                         <div>📞 <strong>Phone Prefix:</strong> {c.phone_prefix || 'N/A'}</div>
+                                    </div>
+                                    <div style={{ marginTop: '0.4rem', padding: '0.7rem', borderRadius: '8px', background: String(c.code).toLowerCase() === String(tenantCode).toLowerCase() ? 'rgba(34, 197, 94, 0.08)' : 'rgba(59, 130, 246, 0.06)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.78rem', lineHeight: 1.4 }}>
+                                        {String(c.code).toLowerCase() === String(tenantCode).toLowerCase() ? 'This is the active country. Use the reference data setup panel above to upload boundaries and manage data sources.' : 'To upload this country reference data, switch into this country and sign in with its admin account.'}
                                     </div>
                                 </div>
                             ))}
@@ -3162,10 +3501,18 @@ const Settings = () => {
                         )}
                         {isAdmin && (
                             <button 
+                                className={`settings-nav-item ${activeTab === 'referenceData' ? 'active' : ''}`}
+                                onClick={() => { setActiveTab('referenceData'); setEditMode(false); setMessage({ text: '', type: '' }); }}
+                            >
+                                <span className="icon">CSV</span> Reference Data
+                            </button>
+                        )}
+                        {canManageCountries && (
+                            <button 
                                 className={`settings-nav-item ${activeTab === 'onboarding' ? 'active' : ''}`}
                                 onClick={() => { setActiveTab('onboarding'); setEditMode(false); setMessage({ text: '', type: '' }); }}
                             >
-                                <span className="icon">➕</span> Country Onboarding
+                                <span className="icon">+</span> Country Onboarding
                             </button>
                         )}
                         <button 
@@ -3191,7 +3538,8 @@ const Settings = () => {
                     {activeTab === 'portability' && renderPortabilitySettings()}
                     {activeTab === 'preferences' && renderPreferences()}
                     {activeTab === 'security' && renderSecurity()}
-                    {activeTab === 'onboarding' && renderCountryOnboarding()}
+                    {activeTab === 'referenceData' && renderReferenceDataSetup()}
+                    {activeTab === 'onboarding' && canManageCountries && renderCountryOnboarding()}
                 </main>
             </div>
 

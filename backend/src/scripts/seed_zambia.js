@@ -7,13 +7,55 @@
  *  4. Facilities from "Zambian Health Facilities.xlsx"
  *
  * Usage: node seed_zambia.js
+ *
+ * ⚠️  WARNING: This script DELETES all existing zambia schema data before
+ * re-seeding. It is intended for local development and initial provisioning
+ * ONLY. It will refuse to run in a production environment.
  */
 const { Pool } = require('pg');
 const xlsx = require('xlsx');
 const shapefile = require('shapefile');
+const readline = require('readline');
 
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
+
+// ── Safety Guard 1: Hard-block production environments ────────────────────
+if (process.env.NODE_ENV === 'production') {
+    console.error('\n🚫 ABORTED: seed_zambia.js refuses to run in NODE_ENV=production.');
+    console.error('   This script deletes all zambia schema data. It must not run in production.\n');
+    process.exit(1);
+}
+
+// ── Safety Guard 2: Interactive confirmation ───────────────────────────────
+async function confirmDestructiveOperation() {
+    const dbHost = process.env.DB_HOST || 'localhost';
+    const dbName = process.env.DB_NAME || 'png_ccets';
+
+    console.log('\n⚠️  DESTRUCTIVE OPERATION WARNING');
+    console.log('══════════════════════════════════════════════════════');
+    console.log(`   Target DB : ${dbHost} / ${dbName}`);
+    console.log('   Schema    : zambia');
+    console.log('   Action    : DELETE all rows from tickets, repairs,');
+    console.log('               equipment, facilities, districts,');
+    console.log('               provinces, and regions, then re-seed.');
+    console.log('══════════════════════════════════════════════════════');
+    console.log('   Type "yes" to proceed, or anything else to abort.\n');
+
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+
+    return new Promise((resolve) => {
+        rl.question('  Confirm > ', (answer) => {
+            rl.close();
+            if (answer.trim().toLowerCase() === 'yes') {
+                resolve(true);
+            } else {
+                console.log('\n✋ Aborted by user. No data was changed.\n');
+                resolve(false);
+            }
+        });
+    });
+}
 
 const pool = new Pool({
     user: process.env.DB_USER || 'postgres',
@@ -25,10 +67,11 @@ const pool = new Pool({
 
 const SCHEMA = 'zambia';
 
-// ── Paths ─────────────────────────────────────────────────────────────────
-const XLSX_PATH = 'c:/CCETS_Project/Zambian Health Facilities.xlsx';
-const SHP_ADMIN1 = 'c:/CCETS_Project/zmb_admin_boundaries.shp/zmb_admin1.shp';
-const SHP_ADMIN2 = 'c:/CCETS_Project/zmb_admin_boundaries.shp/zmb_admin2.shp';
+// ── Paths — relative to the project root so this works on any machine ────
+const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
+const XLSX_PATH    = path.join(PROJECT_ROOT, 'Zambian Health Facilities.xlsx');
+const SHP_ADMIN1   = path.join(PROJECT_ROOT, 'zmb_admin_boundaries.shp', 'zmb_admin1.shp');
+const SHP_ADMIN2   = path.join(PROJECT_ROOT, 'zmb_admin_boundaries.shp', 'zmb_admin2.shp');
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 async function readAllFeatures(shpPath) {
@@ -283,4 +326,12 @@ async function seed() {
     }
 }
 
-seed();
+// Entry point — run confirmation guard before seeding
+(async () => {
+    const confirmed = await confirmDestructiveOperation();
+    if (confirmed) {
+        await seed();
+    } else {
+        process.exit(0);
+    }
+})();

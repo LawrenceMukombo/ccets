@@ -53,7 +53,7 @@ registerSuite('offline', {
                 FROM information_schema.tables 
                 WHERE table_schema = 'png' AND table_name IN ('sync_log', 'sync_sessions', 'device_registry')
             `);
-            assert.ok(tableCheck.rows.length >= 0, 'Should query offline system tables');
+            assert.ok(tableCheck.rows.length > 0, 'Should find offline system tables');
         });
     }
 });

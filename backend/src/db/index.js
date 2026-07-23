@@ -28,8 +28,7 @@ const pool = new Pool(poolConfig);
 
 // Test connection
 pool.on('error', (err, client) => {
-    console.error('Unexpected error on idle client', err);
-    process.exit(-1);
+    console.error('Unexpected error on idle client:', err.message);
 });
 
 const tenantStore = require('../middleware/tenantStore');

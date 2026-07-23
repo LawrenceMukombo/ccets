@@ -34,9 +34,17 @@ window.fetch = async function () {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
+        if (import.meta.env.DEV) {
+            navigator.serviceWorker.getRegistrations()
+                .then(registrations => Promise.all(registrations.map(reg => reg.unregister())))
+                .then(() => console.log('Service workers disabled in development'))
+                .catch(err => console.error('Service worker cleanup failed', err));
+            return;
+        }
+
         navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('✅ Service Worker registered successfully', reg.scope))
-            .catch(err => console.error('❌ Service Worker registration failed', err));
+            .then(reg => console.log('Service Worker registered successfully', reg.scope))
+            .catch(err => console.error('Service Worker registration failed', err));
     });
 }
 

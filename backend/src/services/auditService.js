@@ -5,8 +5,11 @@ const logAudit = async (userId, action, entityType, entityId, details, req = nul
         // Ensure details is a string if it's an object
         const detailsStr = typeof details === 'object' ? JSON.stringify(details) : details;
 
-        // Parse record_id to integer safely
-        const recordId = entityId && !isNaN(parseInt(entityId)) ? parseInt(entityId) : null;
+        // Preserve the original entityId string for non-integer IDs (e.g. UUIDs).
+        // parseInt silently converts "abc-123" to NaN which becomes null, losing the reference.
+        const recordId = entityId != null
+            ? (/^\d+$/.test(String(entityId)) ? parseInt(entityId, 10) : String(entityId))
+            : null;
 
         // Map details structure to old_value and new_value
         let oldValue = null;

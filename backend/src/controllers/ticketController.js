@@ -185,10 +185,7 @@ exports.getAllTickets = async (req, res) => {
                     t.ticket_id,
                     t.ticket_reference_number,
                     t.facility_id,
-                    CASE 
-                        WHEN f.facility_id IN (1, 2) THEN NULL 
-                        ELSE f.facility_name 
-                    END as facility_name,
+                    f.facility_name,
                     r_facility.region_name as region_name,
                     p_facility.province_name as province_name,
                     d_facility.district_name as district_name,
@@ -361,11 +358,22 @@ async function notifyTicketCreation(app, ticket, facilityId) {
     const { sendNotification } = require('../services/notificationService');
 
     try {
-        // Get facility location information
+        // Get facility location information via proper FK joins
+        // (facilities does not have direct region/province/district text columns)
         const facilityQuery = await db.query(`
-            SELECT facility_name, region, province, district 
-            FROM facilities 
-            WHERE facility_id = $1
+            SELECT 
+                f.facility_name,
+                f.region_id,
+                f.province_id,
+                f.district_id,
+                r.region_name,
+                p.province_name,
+                d.district_name
+            FROM facilities f
+            LEFT JOIN regions   r ON f.region_id   = r.region_id
+            LEFT JOIN provinces p ON f.province_id = p.province_id
+            LEFT JOIN districts d ON f.district_id = d.district_id
+            WHERE f.facility_id = $1
         `, [facilityId]);
 
         if (facilityQuery.rows.length === 0) return;
@@ -374,14 +382,51 @@ async function notifyTicketCreation(app, ticket, facilityId) {
         const ticketUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/tickets/${ticket.ticket_id}`;
 
         // 1. Fetch all users who need notification in parallel
+        // user_scopes is the correct table (not user_location_scope)
         const [nationalQuery, regionalQuery, provincialQuery, adminQuery] = await Promise.all([
-            db.query(`SELECT u.user_id, u.email, u.phone FROM users u INNER JOIN roles r ON u.role_id = r.role_id WHERE r.role_name = 'National Helpdesk Officer' AND u.is_active = true`),
-            db.query(`SELECT u.user_id, u.email, u.phone FROM users u INNER JOIN roles r ON u.role_id = r.role_id INNER JOIN user_location_scope uls ON u.user_id = uls.user_id WHERE r.role_name = 'Regional Manager' AND u.is_active = true AND (uls.region = $1 OR uls.scope_level = 'national')`, [facility.region]),
-            db.query(`SELECT u.user_id, u.email, u.phone FROM users u INNER JOIN roles r ON u.role_id = r.role_id INNER JOIN user_location_scope uls ON u.user_id = uls.user_id WHERE r.role_name = 'Provincial Manager' AND u.is_active = true AND (uls.province = $1 OR uls.region = $2 OR uls.scope_level = 'national')`, [facility.province, facility.region]),
-            db.query(`SELECT u.user_id, u.email, u.phone FROM users u INNER JOIN roles r ON u.role_id = r.role_id WHERE r.role_name = 'Administrator' AND u.is_active = true`)
+            db.query(`
+                SELECT u.user_id, u.email, u.phone
+                FROM users u
+                INNER JOIN roles r ON u.role_id = r.role_id
+                WHERE r.role_name = 'National Helpdesk Officer'
+                  AND u.is_active = true
+            `),
+            db.query(`
+                SELECT DISTINCT u.user_id, u.email, u.phone
+                FROM users u
+                INNER JOIN roles r ON u.role_id = r.role_id
+                LEFT JOIN user_scopes us ON u.user_id = us.user_id
+                WHERE r.role_name = 'Regional Manager'
+                  AND u.is_active = true
+                  AND (
+                    u.is_national_access = true
+                    OR us.region_id = $1
+                  )
+            `, [facility.region_id]),
+            db.query(`
+                SELECT DISTINCT u.user_id, u.email, u.phone
+                FROM users u
+                INNER JOIN roles r ON u.role_id = r.role_id
+                LEFT JOIN user_scopes us ON u.user_id = us.user_id
+                WHERE r.role_name = 'Provincial Manager'
+                  AND u.is_active = true
+                  AND (
+                    u.is_national_access = true
+                    OR us.province_id = $1
+                    OR us.region_id   = $2
+                  )
+            `, [facility.province_id, facility.region_id]),
+            db.query(`
+                SELECT u.user_id, u.email, u.phone
+                FROM users u
+                INNER JOIN roles r ON u.role_id = r.role_id
+                WHERE r.role_name = 'Administrator'
+                  AND u.is_active = true
+            `)
         ]);
 
-        const message = `New ${ticket.priority} priority ticket (#${ticket.ticket_id}) created at ${facility.facility_name} (${facility.province}, ${facility.region}).`;
+        const locationLabel = [facility.province_name, facility.region_name].filter(Boolean).join(', ');
+        const message = `New ${ticket.priority} priority ticket (#${ticket.ticket_id}) created at ${facility.facility_name} (${locationLabel}).`;
         const emailSubject = `New Ticket #${ticket.ticket_id} - ${facility.facility_name}`;
         const emailHtml = `<h2>New Ticket Created</h2><p><strong>Ticket #:</strong> ${ticket.ticket_id}</p><p><strong>Priority:</strong> ${ticket.priority}</p><p><strong>Facility:</strong> ${facility.facility_name}</p><p><a href="${ticketUrl}" style="background: #003087; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Assign Technician</a></p>`;
 
@@ -417,6 +462,84 @@ async function notifyTicketCreation(app, ticket, facilityId) {
         console.log(`✅ All ${notificationPromises.length} notifications sent for ticket #${ticket.ticket_id}`);
     } catch (error) {
         console.error('Error in background notification task:', error);
+    }
+}
+
+// Helper to notify supervisors/managers when a ticket is escalated or parts are requested
+async function notifySupervisors(app, ticketId, eventType, messageText, subjectText, emailHtmlBody) {
+    try {
+        // Get ticket details and facility location
+        const ticketQuery = await db.query(`
+            SELECT t.ticket_id, t.ticket_reference_number, t.facility_id,
+                   f.facility_name, f.region_id, f.province_id
+            FROM tickets t
+            LEFT JOIN facilities f ON t.facility_id = f.facility_id
+            WHERE t.ticket_id = $1
+        `, [ticketId]);
+
+        if (ticketQuery.rows.length === 0) return;
+        const ticket = ticketQuery.rows[0];
+        const facilityId = ticket.facility_id;
+
+        if (!facilityId) return;
+
+        // Fetch managers/supervisors who have scope over this facility
+        const [nationalQuery, regionalQuery, provincialQuery] = await Promise.all([
+            db.query(`
+                SELECT u.user_id, u.email, u.phone
+                FROM users u
+                INNER JOIN roles r ON u.role_id = r.role_id
+                WHERE r.role_name = 'National Helpdesk Officer'
+                  AND u.is_active = true
+            `),
+            db.query(`
+                SELECT DISTINCT u.user_id, u.email, u.phone
+                FROM users u
+                INNER JOIN roles r ON u.role_id = r.role_id
+                LEFT JOIN user_scopes us ON u.user_id = us.user_id
+                WHERE r.role_name = 'Regional Manager'
+                  AND u.is_active = true
+                  AND (
+                    u.is_national_access = true
+                    OR us.region_id = $1
+                  )
+            `, [ticket.region_id]),
+            db.query(`
+                SELECT DISTINCT u.user_id, u.email, u.phone
+                FROM users u
+                INNER JOIN roles r ON u.role_id = r.role_id
+                LEFT JOIN user_scopes us ON u.user_id = us.user_id
+                WHERE r.role_name = 'Provincial Manager'
+                  AND u.is_active = true
+                  AND (
+                    u.is_national_access = true
+                    OR us.province_id = $1
+                    OR us.region_id = $2
+                  )
+            `, [ticket.province_id, ticket.region_id])
+        ]);
+
+        const allSupervisors = [...nationalQuery.rows, ...regionalQuery.rows, ...provincialQuery.rows];
+        const uniqueSupervisors = Array.from(new Map(allSupervisors.map(u => [u.user_id, u])).values());
+
+        const { sendNotification } = require('../services/notificationService');
+        const notificationPromises = uniqueSupervisors.map(supervisor => 
+            sendNotification(app, {
+                userId: supervisor.user_id,
+                ticketId: ticketId,
+                type: eventType,
+                message: messageText,
+                email: supervisor.email,
+                phone: supervisor.phone,
+                emailSubject: subjectText || `Ticket #${ticket.ticket_reference_number || ticketId} Update`,
+                emailHtml: emailHtmlBody || `<p>${messageText}</p>`
+            })
+        );
+
+        await Promise.all(notificationPromises);
+        console.log(`✅ Sent ${notificationPromises.length} supervisor notifications for ticket #${ticketId} (${eventType})`);
+    } catch (err) {
+        console.error('Error sending supervisor notifications:', err);
     }
 }
 
@@ -694,16 +817,31 @@ exports.requestSpareParts = async (req, res) => {
             RETURNING *
         `, [id, userId, JSON.stringify(parts), notes || null]);
 
-        // TODO: Send notification to supervisor/parts manager
-        // Notify creator for now
+        // Notify supervisors/parts managers who have scope over the facility
         const ticketRes = await db.query('SELECT created_by, ticket_reference_number FROM tickets WHERE ticket_id = $1', [id]);
-        if (ticketRes.rows.length > 0 && ticketRes.rows[0].created_by) {
-            sendNotification(req.app, {
-                userId: ticketRes.rows[0].created_by,
-                ticketId: id,
-                type: 'parts_request',
-                message: `Parts requested for Ticket #${ticketRes.rows[0].ticket_reference_number || id}`
-            });
+        if (ticketRes.rows.length > 0) {
+            const ticketRef = ticketRes.rows[0].ticket_reference_number || id;
+            const message = `Parts requested for Ticket #${ticketRef}. Notes: ${notes || 'None'}`;
+            
+            // Notify creator/technician who filed the request
+            if (ticketRes.rows[0].created_by) {
+                sendNotification(req.app, {
+                    userId: ticketRes.rows[0].created_by,
+                    ticketId: id,
+                    type: 'parts_request',
+                    message
+                });
+            }
+
+            // Notify supervisors
+            notifySupervisors(
+                req.app, 
+                id, 
+                'parts_request', 
+                message, 
+                `Spare Parts Request - Ticket #${ticketRef}`, 
+                `<h3>Spare Parts Requested</h3><p>Parts have been requested for ticket #${ticketRef}.</p><p><strong>Notes:</strong> ${notes || 'None'}</p>`
+            );
         }
 
         res.status(201).json({
@@ -746,15 +884,31 @@ exports.escalateTicket = async (req, res) => {
             WHERE ticket_id = $1
         `, [id]);
 
-        // TODO: Send notification to supervisor
+        // Notify supervisors/managers who have scope over the facility
         const ticketRes = await db.query('SELECT created_by, ticket_reference_number FROM tickets WHERE ticket_id = $1', [id]);
-        if (ticketRes.rows.length > 0 && ticketRes.rows[0].created_by) {
-            sendNotification(req.app, {
-                userId: ticketRes.rows[0].created_by,
-                ticketId: id,
-                type: 'ticket_escalated',
-                message: `Ticket #${ticketRes.rows[0].ticket_reference_number || id} has been escalated: ${reason}`
-            });
+        if (ticketRes.rows.length > 0) {
+            const ticketRef = ticketRes.rows[0].ticket_reference_number || id;
+            const message = `Ticket #${ticketRef} has been escalated: ${reason}`;
+
+            // Notify creator/technician who filed the ticket
+            if (ticketRes.rows[0].created_by) {
+                sendNotification(req.app, {
+                    userId: ticketRes.rows[0].created_by,
+                    ticketId: id,
+                    type: 'ticket_escalated',
+                    message
+                });
+            }
+
+            // Notify supervisors
+            notifySupervisors(
+                req.app, 
+                id, 
+                'ticket_escalated', 
+                message, 
+                `Escalation Alert - Ticket #${ticketRef}`, 
+                `<h3>Ticket Escalation</h3><p>Ticket #${ticketRef} has been escalated.</p><p><strong>Reason:</strong> ${reason}</p><p><strong>Description:</strong> ${description || 'None'}</p>`
+            );
         }
 
         // Activity Log
@@ -921,29 +1075,40 @@ exports.updateTicket = async (req, res) => {
             return res.status(404).json({ message: 'Ticket not found' });
         }
 
-        res.json({
-            message: 'Ticket updated successfully',
-            ticket: result.rows[0]
-        });
+        // Audit Log — must be awaited BEFORE sending the response so that
+        // any failure is caught by the surrounding try/catch and does not
+        // silently run after headers are already flushed.
+        try {
+            await logAudit(
+                req.user?.userId,
+                'Updated',
+                'Ticket',
+                result.rows[0].ticket_id,
+                'Ticket details updated',
+                req
+            );
+        } catch (auditErr) {
+            console.error('Audit log failed for ticket update:', auditErr.message);
+            // Non-fatal — continue so the user gets a response
+        }
 
+        // Notification — fire-and-forget (non-blocking) but launched BEFORE
+        // res.json() so it is scoped within the live request context.
         if (result.rows[0].assigned_to) {
             sendNotification(req.app, {
                 userId: result.rows[0].assigned_to,
                 ticketId: id,
                 type: 'ticket_updated',
                 message: `Ticket #${result.rows[0].ticket_reference_number || id} details updated`
+            }).catch(notifErr => {
+                console.error('Notification failed for ticket update:', notifErr.message);
             });
         }
 
-        // Audit Log
-        await logAudit(
-            req.user?.userId,
-            'Updated',
-            'Ticket',
-            result.rows[0].ticket_id,
-            'Ticket details updated',
-            req
-        );
+        res.json({
+            message: 'Ticket updated successfully',
+            ticket: result.rows[0]
+        });
 
     } catch (error) {
         console.error('Error updating ticket:', error);
@@ -978,19 +1143,41 @@ exports.getTicketHistory = async (req, res) => {
 
             // Resolved
             if (t.date_resolved) {
+                const resolverRes = await db.query(`
+                    SELECT u.first_name, u.last_name 
+                    FROM ticket_activity_log al 
+                    LEFT JOIN users u ON al.action_by = u.user_id 
+                    WHERE al.ticket_id = $1 AND al.action = 'Resolved'
+                    ORDER BY al.timestamp DESC LIMIT 1
+                `, [id]);
+                const resolverName = resolverRes.rows.length > 0 && resolverRes.rows[0].first_name
+                    ? `${resolverRes.rows[0].first_name} ${resolverRes.rows[0].last_name}`
+                    : 'System/Technician';
+
                 events.push({
                     type: 'resolved',
                     timestamp: t.date_resolved,
-                    user: 'System/Technician', // We don't track resolved_by ID in tickets table explicitly yet
-                    details: 'Ticket resolved'
+                    user: resolverName,
+                    details: t.resolution_notes ? `Resolved: ${t.resolution_notes}` : 'Ticket resolved'
                 });
             }
             // Closed
             if (t.closed_at) {
+                const closerRes = await db.query(`
+                    SELECT u.first_name, u.last_name 
+                    FROM ticket_activity_log al 
+                    LEFT JOIN users u ON al.action_by = u.user_id 
+                    WHERE al.ticket_id = $1 AND al.action = 'Closed'
+                    ORDER BY al.timestamp DESC LIMIT 1
+                `, [id]);
+                const closerName = closerRes.rows.length > 0 && closerRes.rows[0].first_name
+                    ? `${closerRes.rows[0].first_name} ${closerRes.rows[0].last_name}`
+                    : 'System';
+
                 events.push({
                     type: 'closed',
                     timestamp: t.closed_at,
-                    user: 'System',
+                    user: closerName,
                     details: 'Ticket closed'
                 });
             }
@@ -1060,6 +1247,10 @@ exports.getTicketHistory = async (req, res) => {
             `, [id]);
 
             auditRes.rows.forEach(a => {
+                if (a.action === 'Resolved' || a.action === 'Closed') {
+                    // Skip to avoid duplication since we handle these explicitly above with details
+                    return;
+                }
                 let typeLabel = 'history';
                 if (a.action) {
                     const actionLower = a.action.toLowerCase();
@@ -1115,12 +1306,19 @@ exports.getTicketsByProvince = async (req, res) => {
                 ['province', 'district', 'region'].includes(level.id)
             );
             
-            if (geoHierarchy && geoHierarchy.length > 0) {
+                    if (geoHierarchy && geoHierarchy.length > 0) {
                 const topLevel = geoHierarchy[0];
                 topLevelLabel = topLevel.name;
-                topLevelId = `${topLevel.id}_id`;
-                topLevelNameField = `${topLevel.id}_name`;
-                tableName = `${topLevel.id}s`; // Assuming plural table name convention
+
+                // Validate against an allowlist to prevent SQL injection via corrupt DB data
+                const allowedLevels = ['province', 'district', 'region'];
+                if (!allowedLevels.includes(topLevel.id)) {
+                    console.warn(`Unexpected hierarchy level '${topLevel.id}' — falling back to province`);
+                } else {
+                    topLevelId = `${topLevel.id}_id`;
+                    topLevelNameField = `${topLevel.id}_name`;
+                    tableName = `${topLevel.id}s`;
+                }
             }
         }
 
@@ -1168,10 +1366,11 @@ exports.getEquipmentDistribution = async (req, res) => {
     try {
         const result = await db.query(`
             SELECT 
-                COALESCE(manufacturer, 'Unknown') as item_type,
+                COALESCE(item_type, 'Unknown') as item_type,
+                COALESCE(manufacturer, 'Unknown') as manufacturer,
                 COUNT(*)::int as count
             FROM equipment
-            GROUP BY manufacturer
+            GROUP BY item_type, manufacturer
             ORDER BY count DESC
             LIMIT 8
         `);
@@ -1192,13 +1391,13 @@ exports.getEquipmentDistribution = async (req, res) => {
 // Get top fault categories
 exports.getTopFaultCategories = async (req, res) => {
     try {
-        // Use fault_status as category, fallback to 'Unknown'
+        // fault_type is the descriptive category field; fault_status is a workflow state
         const result = await db.query(`
             SELECT 
-                COALESCE(fault_status, 'Unknown') as fault_category,
+                COALESCE(fault_type, 'Unknown') as fault_category,
                 COUNT(*)::int as count
             FROM tickets
-            GROUP BY fault_status
+            GROUP BY fault_type
             ORDER BY count DESC
             LIMIT 10
         `);
@@ -1219,13 +1418,12 @@ exports.getTopFaultCategories = async (req, res) => {
 // Get monthly ticket trends (last 6 months)
 exports.getMonthlyTrends = async (req, res) => {
     try {
-        // Use ticket_status instead of status
         const result = await db.query(`
             SELECT 
                 TO_CHAR(created_at, 'Mon') as month,
-                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('open', 'new') THEN 1 END)::int as high_priority,
-                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('in_progress', 'in progress', 'assigned') THEN 1 END)::int as medium_priority,
-                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('resolved', 'closed') THEN 1 END)::int as low_priority,
+                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('open', 'new') THEN 1 END)::int as open_count,
+                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('in_progress', 'in progress', 'assigned') THEN 1 END)::int as in_progress_count,
+                COUNT(CASE WHEN LOWER(ticket_status::text) IN ('resolved', 'closed') THEN 1 END)::int as resolved_count,
                 COUNT(*)::int as total
             FROM tickets
             WHERE created_at >= CURRENT_DATE - INTERVAL '6 months'

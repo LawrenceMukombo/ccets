@@ -101,12 +101,14 @@ const attachLocationScope = async (req, res, next) => {
 
 /**
  * Generate WHERE clause SQL conditions based on user's location scope
- * 
+ *
  * @param {object} locationScope - From req.user.locationScope
  * @param {string} tableAlias - SQL table alias (e.g., 't' for tickets, 'f' for facilities)
+ * @param {number} startIndex - Starting $N placeholder index (default 1). Pass your current
+ *                              queryParams.length + 1 to avoid collisions when merging params.
  * @returns {object} { condition: string, params: array }
  */
-const buildLocationFilter = (locationScope, tableAlias = 't') => {
+const buildLocationFilter = (locationScope, tableAlias = 't', startIndex = 1) => {
     if (!locationScope || locationScope.level === 'national') {
         return { condition: '', params: [] };
     }
@@ -114,7 +116,7 @@ const buildLocationFilter = (locationScope, tableAlias = 't') => {
     const { level, scopes } = locationScope;
     const conditions = [];
     const params = [];
-    let paramIndex = 1;
+    let paramIndex = startIndex;
 
     if (level === 'facility' && scopes.facilities && scopes.facilities.length > 0) {
         conditions.push(`${tableAlias}.facility_id = ANY($${paramIndex})`);
@@ -138,6 +140,7 @@ const buildLocationFilter = (locationScope, tableAlias = 't') => {
 
     return { condition, params };
 };
+
 
 module.exports = {
     attachLocationScope,
