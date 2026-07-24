@@ -166,13 +166,16 @@ async function seed() {
                     const createdAt   = randomPastDate(365);
                     const updatedAt   = new Date(createdAt.getTime() + Math.random() * 7 * 24 * 3600 * 1000);
 
+                    // Generate a unique reference: ZMB-<timestamp_ms>-<random> to avoid trigger collisions
+                    const refNum = `ZMB-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
                     await client.query(
                         `INSERT INTO tickets (
                             facility_id, selected_equipment_id, fault_description,
                             ticket_status, priority, created_by,
                             district_id, province_id, region_id,
+                            ticket_reference_number,
                             created_at, updated_at
-                        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+                        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
                         [
                             fac.facility_id,
                             equipmentId,
@@ -183,6 +186,7 @@ async function seed() {
                             fac.district_id,
                             fac.province_id,
                             fac.region_id,
+                            refNum,
                             createdAt,
                             updatedAt,
                         ]
