@@ -120,6 +120,10 @@ async function seed() {
         let ticketCount = 0;
         const BATCH = 100;
 
+        // Disable the auto-reference trigger to prevent timestamp collisions during bulk insert
+        console.log('Disabling ticket reference trigger for bulk insert...');
+        await client.query(`ALTER TABLE tickets DISABLE TRIGGER trg_generate_ticket_reference`);
+
         console.log('Seeding equipment and tickets...');
 
         for (let i = 0; i < facilities.length; i++) {
@@ -200,6 +204,10 @@ async function seed() {
                 process.stdout.write(`  ... ${i + 1}/${facilities.length} facilities processed\r`);
             }
         }
+
+        // Re-enable the trigger
+        await client.query(`ALTER TABLE tickets ENABLE TRIGGER trg_generate_ticket_reference`);
+        console.log('\nTicket reference trigger re-enabled.');
 
         console.log('\n');
         console.log('=============================');
