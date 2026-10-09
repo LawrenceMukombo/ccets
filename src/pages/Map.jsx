@@ -232,7 +232,7 @@ function Map({ tickets: propTickets }) {
                 facilitiesPromise = fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers })
                     .then(res => res.ok ? res.json() : [])
                     .then(data => {
-                        const list = data.facilities || data || [];
+                        const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.facilities) ? data.facilities : (Array.isArray(data) ? data : []));
                         setRawFacilities(list);
                         setCachedData('facilities', tenantCode, list);
                         return list;
@@ -251,7 +251,7 @@ function Map({ tickets: propTickets }) {
                 ticketsPromise = fetch(`/api/${tenantCode}/tickets?limit=100000&minimal=true`, { headers })
                     .then(res => res.ok ? res.json() : [])
                     .then(data => {
-                        const list = data.tickets || data || [];
+                        const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.tickets) ? data.tickets : (Array.isArray(data) ? data : []));
                         setTickets(list);
                         setCachedData('tickets', tenantCode, list);
                         return list;

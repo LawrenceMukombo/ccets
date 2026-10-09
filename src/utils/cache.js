@@ -14,16 +14,19 @@ export const getCachedData = (key, tenantCode, ttlMs = 45000) => {
         return null;
     }
     const now = Date.now();
-    if (key === 'tickets' && cache.tickets && (now - cache.ticketsTimestamp < ttlMs)) {
+    if (key === 'tickets' && Array.isArray(cache.tickets) && (now - cache.ticketsTimestamp < ttlMs)) {
         return cache.tickets;
     }
-    if (key === 'facilities' && cache.facilities && (now - cache.facilitiesTimestamp < ttlMs)) {
+    if (key === 'facilities' && Array.isArray(cache.facilities) && (now - cache.facilitiesTimestamp < ttlMs)) {
         return cache.facilities;
     }
     return null;
 };
 
 export const setCachedData = (key, tenantCode, data) => {
+    // Only cache non-empty arrays to prevent error objects from polluting cache
+    if (!Array.isArray(data) || data.length === 0) return;
+
     if (cache.tenantCode !== tenantCode) {
         clearCache();
         cache.tenantCode = tenantCode;

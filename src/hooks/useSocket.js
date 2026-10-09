@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 
 let socket = null;
 let useCount = 0;
+let disconnectTimer = null;
 const listeners = new Set();
 let notificationsList = [];
 let globalUnreadCount = 0;
@@ -30,6 +31,11 @@ export const useSocket = (userId) => {
 
     useEffect(() => {
         if (!userId) return;
+
+        if (disconnectTimer) {
+            clearTimeout(disconnectTimer);
+            disconnectTimer = null;
+        }
 
         useCount++;
         const handleUpdate = (updatedState) => {
@@ -93,10 +99,16 @@ export const useSocket = (userId) => {
 
         return () => {
             removeListener(handleUpdate);
-            useCount--;
+            useCount = Math.max(0, useCount - 1);
             if (useCount === 0 && socket) {
-                socket.disconnect();
-                socket = null;
+                if (disconnectTimer) clearTimeout(disconnectTimer);
+                disconnectTimer = setTimeout(() => {
+                    if (useCount === 0 && socket) {
+                        socket.disconnect();
+                        socket = null;
+                    }
+                    disconnectTimer = null;
+                }, 2000);
             }
         };
     }, [userId]);

@@ -105,7 +105,7 @@ function Reports() {
             
             // Check cache first
             const cachedTickets = getCachedData('tickets', tenantCode);
-            if (cachedTickets) {
+            if (Array.isArray(cachedTickets)) {
                 setAllTickets(cachedTickets);
                 return;
             }
@@ -115,7 +115,7 @@ function Reports() {
 
             const response = await fetch(`/api/${tenantCode}/tickets?limit=100000&minimal=true`, { headers });
             const data = await response.json();
-            const tickets = data.tickets || [];
+            const tickets = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.tickets) ? data.tickets : (Array.isArray(data) ? data : []));
 
             setAllTickets(tickets);
             setCachedData('tickets', tenantCode, tickets);
@@ -129,7 +129,7 @@ function Reports() {
     };
 
     const processData = (tickets) => {
-        let filtered = tickets;
+        let filtered = Array.isArray(tickets) ? tickets : [];
 
         if (dateRange === 'custom') {
             const start = customStartDate ? new Date(customStartDate) : null;

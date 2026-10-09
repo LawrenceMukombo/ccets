@@ -75,7 +75,8 @@ function Facilities() {
                 };
                 const response = await fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers });
                 const data = await response.json();
-                setAllFacilitiesForOptions(data.data || data.facilities || data || []);
+                const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.facilities) ? data.facilities : (Array.isArray(data) ? data : []));
+                setAllFacilitiesForOptions(list);
             } catch (err) {
                 console.error('Error fetching facility metadata:', err);
             }
@@ -116,8 +117,9 @@ function Facilities() {
             }
             const data = await response.json();
 
-            setFacilities(data.data || data.facilities || []);
-            setTotalRecords(data.pagination?.totalRecords || (data.data || data.facilities || []).length);
+            const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.facilities) ? data.facilities : (Array.isArray(data) ? data : []));
+            setFacilities(list);
+            setTotalRecords(data.pagination?.totalRecords || list.length);
             setTotalPages(data.pagination?.totalPages || 1);
             setError(null);
         } catch (err) {

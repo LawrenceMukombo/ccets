@@ -32,7 +32,10 @@ window.fetch = async function () {
     const response = await originalFetch.apply(this, [resource, config]);
 
     // Auto-logout and clear stale token if authentication fails or user is not registered in tenant
-    if ((response.status === 401 || response.status === 403 || response.status === 404) && typeof resource === 'string' && resource.includes('/api/')) {
+    const isAuthFailure = response.status === 401 || response.status === 403 || 
+        (response.status === 404 && typeof resource === 'string' && resource.includes('/auth/me'));
+
+    if (isAuthFailure && typeof resource === 'string' && resource.includes('/api/')) {
         const hasToken = localStorage.getItem('token');
         if (hasToken && !resource.includes('/auth/login')) {
             try {

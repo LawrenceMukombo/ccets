@@ -66,7 +66,7 @@ function Repairs() {
 
             if (response.ok) {
                 const data = await response.json();
-                const allTickets = data.tickets || [];
+                const allTickets = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.tickets) ? data.tickets : (Array.isArray(data) ? data : []));
                 const processed = allTickets.map(t => ({
                     ...t,
                     status: t.ticket_status === 'Pending Assignment' ? 'New' : t.ticket_status,

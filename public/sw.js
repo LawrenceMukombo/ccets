@@ -19,9 +19,9 @@ const putInCache = async (request, response) => {
   if (!response || response.status !== 200 || response.type === 'opaque') return;
   try {
     const cache = await caches.open(CACHE_NAME);
-    await cache.put(request, response.clone());
+    await cache.put(request, response);
   } catch (e) {
-    // Gracefully ignore if response body was already consumed
+    // Gracefully ignore if caching fails
   }
 };
 
@@ -60,7 +60,12 @@ self.addEventListener('fetch', (event) => {
       if (cachedResponse) {
         event.waitUntil(
           fetch(event.request)
-            .then((networkResponse) => putInCache(event.request, networkResponse))
+            .then((networkResponse) => {
+              if (networkResponse && networkResponse.status === 200 && networkResponse.type !== 'opaque') {
+                const responseClone = networkResponse.clone();
+                return putInCache(event.request, responseClone);
+              }
+            })
             .catch(() => {})
         );
         return cachedResponse;
@@ -68,7 +73,10 @@ self.addEventListener('fetch', (event) => {
 
       return fetch(event.request)
         .then((networkResponse) => {
-          event.waitUntil(putInCache(event.request, networkResponse));
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type !== 'opaque') {
+            const responseClone = networkResponse.clone();
+            event.waitUntil(putInCache(event.request, responseClone));
+          }
           return networkResponse;
         })
         .catch(() => caches.match('/index.html'));

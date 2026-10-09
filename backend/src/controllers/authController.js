@@ -93,8 +93,8 @@ exports.login = async (req, res) => {
                 regionId: user.assigned_region_id,
                 provinceId: user.assigned_province_id,
                 isNationalAccess: user.is_national_access,
-                tenant_code: req.tenant.code,
-                tenant_id: req.tenant.id
+                tenant_code: req.tenant?.code || req.params?.tenantCode || 'zambia',
+                tenant_id: req.tenant?.id || null
             },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
@@ -154,7 +154,10 @@ exports.login = async (req, res) => {
 
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ message: 'Server error during login' });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message ? `Login failed: ${error.message}` : 'Server error during login' 
+        });
     }
 };
 

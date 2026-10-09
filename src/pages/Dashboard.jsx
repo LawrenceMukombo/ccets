@@ -206,7 +206,7 @@ function Dashboard() {
                     fetch(`/api/${tenantCode}/tickets?limit=100000&minimal=true`, { headers })
                         .then(res => res.ok ? res.json() : null)
                         .then(data => {
-                            const list = Array.isArray(data?.tickets) ? data.tickets : (Array.isArray(data) ? data : []);
+                            const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.tickets) ? data.tickets : (Array.isArray(data) ? data : []));
                             setAllTickets(list);
                             if (list.length > 0) setCachedData('tickets', tenantCode, list);
                         })
@@ -221,7 +221,7 @@ function Dashboard() {
                     fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers })
                         .then(res => res.ok ? res.json() : null)
                         .then(data => {
-                            const list = Array.isArray(data?.facilities) ? data.facilities : (Array.isArray(data) ? data : []);
+                            const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.facilities) ? data.facilities : (Array.isArray(data) ? data : []));
                             setFacilities(list);
                             if (list.length > 0) setCachedData('facilities', tenantCode, list);
                         })
@@ -429,7 +429,8 @@ function Dashboard() {
 
         const facilitiesWithTickets = new Set(dateFilteredTickets.map(t => String(t.facility_id)));
         let noTicketsCount = 0;
-        facilities.forEach(fac => {
+        const safeFacilities = Array.isArray(facilities) ? facilities : [];
+        safeFacilities.forEach(fac => {
             if (!facilitiesWithTickets.has(String(fac.facility_id))) {
                 noTicketsCount++;
             }
@@ -441,9 +442,9 @@ function Dashboard() {
 
 
     // --- MAP MARKERS PREP ---
-    // --- MAP MARKERS PREP ---
     const mapMarkers = useMemo(() => {
-        return facilities.map(fac => {
+        const safeFacilities = Array.isArray(facilities) ? facilities : [];
+        return safeFacilities.map(fac => {
             let lat = null, lng = null;
             if (fac.latitude && fac.longitude) { lat = parseFloat(fac.latitude); lng = parseFloat(fac.longitude); }
             else if (fac.lat && fac.lng) { lat = parseFloat(fac.lat); lng = parseFloat(fac.lng); }

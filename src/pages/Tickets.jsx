@@ -111,7 +111,7 @@ function Tickets() {
                 const response = await fetch(`/api/${tenantCode}/tickets?${params}`, { headers });
                 if (!response.ok) throw new Error('Failed to retrieve ticket metadata');
                 const data = await response.json();
-                const ticketsList = data.data || data.tickets || [];
+                const ticketsList = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.tickets) ? data.tickets : (Array.isArray(data) ? data : []));
                 allOptionTickets.push(...ticketsList);
                 totalPagesForOptions = data.pagination?.totalPages || (ticketsList.length === pageSizeForOptions ? currentPage + 1 : currentPage);
                 currentPage += 1;
@@ -169,8 +169,9 @@ function Tickets() {
             }
             const data = await response.json();
 
-            setTickets(data.data || data.tickets || []);
-            setTotalRecords(data.pagination?.totalRecords || (data.data || data.tickets || []).length);
+            const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.tickets) ? data.tickets : (Array.isArray(data) ? data : []));
+            setTickets(list);
+            setTotalRecords(data.pagination?.totalRecords || list.length);
             setTotalPages(data.pagination?.totalPages || 1);
             setError(null);
         } catch (err) {
@@ -183,8 +184,9 @@ function Tickets() {
 
     // Extract dynamic dropdown options from the raw tickets list metadata
     const dropdownOptions = useMemo(() => {
-        const uniqueStatuses = [...new Set(allTicketsForOptions.map(t => t.ticket_status).filter(Boolean))].sort();
-        const uniqueAssignees = [...new Set(allTicketsForOptions.map(t => t.assigned_to_name).filter(Boolean))].sort();
+        const safeOptions = Array.isArray(allTicketsForOptions) ? allTicketsForOptions : [];
+        const uniqueStatuses = [...new Set(safeOptions.map(t => t.ticket_status).filter(Boolean))].sort();
+        const uniqueAssignees = [...new Set(safeOptions.map(t => t.assigned_to_name).filter(Boolean))].sort();
         return {
             statuses: uniqueStatuses,
             assignees: uniqueAssignees

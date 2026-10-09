@@ -9,7 +9,7 @@ const getEquipment = async (req, res) => {
 
         const locationScope = req.user?.locationScope;
 
-        let whereClause = 'WHERE e.is_del = false';
+        let whereClause = 'WHERE (e.is_del IS NOT TRUE)';
         const queryParams = [];
         let paramIndex = 1;
 
@@ -187,6 +187,7 @@ const getEquipmentStats = async (req, res) => {
                 COUNT(CASE WHEN is_functioning = false THEN 1 END)::int       AS not_functioning,
                 COUNT(DISTINCT facility_id)::int                              AS facilities_with_equipment
             FROM equipment
+            WHERE (is_del IS NOT TRUE)
         `);
 
         res.json({

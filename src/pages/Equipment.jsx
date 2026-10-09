@@ -78,7 +78,8 @@ function Equipment() {
                 };
                 const response = await fetch(`/api/${tenantCode}/equipment?limit=10000`, { headers });
                 const data = await response.json();
-                setAllEquipmentForOptions(data.data || data.equipment || []);
+                const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.equipment) ? data.equipment : (Array.isArray(data) ? data : []));
+                setAllEquipmentForOptions(list);
             } catch (err) {
                 console.error('Error fetching equipment metadata:', err);
             }
@@ -119,8 +120,9 @@ function Equipment() {
             }
             const data = await response.json();
 
-            setEquipment(data.data || data.equipment || []);
-            setTotalRecords(data.pagination?.totalRecords || (data.data || data.equipment || []).length);
+            const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.equipment) ? data.equipment : (Array.isArray(data) ? data : []));
+            setEquipment(list);
+            setTotalRecords(data.pagination?.totalRecords || list.length);
             setTotalPages(data.pagination?.totalPages || 1);
             setError(null);
         } catch (err) {
