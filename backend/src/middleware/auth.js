@@ -16,7 +16,13 @@ module.exports = (req, res, next) => {
         }
 
         if (!decoded.tenant_code || decoded.tenant_code.toLowerCase() !== req.tenant.code.toLowerCase()) {
-            return res.status(403).json({ success: false, message: 'Cross-tenant token reuse is strictly forbidden' });
+            const tokenTenant = (decoded.tenant_code || 'another country').toUpperCase();
+            const currentTenant = (req.tenant.name || req.tenant.code || 'this country').toUpperCase();
+            return res.status(403).json({
+                success: false,
+                code: 'CROSS_TENANT_SESSION',
+                message: `Your login session belongs to ${tokenTenant}, but you are accessing ${currentTenant}. Please log in to ${currentTenant}.`
+            });
         }
 
         req.user = decoded;

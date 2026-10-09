@@ -19,7 +19,32 @@ exports.login = async (req, res) => {
         );
 
         if (userResult.rows.length === 0) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            // Check if user exists in another tenant to provide a crystal-clear error message
+            try {
+                const crossCheck = await db.query(`
+                    SELECT 'png' as tenant_code, 'Papua New Guinea' as tenant_name FROM png.users WHERE email = $1 OR username = $1
+                    UNION ALL
+                    SELECT 'zambia' as tenant_code, 'Zambia' as tenant_name FROM zambia.users WHERE email = $1 OR username = $1
+                    LIMIT 1
+                `, [loginIdentifier]);
+
+                if (crossCheck.rows.length > 0) {
+                    const match = crossCheck.rows[0];
+                    return res.status(403).json({
+                        success: false,
+                        code: 'USER_REGISTERED_IN_DIFFERENT_TENANT',
+                        message: `Account is registered in ${match.tenant_name}, not in ${req.tenant?.name || req.tenant?.code || 'this country workspace'}. Please switch country to ${match.tenant_name} to log in.`
+                    });
+                }
+            } catch (crossErr) {
+                // Fallback if cross-schema query is restricted
+            }
+
+            return res.status(401).json({
+                success: false,
+                code: 'USER_NOT_FOUND',
+                message: `User "${loginIdentifier}" is not registered in ${req.tenant?.name || req.tenant?.code || 'this country workspace'}. Please check your username or switch country.`
+            });
         }
 
         const user = userResult.rows[0];
@@ -169,8 +194,12 @@ exports.getCurrentUser = async (req, res) => {
         `, [userId]);
 
         if (userResult.rows.length === 0) {
-            console.error('User not found for ID:', userId);
-            return res.status(404).json({ message: 'User not found' });
+            console.error(`User ID ${userId} not registered in tenant:`, req.tenant?.code);
+            return res.status(404).json({
+                success: false,
+                code: 'USER_NOT_REGISTERED_IN_TENANT',
+                message: `User account (ID: ${userId}) is not registered in ${req.tenant?.name || req.tenant?.code || 'this country workspace'}. Please log in to your assigned country.`
+            });
         }
 
         const user = userResult.rows[0];

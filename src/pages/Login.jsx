@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTenant } from '../context/TenantContext';
 import './Login.css';
@@ -10,6 +10,14 @@ function Login({ onLogin }) {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { tenantCode, config, loading: configLoading, error: configError } = useTenant();
+
+    useEffect(() => {
+        const notice = sessionStorage.getItem('login_notice');
+        if (notice) {
+            setError(notice);
+            sessionStorage.removeItem('login_notice');
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

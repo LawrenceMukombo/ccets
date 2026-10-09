@@ -38,7 +38,11 @@ const attachLocationScope = async (req, res, next) => {
         `, [userId]);
 
         if (userResult.rows.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(403).json({
+                success: false,
+                code: 'USER_NOT_REGISTERED_IN_TENANT',
+                message: `User account (ID: ${userId}) is not registered in ${req.tenant?.name || req.tenant?.code || 'this country workspace'}. Access denied.`
+            });
         }
 
         const user = userResult.rows[0];

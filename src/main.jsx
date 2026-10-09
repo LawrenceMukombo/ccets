@@ -31,11 +31,19 @@ window.fetch = async function () {
     
     const response = await originalFetch.apply(this, [resource, config]);
 
-    // Auto-logout and clear stale token if authentication fails or cross-tenant token is rejected
-    if ((response.status === 401 || response.status === 403) && typeof resource === 'string' && resource.includes('/api/')) {
+    // Auto-logout and clear stale token if authentication fails or user is not registered in tenant
+    if ((response.status === 401 || response.status === 403 || response.status === 404) && typeof resource === 'string' && resource.includes('/api/')) {
         const hasToken = localStorage.getItem('token');
         if (hasToken && !resource.includes('/auth/login')) {
-            console.warn('Session expired or forbidden for current country. Clearing stale token...');
+            try {
+                response.clone().json().then(data => {
+                    if (data?.message) {
+                        sessionStorage.setItem('login_notice', data.message);
+                    }
+                }).catch(() => {});
+            } catch (e) {}
+
+            console.warn('Session expired or user not registered in current country. Clearing stale token...');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
