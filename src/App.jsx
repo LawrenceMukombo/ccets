@@ -94,8 +94,6 @@ function App() {
         }
     }, [isAuthenticated, tenantCode, handleLogout]);
 
-    const { setTenant } = useTenant();
-
     const handleSwitchCountry = useCallback(() => {
         // Full reset — clears tenant, auth state, and user
         localStorage.removeItem('token');
