@@ -58,16 +58,12 @@ export const TenantProvider = ({ children }) => {
 
                     if (data.resolvedTenant) {
                         const resolvedCode = data.resolvedTenant.code;
-                        if (localStorage.getItem('tenantCode') !== resolvedCode) {
-                            localStorage.setItem('tenantCode', resolvedCode);
-                            setTenantCode(resolvedCode);
-                        }
+                        localStorage.setItem('tenantCode', resolvedCode);
+                        setTenantCode(resolvedCode);
                     } else if (data.deploymentMode === 'standalone_country' && data.tenants?.length > 0) {
                         const defaultCode = data.defaultTenant || data.tenants[0].code;
-                        if (localStorage.getItem('tenantCode') !== defaultCode) {
-                            localStorage.setItem('tenantCode', defaultCode);
-                            setTenantCode(defaultCode);
-                        }
+                        localStorage.setItem('tenantCode', defaultCode);
+                        setTenantCode(defaultCode);
                     }
                 }
             } catch (err) {

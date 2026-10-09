@@ -34,7 +34,7 @@ const SwitchTenant = ({ onLogout, setTenantFn }) => {
 
 
 function App() {
-    const { tenantCode } = useTenant();
+    const { tenantCode, setTenant, loading: tenantLoading, platformContext } = useTenant();
 
     
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -171,6 +171,26 @@ function App() {
     
     // Require Tenant for public pages too
     const RequireTenant = ({ children }) => {
+        const resolved = platformContext?.resolvedTenant?.code || 
+            (platformContext?.deploymentMode === 'standalone_country' ? (platformContext?.defaultTenant || platformContext?.tenants?.[0]?.code) : null);
+
+        if (!tenantCode && resolved) {
+            setTenant(resolved);
+            return (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0f172a' }}>
+                    <div className="spinner" />
+                </div>
+            );
+        }
+
+        if (tenantLoading && !tenantCode) {
+            return (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0f172a' }}>
+                    <div className="spinner" />
+                </div>
+            );
+        }
+
         if (!tenantCode) return <Navigate to="/" replace />;
         return children;
     };

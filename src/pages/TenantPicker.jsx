@@ -10,12 +10,16 @@ const TenantPicker = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (platformContext?.deploymentMode === 'standalone_country' || platformContext?.resolvedTenant) {
-            navigate('/login');
+        const resolved = platformContext?.resolvedTenant?.code || 
+            (platformContext?.deploymentMode === 'standalone_country' ? (platformContext?.defaultTenant || platformContext?.tenants?.[0]?.code) : null);
+        if (resolved) {
+            setTenant(resolved);
+            navigate('/login', { replace: true });
         }
-    }, [platformContext, navigate]);
+    }, [platformContext, navigate, setTenant]);
 
     useEffect(() => {
+        let isMounted = true;
         // Fetch the live tenant list from the public API endpoint
         fetch('/api/tenants')
             .then(res => {
@@ -23,19 +27,24 @@ const TenantPicker = () => {
                 return res.json();
             })
             .then(data => {
-                setTenants(data);
-                setLoading(false);
+                if (isMounted) {
+                    setTenants(Array.isArray(data) ? data : []);
+                    setLoading(false);
+                }
             })
             .catch(err => {
-                console.error('TenantPicker fetch error:', err);
-                // Fallback: use known tenants so the app is never broken
-                setTenants([
-                    { code: 'png',    name: 'Papua New Guinea' },
-                    { code: 'zambia', name: 'Zambia' },
-                    { code: 'malawi', name: 'Malawi' },
-                ]);
-                setLoading(false);
+                if (isMounted) {
+                    // Fallback: use known tenants so the app is never broken
+                    setTenants([
+                        { code: 'png',    name: 'Papua New Guinea', emblem: '/png_emblem.png' },
+                        { code: 'zambia', name: 'Zambia', emblem: '/zambia_emblem.png' },
+                        { code: 'malawi', name: 'Malawi', emblem: '/malawi_emblem.png' },
+                    ]);
+                    setLoading(false);
+                }
             });
+
+        return () => { isMounted = false; };
     }, []);
 
     const handleSelectTenant = (code) => {
