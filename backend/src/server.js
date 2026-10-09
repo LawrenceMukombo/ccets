@@ -12,8 +12,8 @@ const PORT = process.env.PORT || 5050;
 // ── CORS configuration ────────────────────────────────────────────────────
 // In production restrict to the known frontend origin; allow all in dev.
 const corsOrigin = process.env.NODE_ENV === 'production'
-    ? (process.env.FRONTEND_URL || false)   // false = deny all unlisted origins
-    : true;                                  // true  = allow any origin
+    ? (process.env.FRONTEND_URL || process.env.CORS_ORIGIN || process.env.APP_URL || true)
+    : true;
 
 const corsOptions = {
     origin: corsOrigin,
@@ -132,10 +132,34 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Routes
-app.get('/', (req, res) => {
-    res.json({ message: 'CCETS Backend API is running' });
-});
+const path = require('path');
+const fs = require('fs');
+
+// ── Serve Static Frontend (Merged Unified Application) ─────────────────────
+const candidateBuildDirs = [
+    path.join(__dirname, '../../build'),
+    path.join(__dirname, '../../dist'),
+    path.join(__dirname, '../frontend'),
+    path.join(__dirname, '../../frontend')
+];
+const clientBuildPath = candidateBuildDirs.find(dir => fs.existsSync(dir));
+
+if (clientBuildPath) {
+    console.log(`Serving merged frontend build from: ${clientBuildPath}`);
+    app.use(express.static(clientBuildPath));
+
+    app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+            return next();
+        }
+        res.sendFile(path.join(clientBuildPath, 'index.html'));
+    });
+} else {
+    // Fallback root status if build directory is not found
+    app.get('/', (req, res) => {
+        res.json({ message: 'CCETS Backend API is running' });
+    });
+}
 
 const http = require('http');
 const { Server } = require('socket.io');

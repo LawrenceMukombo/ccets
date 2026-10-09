@@ -204,12 +204,13 @@ function Dashboard() {
             } else {
                 promises.push(
                     fetch(`/api/${tenantCode}/tickets?limit=100000&minimal=true`, { headers })
-                        .then(res => res.json())
+                        .then(res => res.ok ? res.json() : null)
                         .then(data => {
-                            const list = data.tickets || data || [];
+                            const list = Array.isArray(data?.tickets) ? data.tickets : (Array.isArray(data) ? data : []);
                             setAllTickets(list);
-                            setCachedData('tickets', tenantCode, list);
+                            if (list.length > 0) setCachedData('tickets', tenantCode, list);
                         })
+                        .catch(() => setAllTickets([]))
                 );
             }
 
@@ -218,12 +219,13 @@ function Dashboard() {
             } else {
                 promises.push(
                     fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers })
-                        .then(res => res.json())
+                        .then(res => res.ok ? res.json() : null)
                         .then(data => {
-                            const list = data.facilities || data || [];
+                            const list = Array.isArray(data?.facilities) ? data.facilities : (Array.isArray(data) ? data : []);
                             setFacilities(list);
-                            setCachedData('facilities', tenantCode, list);
+                            if (list.length > 0) setCachedData('facilities', tenantCode, list);
                         })
+                        .catch(() => setFacilities([]))
                 );
             }
 

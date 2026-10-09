@@ -49,9 +49,10 @@ const attachLocationScope = async (req, res, next) => {
             return next();
         }
 
-        // Check role for national access
-        const nationalRoles = ['Admin', 'Administrator', 'System Administrator', 'National Manager', 'National Helpdesk', 'Super Admin'];
-        if (nationalRoles.includes(user.role_name)) {
+        // Check role for national access (case-insensitive and role_id fallback)
+        const nationalRoles = ['admin', 'administrator', 'system administrator', 'national manager', 'national helpdesk', 'super admin', 'national officer'];
+        const userRoleLower = (user.role_name || user.role || '').toLowerCase().trim();
+        if (nationalRoles.includes(userRoleLower) || user.role_id === 1 || user.role_id === 2) {
             req.user.locationScope = { level: 'national', scopes: {} };
             return next();
         }

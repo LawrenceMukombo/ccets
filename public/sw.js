@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ccets-app-cache-v2';
+const CACHE_NAME = 'ccets-app-cache-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -17,8 +17,12 @@ const isCacheableRequest = (request) => {
 
 const putInCache = async (request, response) => {
   if (!response || response.status !== 200 || response.type === 'opaque') return;
-  const cache = await caches.open(CACHE_NAME);
-  await cache.put(request, response.clone());
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  } catch (e) {
+    // Gracefully ignore if response body was already consumed
+  }
 };
 
 self.addEventListener('install', (event) => {

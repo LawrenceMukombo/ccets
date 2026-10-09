@@ -29,7 +29,22 @@ window.fetch = async function () {
         }
     }
     
-    return originalFetch.apply(this, [resource, config]);
+    const response = await originalFetch.apply(this, [resource, config]);
+
+    // Auto-logout and clear stale token if authentication fails or cross-tenant token is rejected
+    if ((response.status === 401 || response.status === 403) && typeof resource === 'string' && resource.includes('/api/')) {
+        const hasToken = localStorage.getItem('token');
+        if (hasToken && !resource.includes('/auth/login')) {
+            console.warn('Session expired or forbidden for current country. Clearing stale token...');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+                window.location.href = '/login';
+            }
+        }
+    }
+
+    return response;
 };
 
 if ('serviceWorker' in navigator) {

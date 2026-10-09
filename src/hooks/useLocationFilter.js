@@ -61,7 +61,14 @@ export function useLocationFilter(data = [], config = {}) {
 
     // Cascading Options Logic
     const options = useMemo(() => {
-        const results = {};
+        const results = { facilities: [] };
+        hierarchy.forEach(level => {
+            results[level.id + 's'] = [];
+        });
+
+        if (!Array.isArray(data) || data.length === 0) {
+            return results;
+        }
         
         hierarchy.forEach((level, index) => {
             const levelId = level.id;

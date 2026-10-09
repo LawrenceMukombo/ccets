@@ -2,6 +2,33 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const TenantContext = createContext();
 
+const DEFAULT_TENANT_CONFIGS = {
+    png: {
+        name: 'Papua New Guinea',
+        emblem: '/png_emblem.png',
+        mapCenter: [-6.314993, 143.95555],
+        mapZoom: 6,
+        contactEmail: 'ict@health.gov.pg',
+        hierarchy: [{ id: 'province', name: 'Province', color: '#be123c' }, { id: 'district', name: 'District', color: '#0369a1' }]
+    },
+    zambia: {
+        name: 'Zambia',
+        emblem: '/zambia_emblem.png',
+        mapCenter: [-13.133897, 27.849332],
+        mapZoom: 6,
+        contactEmail: 'support@moh.gov.zm',
+        hierarchy: [{ id: 'province', name: 'Province', color: '#be123c' }, { id: 'district', name: 'District', color: '#0369a1' }]
+    },
+    malawi: {
+        name: 'Malawi',
+        emblem: '/malawi_emblem.png',
+        mapCenter: [-13.254308, 34.301525],
+        mapZoom: 7,
+        contactEmail: 'it.support@health.gov.mw',
+        hierarchy: [{ id: 'region', name: 'Region', color: '#9d174d' }, { id: 'district', name: 'District', color: '#0369a1' }]
+    }
+};
+
 export const useTenant = () => {
     return useContext(TenantContext);
 };
@@ -101,12 +128,24 @@ export const TenantProvider = ({ children }) => {
 
                 setConfig(transformedConfig);
             } else {
-                setError(data.message || 'Failed to load configuration');
+                const fallback = DEFAULT_TENANT_CONFIGS[targetCode?.toLowerCase()];
+                if (fallback) {
+                    setConfig(fallback);
+                    setError(null);
+                } else {
+                    setError(data?.message || 'Failed to load configuration');
+                }
             }
         } catch (err) {
-
             console.error('Error fetching tenant config:', err);
-            setError('Connection error');
+            const fallback = DEFAULT_TENANT_CONFIGS[targetCode?.toLowerCase()];
+            if (fallback) {
+                console.info('Using default configuration fallback for:', targetCode);
+                setConfig(fallback);
+                setError(null);
+            } else {
+                setError('Connection error');
+            }
         } finally {
             setLoading(false);
         }
