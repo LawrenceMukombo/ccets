@@ -100,11 +100,15 @@ exports.login = async (req, res) => {
             { expiresIn: '24h' }
         );
 
-        // 4. Update last login
-        await db.query(
-            'UPDATE users SET last_login = NOW() WHERE user_id = $1',
-            [user.user_id]
-        );
+        // 4. Update last login (isolated try/catch so audit trigger or DB constraint cannot block login)
+        try {
+            await db.query(
+                'UPDATE users SET last_login = NOW() WHERE user_id = $1',
+                [user.user_id]
+            );
+        } catch (lastLoginErr) {
+            console.error('Non-critical: Failed to update last_login on users table:', lastLoginErr.message);
+        }
 
         // Notify user of new login (fire-and-await inside isolated try/catch to not block response)
         try {
