@@ -236,7 +236,11 @@ exports.getAllFacilities = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching facilities:', error);
-        res.status(500).json({ message: 'Server error fetching facilities' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch facilities: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -250,7 +254,11 @@ exports.getFacilityById = async (req, res) => {
         res.json(result.rows[0]);
     } catch (error) {
         console.error('Error fetching facility:', error);
-        res.status(500).json({ message: 'Server error fetching facility' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch facility: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -261,7 +269,11 @@ exports.getFacilityEquipment = async (req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching equipment:', error);
-        res.status(500).json({ message: 'Server error fetching equipment' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch equipment: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -271,7 +283,11 @@ exports.getRegions = async (req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching regions:', error);
-        res.status(500).json({ message: 'Server error fetching regions' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch regions: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -281,7 +297,11 @@ exports.getProvinces = async (req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching provinces:', error);
-        res.status(500).json({ message: 'Server error fetching provinces' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch provinces: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -292,7 +312,11 @@ exports.getDistricts = async (req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching districts:', error);
-        res.status(500).json({ message: 'Server error fetching districts' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch districts: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -320,7 +344,11 @@ exports.getStatistics = async (req, res) => {
         res.json(stats);
     } catch (error) {
         console.error('Error fetching statistics:', error);
-        res.status(500).json({ message: 'Server error fetching statistics' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch statistics: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -342,6 +370,10 @@ exports.getFacilitiesByDistrict = async (req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching facilities by district:', error);
-        res.status(500).json({ message: 'Server error fetching facilities' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch facilities by district: ${error.message}`, 
+            error: error.message 
+        });
     }
 };

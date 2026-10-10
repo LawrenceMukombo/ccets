@@ -52,7 +52,9 @@ export const useSocket = (userId) => {
 
             socket = io(socketUrl, {
                 path: '/socket.io',
-                transports: ['websocket', 'polling']
+                transports: ['polling', 'websocket'],
+                reconnectionAttempts: 5,
+                reconnectionDelay: 2000
             });
 
             socket.on('connect', () => {

@@ -125,11 +125,15 @@ function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
                 if (onSuccess) onSuccess(data);
                 onClose();
             } else {
-                setError(data.message || 'Failed to create ticket');
+                const detailMsg = data.detail ? ` (${data.detail})` : '';
+                const fullMsg = data.error 
+                    ? `${data.message || 'Error'}: ${data.error}${detailMsg}`
+                    : (data.message || 'Failed to create ticket');
+                setError(fullMsg);
             }
         } catch (err) {
             console.error('Submit error:', err);
-            setError('Failed to submit report. Please try again.');
+            setError(err.message || 'Failed to submit report. Please try again.');
         } finally {
             setSubmitting(false);
         }

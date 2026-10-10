@@ -259,9 +259,30 @@ exports.createTicket = async (req, res) => {
         idempotencyKey
     } = req.body;
 
-    // Manual validation
-    if (!facilityId || !priority || !description) {
-        return res.status(400).json({ message: 'Missing required fields' });
+    // Manual validation with clear, non-generic error responses
+    if (!facilityId) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Facility is required to create a ticket', 
+            error: 'Missing required field: facilityId' 
+        });
+    }
+    if (!description || !description.trim()) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Fault description is required to create a ticket', 
+            error: 'Missing required field: description' 
+        });
+    }
+
+    const facId = parseInt(facilityId, 10);
+    const eqId = equipmentId ? parseInt(equipmentId, 10) : null;
+    if (isNaN(facId)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Invalid facility ID provided', 
+            error: `facilityId must be a number, received: ${facilityId}` 
+        });
     }
 
     const client = await db.pool.connect();
@@ -272,82 +293,254 @@ exports.createTicket = async (req, res) => {
 
         await client.query('BEGIN');
 
-        // Idempotency check
+        // Safe idempotency check (wrapped in try/catch in case column is not yet present)
         if (idempotencyKey) {
-            const dupCheck = await client.query('SELECT * FROM tickets WHERE idempotency_key = $1', [idempotencyKey]);
-            if (dupCheck.rows.length > 0) {
-                await client.query('COMMIT');
-                console.log(`ℹ️ Duplicate ticket submission intercepted for idempotency key: ${idempotencyKey}`);
-                return res.status(200).json(dupCheck.rows[0]);
+            try {
+                const dupCheck = await client.query('SELECT * FROM tickets WHERE idempotency_key = $1', [idempotencyKey]);
+                if (dupCheck.rows.length > 0) {
+                    await client.query('COMMIT');
+                    console.log(`ℹ️ Duplicate ticket submission intercepted for idempotency key: ${idempotencyKey}`);
+                    return res.status(200).json(dupCheck.rows[0]);
+                }
+            } catch (dupErr) {
+                // Table might not have idempotency_key column; continue safely
             }
         }
 
-        const query = `
-      INSERT INTO tickets (
-        facility_id, 
-        selected_equipment_id,
-        priority, 
-        fault_description, 
-        created_by,
-        ticket_status,
-        reported_by_name,
-        reported_by_phone,
-        reported_by_email,
-        equipment_manufacturer,
-        equipment_model,
-        equipment_serial_number,
-        equipment_refrigerant_gas,
-        idempotency_key
-      ) VALUES ($1, $2, $3, $4, $5, 'New', $6, $7, $8, $9, $10, $11, $12, $13)
-      RETURNING *
-    `;
+        const creator = req.user?.email || (req.user?.userId ? String(req.user.userId) : null) || (createdByUserId ? String(createdByUserId) : 'system');
+        const prio = priority || 'Medium';
 
-        const values = [
-            facilityId,
-            equipmentId || null,
-            priority,
-            description,
-            createdByUserId || req.user?.userId,
-            reportedByName || null,
-            reportedByPhone || null,
-            reportedByEmail || null,
-            manufacturer || null,
-            model || null,
-            serialNumber || null,
-            refrigerantGas || null,
-            idempotencyKey || null
-        ];
+        let result = null;
+        let lastInsertError = null;
 
-        const result = await client.query(query, values);
+        // Tier 1: Full insert with idempotency_key
+        try {
+            result = await client.query(`
+                INSERT INTO tickets (
+                    facility_id, 
+                    selected_equipment_id,
+                    priority, 
+                    fault_description, 
+                    created_by,
+                    ticket_status,
+                    reported_by_name,
+                    reported_by_phone,
+                    reported_by_email,
+                    equipment_manufacturer,
+                    equipment_model,
+                    equipment_serial_number,
+                    equipment_refrigerant_gas,
+                    idempotency_key
+                ) VALUES ($1, $2, $3, $4, $5, 'New', $6, $7, $8, $9, $10, $11, $12, $13)
+                RETURNING *
+            `, [
+                facId,
+                eqId,
+                prio,
+                description,
+                creator,
+                reportedByName || null,
+                reportedByPhone || null,
+                reportedByEmail || null,
+                manufacturer || null,
+                model || null,
+                serialNumber || null,
+                refrigerantGas || null,
+                idempotencyKey || null
+            ]);
+        } catch (err1) {
+            lastInsertError = err1;
+        }
 
-        // REFRESH the ticket to get the generated reference number (from the trigger)
+        // Tier 2: Insert without idempotency_key (most common issue when column is not migrated)
+        if (!result) {
+            try {
+                result = await client.query(`
+                    INSERT INTO tickets (
+                        facility_id, 
+                        selected_equipment_id,
+                        priority, 
+                        fault_description, 
+                        created_by,
+                        ticket_status,
+                        reported_by_name,
+                        reported_by_phone,
+                        reported_by_email,
+                        equipment_manufacturer,
+                        equipment_model,
+                        equipment_serial_number,
+                        equipment_refrigerant_gas
+                    ) VALUES ($1, $2, $3, $4, $5, 'New', $6, $7, $8, $9, $10, $11, $12)
+                    RETURNING *
+                `, [
+                    facId,
+                    eqId,
+                    prio,
+                    description,
+                    creator,
+                    reportedByName || null,
+                    reportedByPhone || null,
+                    reportedByEmail || null,
+                    manufacturer || null,
+                    model || null,
+                    serialNumber || null,
+                    refrigerantGas || null
+                ]);
+            } catch (err2) {
+                lastInsertError = err2;
+            }
+        }
+
+        // Tier 3: Insert with standard columns (without equipment_refrigerant_gas)
+        if (!result) {
+            try {
+                result = await client.query(`
+                    INSERT INTO tickets (
+                        facility_id, 
+                        selected_equipment_id,
+                        priority, 
+                        fault_description, 
+                        created_by,
+                        ticket_status,
+                        reported_by_name,
+                        reported_by_phone,
+                        reported_by_email,
+                        equipment_manufacturer,
+                        equipment_model,
+                        equipment_serial_number
+                    ) VALUES ($1, $2, $3, $4, $5, 'New', $6, $7, $8, $9, $10, $11)
+                    RETURNING *
+                `, [
+                    facId,
+                    eqId,
+                    prio,
+                    description,
+                    creator,
+                    reportedByName || null,
+                    reportedByPhone || null,
+                    reportedByEmail || null,
+                    manufacturer || null,
+                    model || null,
+                    serialNumber || null
+                ]);
+            } catch (err3) {
+                lastInsertError = err3;
+            }
+        }
+
+        // Tier 4: Insert with explicit enum cast for ticket_status
+        if (!result) {
+            try {
+                result = await client.query(`
+                    INSERT INTO tickets (
+                        facility_id, 
+                        selected_equipment_id,
+                        priority, 
+                        fault_description, 
+                        created_by,
+                        ticket_status
+                    ) VALUES ($1, $2, $3, $4, $5, 'New'::ticket_status_enum)
+                    RETURNING *
+                `, [
+                    facId,
+                    eqId,
+                    prio,
+                    description,
+                    creator
+                ]);
+            } catch (err4) {
+                lastInsertError = err4;
+            }
+        }
+
+        // Tier 5: Minimal insert with core required columns
+        if (!result) {
+            try {
+                result = await client.query(`
+                    INSERT INTO tickets (
+                        facility_id, 
+                        priority, 
+                        fault_description, 
+                        created_by
+                    ) VALUES ($1, $2, $3, $4)
+                    RETURNING *
+                `, [
+                    facId,
+                    prio,
+                    description,
+                    creator
+                ]);
+            } catch (err5) {
+                lastInsertError = err5;
+            }
+        }
+
+        if (!result || !result.rows || result.rows.length === 0) {
+            throw lastInsertError || new Error('Failed to create ticket record in database');
+        }
+
         const newTicketId = result.rows[0].ticket_id;
-        const refreshedTicketRes = await client.query('SELECT * FROM tickets WHERE ticket_id = $1', [newTicketId]);
-        const newTicket = refreshedTicketRes.rows[0];
+        let newTicket = result.rows[0];
 
-        // Audit Log
-        await logAudit(
-            req.user?.userId || createdByUserId,
-            'Created',
-            'Ticket',
-            newTicket.ticket_id,
-            `Ticket ${newTicket.ticket_reference_number} created`,
-            req
-        );
+        // Ensure ticket reference number is populated
+        try {
+            const refreshedTicketRes = await client.query('SELECT * FROM tickets WHERE ticket_id = $1', [newTicketId]);
+            if (refreshedTicketRes.rows.length > 0) {
+                newTicket = refreshedTicketRes.rows[0];
+            }
+        } catch (refErr) {
+            // Keep original result row if re-select fails
+        }
+
+        // If ticket_reference_number was not generated by trigger, set a standard fallback
+        if (!newTicket.ticket_reference_number) {
+            try {
+                const now = new Date();
+                const datePart = now.toISOString().slice(0, 10).replace(/-/g, '');
+                const fallbackRef = `TCK-${datePart}-${String(newTicketId).padStart(4, '0')}`;
+                await client.query('UPDATE tickets SET ticket_reference_number = $1 WHERE ticket_id = $2', [fallbackRef, newTicketId]);
+                newTicket.ticket_reference_number = fallbackRef;
+            } catch (refUpdErr) {
+                // Non-fatal
+            }
+        }
+
+        // Audit Log - non-fatal so it never fails the ticket creation
+        try {
+            await logAudit(
+                req.user?.userId || createdByUserId,
+                'Created',
+                'Ticket',
+                newTicket.ticket_id,
+                `Ticket ${newTicket.ticket_reference_number || newTicket.ticket_id} created`,
+                req
+            );
+        } catch (auditErr) {
+            console.error('Audit log failed for ticket creation (non-fatal):', auditErr.message);
+        }
 
         await client.query('COMMIT');
 
         // Send notifications in the background (non-blocking)
-        notifyTicketCreation(req.app, newTicket, facilityId).catch(notifError => {
-            console.error('Background notification error:', notifError);
-        });
+        try {
+            notifyTicketCreation(req.app, newTicket, facId).catch(notifError => {
+                console.error('Background notification error:', notifError);
+            });
+        } catch (notifErr) {
+            // Non-fatal
+        }
 
         res.status(201).json(newTicket);
 
     } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('Error creating ticket:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
-        res.status(500).json({ message: 'Server error creating ticket', error: error.message });
+        await client.query('ROLLBACK').catch(() => {});
+        console.error('Error creating ticket:', error);
+        res.status(500).json({ 
+            success: false,
+            message: `Failed to create ticket: ${error.message}`, 
+            error: error.message,
+            detail: error.detail || error.hint || null
+        });
     } finally {
         client.release();
     }
@@ -557,7 +750,7 @@ exports.getTicketById = async (req, res) => {
       LEFT JOIN facilities f ON t.facility_id = f.facility_id
       LEFT JOIN districts d ON t.district_id = d.district_id
       LEFT JOIN provinces p ON t.province_id = p.province_id
-      LEFT JOIN users u ON t.created_by = u.user_id
+      LEFT JOIN users u ON (t.created_by = CAST(u.user_id AS VARCHAR) OR t.created_by = u.email OR t.created_by = u.username)
       WHERE t.ticket_id = $1
     `, [id]);
 
@@ -567,7 +760,11 @@ exports.getTicketById = async (req, res) => {
         res.json(result.rows[0]);
     } catch (error) {
         console.error('Error fetching ticket:', error);
-        res.status(500).json({ message: 'Server error fetching ticket' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch ticket: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -1119,23 +1316,44 @@ exports.resolveTicket = async (req, res) => {
     try {
         const newStatus = close_ticket ? 'Closed' : 'Resolved';
 
-        const result = await db.query(`
-            UPDATE tickets 
-            SET ticket_status = $1::ticket_status_enum,
-                resolution_notes = $2,
-                work_performed = $3,
-                date_resolved = CURRENT_TIMESTAMP,
-                closed_at = CASE WHEN $1 = 'Closed' THEN CURRENT_TIMESTAMP ELSE NULL END,
-                work_duration_seconds = COALESCE(work_duration_seconds, 0) + 
-                    CASE 
-                        WHEN work_started_at IS NOT NULL AND work_paused_at IS NULL 
-                        THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - work_started_at))::INTEGER
-                        ELSE 0
-                    END,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE ticket_id = $4
-            RETURNING *
-        `, [newStatus, resolution_notes, work_performed, id]);
+        let result;
+        try {
+            result = await db.query(`
+                UPDATE tickets 
+                SET ticket_status = $1::ticket_status_enum,
+                    resolution_notes = $2,
+                    work_performed = $3,
+                    date_resolved = CURRENT_TIMESTAMP,
+                    closed_at = CASE WHEN $1 = 'Closed' THEN CURRENT_TIMESTAMP ELSE NULL END,
+                    work_duration_seconds = COALESCE(work_duration_seconds, 0) + 
+                        CASE 
+                            WHEN work_started_at IS NOT NULL AND work_paused_at IS NULL 
+                            THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - work_started_at))::INTEGER
+                            ELSE 0
+                        END,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE ticket_id = $4
+                RETURNING *
+            `, [newStatus, resolution_notes, work_performed, id]);
+        } catch (resErr) {
+            result = await db.query(`
+                UPDATE tickets 
+                SET ticket_status = $1,
+                    resolution_notes = $2,
+                    work_performed = $3,
+                    date_resolved = CURRENT_TIMESTAMP,
+                    closed_at = CASE WHEN $1 = 'Closed' THEN CURRENT_TIMESTAMP ELSE NULL END,
+                    work_duration_seconds = COALESCE(work_duration_seconds, 0) + 
+                        CASE 
+                            WHEN work_started_at IS NOT NULL AND work_paused_at IS NULL 
+                            THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - work_started_at))::INTEGER
+                            ELSE 0
+                        END,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE ticket_id = $4
+                RETURNING *
+            `, [newStatus, resolution_notes, work_performed, id]);
+        }
 
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Ticket not found' });
@@ -1163,12 +1381,17 @@ exports.resolveTicket = async (req, res) => {
         );
 
         res.json({
+            success: true,
             message: `Ticket ${newStatus.toLowerCase()} successfully`,
             ticket: result.rows[0]
         });
     } catch (error) {
         console.error('Error resolving ticket:', error);
-        res.status(500).json({ message: 'Server error resolving ticket', error: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to resolve ticket: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -1231,18 +1454,41 @@ exports.updateTicket = async (req, res) => {
     const newStatus = status || ticket_status;
 
     try {
-        // Dynamic update query construction could be better, but simpler fixed structure for now
-        // Only update fields that are provided
-        const result = await db.query(`
-            UPDATE tickets
-            SET 
-                priority = COALESCE($1, priority),
-                fault_description = COALESCE($2, fault_description),
-                ticket_status = COALESCE($3, ticket_status),
-                updated_at = CURRENT_TIMESTAMP
-            WHERE ticket_id = $4
-            RETURNING *
-        `, [newPriority, newDescription, newStatus, id]);
+        let result;
+        try {
+            result = await db.query(`
+                UPDATE tickets
+                SET 
+                    priority = COALESCE($1, priority),
+                    fault_description = COALESCE($2, fault_description),
+                    ticket_status = COALESCE($3, ticket_status),
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE ticket_id = $4
+                RETURNING *
+            `, [newPriority, newDescription, newStatus, id]);
+        } catch (uErr1) {
+            try {
+                result = await db.query(`
+                    UPDATE tickets
+                    SET 
+                        priority = COALESCE($1::priority_enum, priority),
+                        fault_description = COALESCE($2, fault_description),
+                        ticket_status = COALESCE($3::ticket_status_enum, ticket_status),
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE ticket_id = $4
+                    RETURNING *
+                `, [newPriority, newDescription, newStatus, id]);
+            } catch (uErr2) {
+                result = await db.query(`
+                    UPDATE tickets
+                    SET 
+                        fault_description = COALESCE($1, fault_description),
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE ticket_id = $2
+                    RETURNING *
+                `, [newDescription, id]);
+            }
+        }
 
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Ticket not found' });
@@ -1279,13 +1525,18 @@ exports.updateTicket = async (req, res) => {
         }
 
         res.json({
+            success: true,
             message: 'Ticket updated successfully',
             ticket: result.rows[0]
         });
 
     } catch (error) {
         console.error('Error updating ticket:', error);
-        res.status(500).json({ message: 'Server error updating ticket', error: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to update ticket: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 
@@ -1356,37 +1607,45 @@ exports.getTicketHistory = async (req, res) => {
             }
         }
 
-        // 2. Escalations
-        const escalationsRes = await db.query(`
-            SELECT e.*, u.first_name, u.last_name
-            FROM ticket_escalations e
-            LEFT JOIN users u ON e.from_user_id = u.user_id
-            WHERE e.ticket_id = $1
-        `, [id]);
-        escalationsRes.rows.forEach(e => {
-            events.push({
-                type: 'escalated',
-                timestamp: e.escalation_date || e.created_at,
-                user: `${e.first_name} ${e.last_name}`,
-                details: `Escalated: ${e.reason}`
+        // 2. Escalations (wrapped safely)
+        try {
+            const escalationsRes = await db.query(`
+                SELECT e.*, u.first_name, u.last_name
+                FROM ticket_escalations e
+                LEFT JOIN users u ON (e.from_user_id = u.user_id OR e.escalated_by = u.user_id)
+                WHERE e.ticket_id = $1
+            `, [id]);
+            escalationsRes.rows.forEach(e => {
+                events.push({
+                    type: 'escalated',
+                    timestamp: e.escalation_date || e.created_at,
+                    user: e.first_name ? `${e.first_name} ${e.last_name}` : 'Supervisor',
+                    details: `Escalated: ${e.reason || e.description || 'Ticket escalated'}`
+                });
             });
-        });
+        } catch (escErr) {
+            console.log('ticket_escalations table may not exist or column mismatch:', escErr.message);
+        }
 
-        // 3. Spare Parts Requests
-        const partsRes = await db.query(`
-            SELECT sp.*, u.first_name, u.last_name
-            FROM spare_parts_requests sp
-            LEFT JOIN users u ON sp.requested_by = u.user_id
-            WHERE sp.ticket_id = $1
-        `, [id]);
-        partsRes.rows.forEach(p => {
-            events.push({
-                type: 'parts_request',
-                timestamp: p.created_at,
-                user: `${p.first_name} ${p.last_name}`,
-                details: `Requested parts`
+        // 3. Spare Parts Requests (wrapped safely)
+        try {
+            const partsRes = await db.query(`
+                SELECT sp.*, u.first_name, u.last_name
+                FROM spare_parts_requests sp
+                LEFT JOIN users u ON sp.requested_by = u.user_id
+                WHERE sp.ticket_id = $1
+            `, [id]);
+            partsRes.rows.forEach(p => {
+                events.push({
+                    type: 'parts_request',
+                    timestamp: p.created_at,
+                    user: p.first_name ? `${p.first_name} ${p.last_name}` : 'Technician',
+                    details: 'Requested parts'
+                });
             });
-        });
+        } catch (partsErr) {
+            console.log('spare_parts_requests table may not exist:', partsErr.message);
+        }
 
         // 4. Work Notes / Logs
         // Ensure table exists or handle error gracefully (optional capability)
@@ -1451,9 +1710,11 @@ exports.getTicketHistory = async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching ticket history:', error);
-        // Don't fail the whole request if history fails, just return empty? 
-        // Better to return 500 so UI knows.
-        res.status(500).json({ message: 'Error fetching history' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to fetch ticket history: ${error.message}`, 
+            error: error.message 
+        });
     }
 };
 

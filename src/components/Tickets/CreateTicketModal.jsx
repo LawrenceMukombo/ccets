@@ -310,8 +310,12 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
             });
 
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.message || 'Failed to create ticket');
+                const data = await res.json().catch(() => ({}));
+                const detailMsg = data.detail ? ` (${data.detail})` : '';
+                const fullMsg = data.error 
+                    ? `${data.message || 'Error'}: ${data.error}${detailMsg}` 
+                    : (data.message || `Server returned status ${res.status}`);
+                throw new Error(fullMsg);
             }
 
             if (onSuccess) onSuccess();

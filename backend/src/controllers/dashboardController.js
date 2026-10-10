@@ -224,6 +224,10 @@ exports.getOperationsOverview = async (req, res) => {
 
     } catch (err) {
         console.error('Operations Overview Critical Error:', err);
-        res.status(500).json({ error: 'Server error retrieving operations data' });
+        res.status(500).json({ 
+            success: false, 
+            message: `Failed to retrieve operations data: ${err.message}`, 
+            error: err.message 
+        });
     }
 };
