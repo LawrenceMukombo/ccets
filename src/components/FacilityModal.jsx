@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './FacilityModal.css';
 
 const FacilityModal = ({
@@ -12,10 +12,20 @@ const FacilityModal = ({
 }) => {
     const isEdit = mode === 'edit';
 
+    // Smart hierarchy detection
+    const hasRegion = useMemo(() => {
+        return (hierarchy || []).some(l => l.id?.toLowerCase() === 'region');
+    }, [hierarchy]);
+
+    const regionLevel = useMemo(() => (hierarchy || []).find(l => l.id?.toLowerCase() === 'region') || { id: 'region', name: 'Region' }, [hierarchy]);
+    const provinceLevel = useMemo(() => (hierarchy || []).find(l => l.id?.toLowerCase().includes('prov') || l.id?.toLowerCase().includes('state')) || { id: 'province', name: 'Province' }, [hierarchy]);
+    const districtLevel = useMemo(() => (hierarchy || []).find(l => l.id?.toLowerCase().includes('dist') || l.id?.toLowerCase().includes('count')) || { id: 'district', name: 'District' }, [hierarchy]);
+
     const [formData, setFormData] = useState({
         facility_name: '',
         facility_code: '',
         type: 'Rural Health Post',
+        region_id: '',
         province_id: '',
         district_id: '',
         latitude: '',
@@ -23,6 +33,7 @@ const FacilityModal = ({
         is_functioning: true
     });
 
+    const [regions, setRegions] = useState([]);
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -44,6 +55,26 @@ const FacilityModal = ({
         'Sub-District Store',
         'Private Clinic / Mission'
     ];
+
+    // Load Regions if tenant hierarchy supports regions
+    useEffect(() => {
+        if (!isOpen || !hasRegion) return;
+        const fetchRegions = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`/api/${tenantCode}/facilities/regions`, {
+                    headers: { ...(token && { 'Authorization': `Bearer ${token}` }) }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setRegions(Array.isArray(data) ? data : []);
+                }
+            } catch (err) {
+                console.error('Failed to load regions:', err);
+            }
+        };
+        fetchRegions();
+    }, [isOpen, hasRegion, tenantCode]);
 
     // Load Provinces
     useEffect(() => {
@@ -72,6 +103,7 @@ const FacilityModal = ({
                 facility_name: facility.facility_name || '',
                 facility_code: facility.facility_code || '',
                 type: facility.type || 'Rural Health Post',
+                region_id: facility.region_id || '',
                 province_id: facility.province_id || '',
                 district_id: facility.district_id || '',
                 latitude: facility.latitude !== null && facility.latitude !== undefined ? String(facility.latitude) : '',
@@ -86,6 +118,7 @@ const FacilityModal = ({
                 facility_name: '',
                 facility_code: '',
                 type: 'Rural Health Post',
+                region_id: '',
                 province_id: '',
                 district_id: '',
                 latitude: '',
@@ -119,6 +152,12 @@ const FacilityModal = ({
         }
     };
 
+    const handleRegionChange = (e) => {
+        const regId = e.target.value;
+        setFormData(prev => ({ ...prev, region_id: regId, province_id: '', district_id: '' }));
+        setDistricts([]);
+    };
+
     const handleProvinceChange = (e) => {
         const provId = e.target.value;
         setFormData(prev => ({ ...prev, province_id: provId, district_id: '' }));
@@ -132,6 +171,12 @@ const FacilityModal = ({
             [name]: type === 'checkbox' ? checked : value
         }));
     };
+
+    // Filter provinces by region if region is selected and provinces have region_id
+    const filteredProvinces = useMemo(() => {
+        if (!hasRegion || !formData.region_id) return provinces;
+        return provinces.filter(p => !p.region_id || String(p.region_id) === String(formData.region_id));
+    }, [provinces, hasRegion, formData.region_id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -154,8 +199,9 @@ const FacilityModal = ({
                 facility_name: formData.facility_name.trim(),
                 facility_code: formData.facility_code.trim() || null,
                 type: formData.type || null,
-                province_id: formData.province_id || null,
-                district_id: formData.district_id || null,
+                region_id: formData.region_id ? parseInt(formData.region_id, 10) : null,
+                province_id: formData.province_id ? parseInt(formData.province_id, 10) : null,
+                district_id: formData.district_id ? parseInt(formData.district_id, 10) : null,
                 latitude: formData.latitude ? parseFloat(formData.latitude) : null,
                 longitude: formData.longitude ? parseFloat(formData.longitude) : null,
                 is_functioning: formData.is_functioning
@@ -232,16 +278,35 @@ const FacilityModal = ({
                             </div>
                         </div>
 
-                        <div className="form-grid-2">
+                        {/* Location Hierarchy Cascade: Region (if exists) > Province > District */}
+                        <div className={hasRegion ? 'form-grid-3' : 'form-grid-2'}>
+                            {hasRegion && (
+                                <div className="form-group">
+                                    <label>{regionLevel?.name || 'Region'}</label>
+                                    <select
+                                        name="region_id"
+                                        value={formData.region_id}
+                                        onChange={handleRegionChange}
+                                    >
+                                        <option value="">-- Select {regionLevel?.name || 'Region'} --</option>
+                                        {regions.map(r => (
+                                            <option key={r.region_id} value={r.region_id}>
+                                                {r.region_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
                             <div className="form-group">
-                                <label>Province / Region</label>
+                                <label>{provinceLevel?.name || 'Province'}</label>
                                 <select
                                     name="province_id"
                                     value={formData.province_id}
                                     onChange={handleProvinceChange}
                                 >
-                                    <option value="">-- Select Province --</option>
-                                    {provinces.map(p => (
+                                    <option value="">-- Select {provinceLevel?.name || 'Province'} --</option>
+                                    {filteredProvinces.map(p => (
                                         <option key={p.province_id} value={p.province_id}>
                                             {p.province_name}
                                         </option>
@@ -250,7 +315,7 @@ const FacilityModal = ({
                             </div>
 
                             <div className="form-group">
-                                <label>District</label>
+                                <label>{districtLevel?.name || 'District'}</label>
                                 <select
                                     name="district_id"
                                     value={formData.district_id}
@@ -258,7 +323,7 @@ const FacilityModal = ({
                                     disabled={!formData.province_id || loadingDistricts}
                                 >
                                     <option value="">
-                                        {loadingDistricts ? 'Loading districts...' : '-- Select District --'}
+                                        {loadingDistricts ? 'Loading districts...' : `-- Select ${districtLevel?.name || 'District'} --`}
                                     </option>
                                     {districts.map(d => (
                                         <option key={d.district_id} value={d.district_id}>
@@ -284,7 +349,7 @@ const FacilityModal = ({
                             </div>
 
                             <div className="form-group">
-                                <label>Operational Status</label>
+                                <label>Operating Status</label>
                                 <div className="toggle-status-container">
                                     <label className="switch">
                                         <input
@@ -296,7 +361,7 @@ const FacilityModal = ({
                                         <span className="slider round"></span>
                                     </label>
                                     <span className={`status-text ${formData.is_functioning ? 'active' : 'inactive'}`}>
-                                        {formData.is_functioning ? '🟢 Functioning' : '🔴 Not Functioning'}
+                                        {formData.is_functioning ? '🟢 Active & Functional' : '🔴 Non-Functional / Closed'}
                                     </span>
                                 </div>
                             </div>
@@ -307,11 +372,11 @@ const FacilityModal = ({
                                 <label>Latitude</label>
                                 <input
                                     type="number"
-                                    step="any"
                                     name="latitude"
                                     value={formData.latitude}
                                     onChange={handleChange}
-                                    placeholder="e.g. -10.2154"
+                                    step="any"
+                                    placeholder="e.g. -10.2134"
                                 />
                             </div>
 
@@ -319,11 +384,11 @@ const FacilityModal = ({
                                 <label>Longitude</label>
                                 <input
                                     type="number"
-                                    step="any"
                                     name="longitude"
                                     value={formData.longitude}
                                     onChange={handleChange}
-                                    placeholder="e.g. 31.1822"
+                                    step="any"
+                                    placeholder="e.g. 31.1802"
                                 />
                             </div>
                         </div>
