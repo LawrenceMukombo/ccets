@@ -26,6 +26,19 @@ module.exports = (req, res, next) => {
         }
 
         req.user = decoded;
+
+        // Propagate authenticated user into the active tenantStore context
+        try {
+            const tenantStore = require('./tenantStore');
+            const store = tenantStore.getStore();
+            if (store) {
+                store.userId = decoded.userId || decoded.user_id || decoded.id;
+                store.user = decoded;
+            }
+        } catch (storeErr) {
+            // Non-fatal
+        }
+
         next();
     } catch (err) {
         // Distinguish error types so the frontend can act appropriately:

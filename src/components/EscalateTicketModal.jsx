@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 import './ModalExtensions.css';
 
 const EscalateTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
+    const { tenantCode } = useTenant();
     const [reason, setReason] = useState('');
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ const EscalateTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/tickets/${ticket.ticket_id}/escalate`, {
+            const response = await fetch(`/api/${tenantCode}/tickets/${ticket.ticket_id}/escalate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -42,7 +44,14 @@ const EscalateTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to escalate ticket');
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                const detailMsg = data.detail ? ` (${data.detail})` : '';
+                const fullMsg = data.error 
+                    ? `${data.message || 'Error'}: ${data.error}${detailMsg}`
+                    : (data.message || 'Failed to escalate ticket');
+                throw new Error(fullMsg);
+            }
 
             onSubmit();
             setReason('');

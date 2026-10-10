@@ -291,6 +291,10 @@ exports.createTicket = async (req, res) => {
         const schema = tenant && tenant.schema_name ? tenant.schema_name : 'public';
         await client.query(`SET search_path TO "${schema}", public`);
 
+        const rawUserId = req.user?.userId || req.user?.user_id || createdByUserId || (tenant && (tenant.userId || tenant.user_id));
+        const safeUserId = rawUserId ? String(rawUserId).replace(/[^0-9]/g, '') : '1';
+        await client.query(`SELECT set_config('app.user_id', $1, false)`, [safeUserId || '1']);
+
         await client.query('BEGIN');
 
         // Safe idempotency check (wrapped in try/catch in case column is not yet present)
@@ -542,6 +546,7 @@ exports.createTicket = async (req, res) => {
             detail: error.detail || error.hint || null
         });
     } finally {
+        await client.query(`SET search_path TO public; SELECT set_config('app.user_id', '', false)`).catch(() => {});
         client.release();
     }
 };
@@ -1008,7 +1013,12 @@ exports.assignTicket = async (req, res) => {
         });
     } catch (error) {
         console.error('Error assigning ticket:', error);
-        res.status(500).json({ message: 'Server error assigning ticket', error: error.message });
+        res.status(500).json({ 
+            success: false,
+            message: `Failed to assign ticket: ${error.message}`, 
+            error: error.message,
+            detail: error.detail || error.hint || null
+        });
     }
 };
 
@@ -1065,7 +1075,12 @@ exports.startWork = async (req, res) => {
         });
     } catch (error) {
         console.error('Error starting work:', error);
-        res.status(500).json({ message: 'Server error starting work', error: error.message });
+        res.status(500).json({ 
+            success: false,
+            message: `Failed to start work: ${error.message}`, 
+            error: error.message,
+            detail: error.detail || error.hint || null
+        });
     }
 };
 
@@ -1122,7 +1137,12 @@ exports.pauseWork = async (req, res) => {
         });
     } catch (error) {
         console.error('Error pausing work:', error);
-        res.status(500).json({ message: 'Server error pausing work', error: error.message });
+        res.status(500).json({ 
+            success: false,
+            message: `Failed to pause work: ${error.message}`, 
+            error: error.message,
+            detail: error.detail || error.hint || null
+        });
     }
 };
 
@@ -1300,7 +1320,12 @@ exports.escalateTicket = async (req, res) => {
         });
     } catch (error) {
         console.error('Error escalating ticket:', error);
-        res.status(500).json({ message: 'Server error escalating ticket', error: error.message });
+        res.status(500).json({ 
+            success: false,
+            message: `Failed to escalate ticket: ${error.message}`, 
+            error: error.message,
+            detail: error.detail || error.hint || null
+        });
     }
 };
 
@@ -1359,26 +1384,29 @@ exports.resolveTicket = async (req, res) => {
             return res.status(404).json({ message: 'Ticket not found' });
         }
 
-        // Send notification to requester and supervisor
-        if (result.rows[0].created_by) {
-            sendNotification(req.app, {
-                userId: result.rows[0].created_by,
-                ticketId: id,
-                type: 'ticket_resolved',
-                message: `Ticket #${result.rows[0].ticket_reference_number || id} has been ${newStatus.toLowerCase()}`
-            });
+        // Safe notification and audit logging side-effects
+        try {
+            if (result.rows[0].created_by) {
+                sendNotification(req.app, {
+                    userId: result.rows[0].created_by,
+                    ticketId: id,
+                    type: 'ticket_resolved',
+                    message: `Ticket #${result.rows[0].ticket_reference_number || id} has been ${newStatus.toLowerCase()}`
+                });
+            }
+            const userId = req.user?.user_id || req.user?.userId;
+            await logActivity(id, userId, newStatus, `Resolution: ${resolution_notes}`);
+            await logAudit(
+                userId,
+                'Resolved',
+                'Ticket',
+                result.rows[0].ticket_id,
+                `Ticket ${newStatus.toLowerCase()} with note: ${resolution_notes}`,
+                req
+            );
+        } catch (sideErr) {
+            console.error('Non-fatal error in resolveTicket side-effects:', sideErr.message);
         }
-        const userId = req.user?.user_id || req.user?.userId;
-        await logActivity(id, userId, newStatus, `Resolution: ${resolution_notes}`);
-        // Audit Log
-        await logAudit(
-            req.user?.userId,
-            'Resolved',
-            'Ticket',
-            result.rows[0].ticket_id,
-            `Ticket ${newStatus.toLowerCase()} with note: ${resolution_notes}`,
-            req
-        );
 
         res.json({
             success: true,
@@ -1390,7 +1418,8 @@ exports.resolveTicket = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: `Failed to resolve ticket: ${error.message}`, 
-            error: error.message 
+            error: error.message,
+            detail: error.detail || error.hint || null
         });
     }
 };
@@ -1413,27 +1442,35 @@ exports.deleteTicket = async (req, res) => {
             return res.status(404).json({ message: 'Ticket not found' });
         }
 
-        // Audit Log
-        await logAudit(
-            req.user?.userId,
-            'Deleted',
-            'Ticket',
-            result.rows[0].ticket_id,
-            `Ticket ${result.rows[0].ticket_reference_number} deleted`,
-            req
-        );
+        // Audit Log - wrapped safely so audit logging issues don't block deletion
+        try {
+            const currentUserId = req.user?.userId || req.user?.user_id;
+            await logAudit(
+                currentUserId,
+                'Deleted',
+                'Ticket',
+                result.rows[0].ticket_id,
+                `Ticket ${result.rows[0].ticket_reference_number} deleted`,
+                req
+            );
+        } catch (auditErr) {
+            console.error('Non-fatal error in deleteTicket audit log:', auditErr.message);
+        }
 
         res.json({
+            success: true,
             message: 'Ticket deleted successfully',
             ticket: result.rows[0]
         });
 
-        // Notify Creator
-        // (Note: ticket is deleted/hidden, but we might want to tell them)
-
     } catch (error) {
         console.error('Error deleting ticket:', error);
-        res.status(500).json({ message: 'Server error deleting ticket', error: error.message });
+        res.status(500).json({ 
+            success: false,
+            message: `Failed to delete ticket: ${error.message}`, 
+            error: error.message,
+            detail: error.detail || error.hint || null
+        });
     }
 };
 
@@ -1498,8 +1535,9 @@ exports.updateTicket = async (req, res) => {
         // any failure is caught by the surrounding try/catch and does not
         // silently run after headers are already flushed.
         try {
+            const currentUserId = req.user?.userId || req.user?.user_id;
             await logAudit(
-                req.user?.userId,
+                currentUserId,
                 'Updated',
                 'Ticket',
                 result.rows[0].ticket_id,
@@ -1535,7 +1573,8 @@ exports.updateTicket = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: `Failed to update ticket: ${error.message}`, 
-            error: error.message 
+            error: error.message,
+            detail: error.detail || error.hint || null
         });
     }
 };

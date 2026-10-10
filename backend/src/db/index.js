@@ -60,6 +60,11 @@ module.exports = {
 
             // Set search path for this client transaction
             await client.query(`SET search_path TO "${schema}", public`);
+
+            // Set PostgreSQL session app.user_id for RLS policies, audit triggers, and stored procedures
+            const rawUserId = tenant && (tenant.userId || tenant.user_id);
+            const safeUserId = rawUserId ? String(rawUserId).replace(/[^0-9]/g, '') : '1';
+            await client.query(`SELECT set_config('app.user_id', $1, false)`, [safeUserId || '1']);
             
             // Execute the actual query
             return await client.query(text, params);
@@ -70,7 +75,7 @@ module.exports = {
             throw error;
         } finally {
             // Restore default to prevent leaks (though releasing to pool usually resets, it is safer)
-            await client.query(`SET search_path TO public`);
+            await client.query(`SET search_path TO public; SELECT set_config('app.user_id', '', false)`).catch(() => {});
             client.release();
         }
     },

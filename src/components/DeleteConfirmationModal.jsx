@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 
-const DeleteConfirmationModal = ({ isOpen, onClose, ticket, onDelete }) => {
+const DeleteConfirmationModal = ({ isOpen, onClose, ticket, onDelete, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -11,16 +13,24 @@ const DeleteConfirmationModal = ({ isOpen, onClose, ticket, onDelete }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/tickets/${ticket.ticket_id}`, {
+            const response = await fetch(`/api/${tenantCode}/tickets/${ticket.ticket_id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
-            if (!response.ok) throw new Error('Failed to delete ticket');
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                const detailMsg = data.detail ? ` (${data.detail})` : '';
+                const fullMsg = data.error 
+                    ? `${data.message || 'Error'}: ${data.error}${detailMsg}`
+                    : (data.message || 'Failed to delete ticket');
+                throw new Error(fullMsg);
+            }
 
-            onDelete();
+            const callback = onSuccess || onDelete;
+            if (callback) callback();
             onClose();
         } catch (err) {
             setError(err.message || 'Failed to delete ticket');

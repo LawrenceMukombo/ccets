@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 
 const EditTicketModal = ({ ticket, onClose, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [formData, setFormData] = useState({
         priority: ticket.priority || 'Medium',
         description: ticket.fault_description || ticket.description || '',
@@ -17,7 +19,7 @@ const EditTicketModal = ({ ticket, onClose, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/tickets/${ticket.ticket_id}`, {
+            const res = await fetch(`/api/${tenantCode}/tickets/${ticket.ticket_id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,15 +28,19 @@ const EditTicketModal = ({ ticket, onClose, onSuccess }) => {
                 body: JSON.stringify(formData)
             });
 
+            const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.message || 'Failed to update ticket');
+                const detailMsg = data.detail ? ` (${data.detail})` : '';
+                const fullMsg = data.error 
+                    ? `${data.message || 'Error'}: ${data.error}${detailMsg}`
+                    : (data.message || 'Failed to update ticket');
+                throw new Error(fullMsg);
             }
 
             if (onSuccess) onSuccess();
             onClose();
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'Failed to update ticket');
         } finally {
             setLoading(false);
         }

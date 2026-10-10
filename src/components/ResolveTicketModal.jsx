@@ -88,17 +88,23 @@ const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
                 'Authorization': `Bearer ${token}`
             };
 
-            // 1. Save Fault Categorization
-            await fetch(`/api/${tenantCode}/faults/ticket/${ticket.ticket_id}/issues`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    ticketId: ticket.ticket_id,
-                    issueIds: selectedIssues,
-                    functionalStatus: selectedStatus,
-                    resolutionNotes: resolutionNotes
-                })
-            });
+            // 1. Save Fault Categorization (safe optional step)
+            try {
+                if (selectedIssues.length > 0 || selectedStatus) {
+                    await fetch(`/api/${tenantCode}/faults/ticket/${ticket.ticket_id}/issues`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({
+                            ticketId: ticket.ticket_id,
+                            issueIds: selectedIssues,
+                            functionalStatus: selectedStatus,
+                            resolutionNotes: resolutionNotes
+                        })
+                    });
+                }
+            } catch (faultErr) {
+                console.warn('Fault categorization save failed (proceeding to resolve):', faultErr);
+            }
 
             // 2. Resolve Ticket
             const response = await fetch(`/api/${tenantCode}/tickets/${ticket.ticket_id}/resolve`, {
@@ -112,7 +118,14 @@ const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to resolve ticket');
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                const detailMsg = data.detail ? ` (${data.detail})` : '';
+                const fullMsg = data.error 
+                    ? `${data.message || 'Error'}: ${data.error}${detailMsg}`
+                    : (data.message || 'Failed to resolve ticket');
+                throw new Error(fullMsg);
+            }
 
             onSubmit();
             setResolutionNotes('');

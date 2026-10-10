@@ -78,7 +78,11 @@ const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, onAssign }) => 
             for (const res of results) {
                 if (!res.ok) {
                     const errData = await res.json().catch(() => ({}));
-                    throw new Error(errData.message || errData.error || 'Failed to assign ticket(s)');
+                    const detailMsg = errData.detail ? ` (${errData.detail})` : '';
+                    const fullMsg = errData.error 
+                        ? `${errData.message || 'Error'}: ${errData.error}${detailMsg}`
+                        : (errData.message || 'Failed to assign ticket(s)');
+                    throw new Error(fullMsg);
                 }
             }
 
