@@ -38,6 +38,8 @@ const Settings = () => {
     const { tenantCode, config: contextConfig, refreshConfig, loading: configLoading, platformContext, refreshPlatformContext } = useTenant();
     const [activeTab, setActiveTab] = useState('account');
     const [user, setUser] = useState(null);
+    const isAdmin = user?.role_name === 'Admin' || user?.role_name === 'SuperAdmin' || user?.role_name === 'Administrator' || user?.role_name === 'National Manager' || user?.is_admin;
+    const canManageCountries = isAdmin || user?.role_name === 'SuperAdmin' || user?.is_platform_admin === true || user?.is_national_access === true;
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState(null);
     const [userProfile, setUserProfile] = useState({ first_name: '', last_name: '', email: '', phone_number: '' });
@@ -785,9 +787,6 @@ const Settings = () => {
             });
         }
     }, [contextConfig]);
-
-    const isAdmin = user?.role_name === 'Admin' || user?.role_name === 'SuperAdmin' || user?.role_name === 'Administrator' || user?.role_name === 'National Manager' || user?.is_admin;
-    const canManageCountries = isAdmin || user?.role_name === 'SuperAdmin' || user?.is_platform_admin === true || user?.is_national_access === true;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
