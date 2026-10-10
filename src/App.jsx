@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
+import Sidebar from './components/Sidebar';
 import WelcomeBanner from './components/WelcomeBanner';
 import Footer from './components/Footer';
 import Login from './pages/Login';
@@ -130,14 +131,47 @@ function App() {
         };
     }, [isAuthenticated]);
 
-    const AuthenticatedLayout = ({ children }) => (
-        <>
-            <Navigation user={currentUser} onLogout={handleLogout} onSwitchCountry={handleSwitchCountry} theme={theme} toggleTheme={toggleTheme} />
-            <WelcomeBanner user={currentUser} />
-            {children}
-            <Footer />
-        </>
-    );
+    const AuthenticatedLayout = ({ children }) => {
+        const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+            return localStorage.getItem('ccets_sidebar_collapsed') === 'true';
+        });
+
+        const toggleSidebar = () => {
+            setIsSidebarCollapsed(prev => {
+                const next = !prev;
+                localStorage.setItem('ccets_sidebar_collapsed', String(next));
+                return next;
+            });
+        };
+
+        return (
+            <div className="app-shell">
+                <Navigation 
+                    user={currentUser} 
+                    onLogout={handleLogout} 
+                    onSwitchCountry={handleSwitchCountry} 
+                    theme={theme} 
+                    toggleTheme={toggleTheme}
+                    isSidebarCollapsed={isSidebarCollapsed}
+                    toggleSidebar={toggleSidebar}
+                />
+                <div className={`app-body-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
+                    <Sidebar 
+                        user={currentUser} 
+                        isCollapsed={isSidebarCollapsed} 
+                        toggleSidebar={toggleSidebar} 
+                    />
+                    <div className="app-main-viewport">
+                        <WelcomeBanner user={currentUser} />
+                        <main className="app-page-content">
+                            {children}
+                        </main>
+                        <Footer />
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const ProtectedRoute = ({ children, allowedRoles, requiredPermission }) => {
         if (!tenantCode) return <Navigate to="/" replace />;

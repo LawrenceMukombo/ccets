@@ -1,0 +1,241 @@
+.ccets-sidebar {
+    background: #002366;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px);
+    position: sticky;
+    top: 60px;
+    z-index: 950;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.12);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    overflow-x: hidden;
+    user-select: none;
+}
+
+body.dark .ccets-sidebar {
+    background: #0f172a;
+    border-right: 1px solid #1e293b;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.35);
+}
+
+.ccets-sidebar.expanded {
+    width: 240px;
+}
+
+.ccets-sidebar.collapsed {
+    width: 68px;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    min-height: 52px;
+}
+
+.sidebar-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.65);
+    white-space: nowrap;
+}
+
+.sidebar-collapse-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    transition: background 0.2s, transform 0.2s;
+    margin-left: auto;
+}
+
+.sidebar-collapse-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Nav list */
+.sidebar-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 8px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-nav-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+/* Nav item */
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.18s, color 0.18s, transform 0.1s;
+    text-align: left;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.sidebar-nav-item:active {
+    transform: scale(0.98);
+}
+
+.sidebar-nav-item.active {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+}
+
+body.dark .sidebar-nav-item.active {
+    background: #0284c7;
+    color: #ffffff;
+}
+
+.sidebar-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.sidebar-nav-item svg {
+    stroke: currentColor;
+    width: 20px;
+    height: 20px;
+}
+
+.sidebar-item-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ccets-sidebar.collapsed .sidebar-nav-item {
+    justify-content: center;
+    padding: 12px;
+}
+
+.ccets-sidebar.collapsed .sidebar-item-icon {
+    margin: 0;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    padding: 10px 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-footer-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.sidebar-footer-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+/* Layout container styles */
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-body-layout {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    align-items: stretch;
+}
+
+.app-main-viewport {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    background: var(--bg-primary, #f5f5f5);
+}
+
+body.dark .app-main-viewport {
+    background: var(--bg-primary, #0f172a);
+}
+
+.app-page-content {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+    .ccets-sidebar.collapsed {
+        width: 0;
+        padding: 0;
+        border: none;
+        overflow: hidden;
+    }
+    .ccets-sidebar.expanded {
+        position: fixed;
+        left: 0;
+        top: 60px;
+        bottom: 0;
+        z-index: 1050;
+    }
+}
