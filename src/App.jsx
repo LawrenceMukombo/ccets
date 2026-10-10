@@ -102,6 +102,7 @@ function App() {
         setIsAuthenticated(false);
         setCurrentUser(null);
         setTenant(null);
+        window.location.href = '/switch';
     }, [setTenant]);
 
     // Auto Logout Logic (10 minutes)
@@ -169,27 +170,30 @@ function App() {
     
     // Require Tenant for public pages too
     const RequireTenant = ({ children }) => {
-        const resolved = platformContext?.resolvedTenant?.code || 
-            (platformContext?.deploymentMode === 'standalone_country' ? (platformContext?.defaultTenant || platformContext?.tenants?.[0]?.code) : null);
+        if (!tenantCode) {
+            // In standalone mode with a single tenant, automatically adopt that tenant
+            if (platformContext?.deploymentMode === 'standalone_country' && platformContext?.tenants?.length === 1) {
+                const defaultCode = platformContext?.defaultTenant || platformContext?.tenants?.[0]?.code;
+                if (defaultCode) {
+                    setTenant(defaultCode);
+                    return (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0f172a' }}>
+                            <div className="spinner" />
+                        </div>
+                    );
+                }
+            }
 
-        if (!tenantCode && resolved) {
-            setTenant(resolved);
-            return (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0f172a' }}>
-                    <div className="spinner" />
-                </div>
-            );
+            if (tenantLoading) {
+                return (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0f172a' }}>
+                        <div className="spinner" />
+                    </div>
+                );
+            }
+
+            return <Navigate to="/" replace />;
         }
-
-        if (tenantLoading && !tenantCode) {
-            return (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0f172a' }}>
-                    <div className="spinner" />
-                </div>
-            );
-        }
-
-        if (!tenantCode) return <Navigate to="/" replace />;
         return children;
     };
 

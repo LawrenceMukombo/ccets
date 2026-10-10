@@ -19,6 +19,46 @@ function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTh
     const [showNotifications, setShowNotifications] = useState(false);
     const { notifications, unreadCount, markAllRead } = useSocket(propUser?.user_id || (localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).user_id : null));
 
+    // Country Switcher Dropdown State
+    const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+    const countryDropdownRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target)) {
+                setShowCountryDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const defaultTenants = [
+        { code: 'png', name: 'Papua New Guinea' },
+        { code: 'zambia', name: 'Zambia' },
+        { code: 'malawi', name: 'Malawi' }
+    ];
+    const availableTenants = (platformContext?.tenants && platformContext.tenants.length > 0)
+        ? platformContext.tenants
+        : defaultTenants;
+
+    const getCountryFlag = (code) => {
+        const c = String(code || '').toLowerCase();
+        if (c === 'png') return '🇵🇬';
+        if (c === 'zambia') return '🇿🇲';
+        if (c === 'malawi') return '🇲🇼';
+        return '🌍';
+    };
+
+    const handleSelectCountry = (newCode) => {
+        setShowCountryDropdown(false);
+        if (newCode?.toLowerCase() === tenantCode?.toLowerCase()) return;
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.setItem('tenantCode', newCode);
+        window.location.href = '/login';
+    };
+
     // Use prop user if available, fallback to localStorage scan
     const [localUser, setLocalUser] = useState(() => {
         const userData = localStorage.getItem('user');
@@ -111,20 +151,125 @@ function Navigation({ user: propUser, onLogout, onSwitchCountry, theme, toggleTh
                     </div>
 
                     <div className="nav-user">
-                        {/* Switch Country */}
-                        {onSwitchCountry && platformContext?.deploymentMode !== 'standalone_country' && !platformContext?.resolvedTenant && (
-                            <button
-                                className="nav-item switch-tenant-btn"
-                                onClick={onSwitchCountry}
-                                title="Switch Country / Region"
-                                style={{ padding: '8px', borderRadius: '50%', marginRight: '4px', border: 'none', background: 'transparent', cursor: 'pointer' }}
-                            >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                                </svg>
-                            </button>
+                        {/* Country Switcher Dropdown */}
+                        {platformContext?.deploymentMode !== 'standalone_country' && (
+                            <div className="tenant-switcher-container" ref={countryDropdownRef} style={{ position: 'relative' }}>
+                                <button
+                                    type="button"
+                                    className="nav-item switch-country-pill"
+                                    onClick={() => setShowCountryDropdown(prev => !prev)}
+                                    title="Switch Country Workspace"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '5px 12px',
+                                        borderRadius: '20px',
+                                        background: 'rgba(255, 255, 255, 0.16)',
+                                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                                        color: '#ffffff',
+                                        fontSize: '0.82rem',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        marginRight: '8px',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    <span style={{ fontSize: '1rem' }}>{getCountryFlag(tenantCode)}</span>
+                                    <span>{config?.name || tenantCode?.toUpperCase() || 'Country'}</span>
+                                    <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>▼</span>
+                                </button>
+
+                                {showCountryDropdown && (
+                                    <div
+                                        className="country-dropdown-menu"
+                                        style={{
+                                            position: 'absolute',
+                                            top: 'calc(100% + 8px)',
+                                            right: 0,
+                                            background: 'var(--card-bg, #ffffff)',
+                                            color: 'var(--text-primary, #0f172a)',
+                                            boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
+                                            borderRadius: '12px',
+                                            minWidth: '220px',
+                                            zIndex: 1100,
+                                            border: '1px solid var(--border-color, #e2e8f0)',
+                                            padding: '6px 0',
+                                            overflow: 'hidden'
+                                        }}
+                                    >
+                                        <div style={{
+                                            padding: '8px 16px',
+                                            fontSize: '0.72rem',
+                                            fontWeight: '700',
+                                            textTransform: 'uppercase',
+                                            color: '#64748b',
+                                            letterSpacing: '0.5px',
+                                            borderBottom: '1px solid var(--border-color, #e2e8f0)'
+                                        }}>
+                                            Switch Country Workspace
+                                        </div>
+                                        {availableTenants.map(t => {
+                                            const isCurrent = t.code?.toLowerCase() === tenantCode?.toLowerCase();
+                                            return (
+                                                <button
+                                                    key={t.code}
+                                                    type="button"
+                                                    onClick={() => handleSelectCountry(t.code)}
+                                                    style={{
+                                                        width: '100%',
+                                                        textAlign: 'left',
+                                                        padding: '10px 16px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        background: isCurrent ? 'rgba(2, 132, 199, 0.08)' : 'transparent',
+                                                        color: isCurrent ? '#0284c7' : 'inherit',
+                                                        fontWeight: isCurrent ? '700' : '500',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.88rem'
+                                                    }}
+                                                >
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span>{getCountryFlag(t.code)}</span>
+                                                        <span>{t.name || t.code?.toUpperCase()}</span>
+                                                    </span>
+                                                    {isCurrent && <span style={{ color: '#0284c7', fontWeight: 'bold' }}>✓</span>}
+                                                </button>
+                                            );
+                                        })}
+                                        <div style={{ borderTop: '1px solid var(--border-color, #e2e8f0)', marginTop: '4px', paddingTop: '4px' }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowCountryDropdown(false);
+                                                    if (onSwitchCountry) {
+                                                        onSwitchCountry();
+                                                    } else {
+                                                        window.location.href = '/switch';
+                                                    }
+                                                }}
+                                                style={{
+                                                    width: '100%',
+                                                    textAlign: 'left',
+                                                    padding: '8px 16px',
+                                                    color: '#64748b',
+                                                    fontSize: '0.8rem',
+                                                    border: 'none',
+                                                    background: 'transparent',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
+                                                }}
+                                            >
+                                                <span>⇄</span> All Countries (Portal Home)
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         )}
 
                         {/* Offline Status Pill */}

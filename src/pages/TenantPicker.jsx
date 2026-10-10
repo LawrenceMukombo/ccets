@@ -10,11 +10,13 @@ const TenantPicker = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const resolved = platformContext?.resolvedTenant?.code || 
-            (platformContext?.deploymentMode === 'standalone_country' ? (platformContext?.defaultTenant || platformContext?.tenants?.[0]?.code) : null);
-        if (resolved) {
-            setTenant(resolved);
-            navigate('/login', { replace: true });
+        // Only auto-bypass the picker if deployment mode is strictly standalone country with 1 tenant
+        if (platformContext?.deploymentMode === 'standalone_country' && platformContext?.tenants?.length === 1) {
+            const resolved = platformContext?.defaultTenant || platformContext?.tenants?.[0]?.code;
+            if (resolved) {
+                setTenant(resolved);
+                navigate('/login', { replace: true });
+            }
         }
     }, [platformContext, navigate, setTenant]);
 

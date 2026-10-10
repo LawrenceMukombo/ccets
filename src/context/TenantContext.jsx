@@ -56,14 +56,17 @@ export const TenantProvider = ({ children }) => {
                         return;
                     }
 
-                    if (data.resolvedTenant) {
-                        const resolvedCode = data.resolvedTenant.code;
-                        localStorage.setItem('tenantCode', resolvedCode);
-                        setTenantCode(resolvedCode);
-                    } else if (data.deploymentMode === 'standalone_country' && data.tenants?.length > 0) {
-                        const defaultCode = data.defaultTenant || data.tenants[0].code;
-                        localStorage.setItem('tenantCode', defaultCode);
-                        setTenantCode(defaultCode);
+                    const storedCode = localStorage.getItem('tenantCode');
+                    if (!storedCode) {
+                        if (data.deploymentMode === 'standalone_country' && data.tenants?.length > 0) {
+                            const defaultCode = data.defaultTenant || data.tenants[0].code;
+                            localStorage.setItem('tenantCode', defaultCode);
+                            setTenantCode(defaultCode);
+                        } else if (data.resolvedTenant) {
+                            const resolvedCode = data.resolvedTenant.code;
+                            localStorage.setItem('tenantCode', resolvedCode);
+                            setTenantCode(resolvedCode);
+                        }
                     }
                 }
             } catch (err) {
