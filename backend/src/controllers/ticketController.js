@@ -140,7 +140,9 @@ exports.getAllTickets = async (req, res) => {
             facility_name: 'facility_name',
             region_name: 'region_name',
             province_name: 'province_name',
-            district_name: 'district_name'
+            district_name: 'district_name',
+            latest_activity: 'latest_activity',
+            latest_activity_date: 'latest_activity_date'
         };
         const sortBy = sortByAllowlist[req.query.sortBy] || 't.created_at';
         const sortDirection = req.query.sortDirection === 'asc' ? 'ASC' : 'DESC';
@@ -165,6 +167,16 @@ exports.getAllTickets = async (req, res) => {
                     t.priority,
                     t.ticket_status,
                     t.created_at,
+                    t.updated_at,
+                    COALESCE(act.action, CASE 
+                        WHEN t.date_resolved IS NOT NULL THEN 'Resolved'
+                        WHEN t.date_escalated IS NOT NULL THEN 'Escalated'
+                        WHEN t.work_started_at IS NOT NULL THEN 'Work Started'
+                        WHEN t.date_assigned IS NOT NULL THEN 'Assigned'
+                        WHEN t.updated_at IS NOT NULL AND t.updated_at > t.created_at THEN 'Updated'
+                        ELSE 'Created'
+                    END) as latest_activity,
+                    COALESCE(act.timestamp, t.updated_at, t.created_at) as latest_activity_date,
                     t.date_resolved,
                     f.latitude,
                     f.longitude,
@@ -175,6 +187,13 @@ exports.getAllTickets = async (req, res) => {
                 LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
                 LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
                 LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
+                LEFT JOIN LATERAL (
+                    SELECT al.action, al.timestamp
+                    FROM ticket_activity_log al
+                    WHERE al.ticket_id = t.ticket_id
+                    ORDER BY al.timestamp DESC, al.log_id DESC
+                    LIMIT 1
+                ) act ON true
                 ${whereClause} ${locationFilter}
                 ORDER BY ${sortBy} ${sortDirection}
                 LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -197,6 +216,75 @@ exports.getAllTickets = async (req, res) => {
                     t.ticket_status,
                     t.assigned_to,
                     t.created_at,
+                    t.updated_at,
+                    COALESCE(act.action, CASE 
+                        WHEN t.date_resolved IS NOT NULL THEN 'Resolved'
+                        WHEN t.date_escalated IS NOT NULL THEN 'Escalated'
+                        WHEN t.work_started_at IS NOT NULL THEN 'Work Started'
+                        WHEN t.date_assigned IS NOT NULL THEN 'Assigned'
+                        WHEN t.updated_at IS NOT NULL AND t.updated_at > t.created_at THEN 'Updated'
+                        ELSE 'Created'
+                    END) as latest_activity,
+                    COALESCE(act.timestamp, t.updated_at, t.created_at) as latest_activity_date,
+                    COALESCE(t.assigned_to_name, CASE WHEN u.user_id IS NOT NULL THEN CONCAT(u.first_name, ' ', u.last_name) ELSE NULL END) as assigned_to_name,
+                    COALESCE(t.assigned_to_email, u.email) as assigned_to_email,
+                    COALESCE(t.assigned_to_phone, u.phone_number) as assigned_to_phone,
+                    t.date_resolved,
+                    f.latitude,
+                    f.longitude
+                FROM tickets t
+                LEFT JOIN facilities f ON t.facility_id = f.facility_id
+                LEFT JOIN equipment e ON t.selected_equipment_id = e.equipment_id
+                LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
+                LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
+                LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
+                LEFT JOIN users u ON t.assigned_to = u.user_id
+                LEFT JOIN LATERAL (
+                    SELECT al.action, al.timestamp
+                    FROM ticket_activity_log al
+                    WHERE al.ticket_id = t.ticket_id
+                    ORDER BY al.timestamp DESC, al.log_id DESC
+                    LIMIT 1
+                ) act ON true
+                ${whereClause} ${locationFilter}
+                ORDER BY ${sortBy} ${sortDirection}
+                LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+            `;
+        }
+
+        const dataParams = [...queryParams, pageSize, offset];
+        let result;
+        try {
+            result = await db.query(dataQuery, dataParams);
+        } catch (queryErr) {
+            console.warn('getAllTickets with activity log lateral join failed, falling back to base columns:', queryErr.message);
+            const fallbackQuery = `
+                SELECT 
+                    t.ticket_id,
+                    t.ticket_reference_number,
+                    t.facility_id,
+                    f.facility_name,
+                    r_facility.region_name as region_name,
+                    p_facility.province_name as province_name,
+                    d_facility.district_name as district_name,
+                    t.fault_description,
+                    t.selected_equipment_id as equipment_id,
+                    COALESCE(e.manufacturer, t.equipment_manufacturer) as equipment_manufacturer,
+                    e.model as equipment_model,
+                    t.priority,
+                    t.ticket_status,
+                    t.assigned_to,
+                    t.created_at,
+                    t.updated_at,
+                    CASE 
+                        WHEN t.date_resolved IS NOT NULL THEN 'Resolved'
+                        WHEN t.date_escalated IS NOT NULL THEN 'Escalated'
+                        WHEN t.work_started_at IS NOT NULL THEN 'Work Started'
+                        WHEN t.date_assigned IS NOT NULL THEN 'Assigned'
+                        WHEN t.updated_at IS NOT NULL AND t.updated_at > t.created_at THEN 'Updated'
+                        ELSE 'Created'
+                    END as latest_activity,
+                    COALESCE(t.updated_at, t.created_at) as latest_activity_date,
                     COALESCE(t.assigned_to_name, CASE WHEN u.user_id IS NOT NULL THEN CONCAT(u.first_name, ' ', u.last_name) ELSE NULL END) as assigned_to_name,
                     COALESCE(t.assigned_to_email, u.email) as assigned_to_email,
                     COALESCE(t.assigned_to_phone, u.phone_number) as assigned_to_phone,
@@ -211,13 +299,11 @@ exports.getAllTickets = async (req, res) => {
                 LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
                 LEFT JOIN users u ON t.assigned_to = u.user_id
                 ${whereClause} ${locationFilter}
-                ORDER BY ${sortBy} ${sortDirection}
+                ORDER BY t.created_at DESC
                 LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
             `;
+            result = await db.query(fallbackQuery, dataParams);
         }
-
-        const dataParams = [...queryParams, pageSize, offset];
-        const result = await db.query(dataQuery, dataParams);
         const totalPages = Math.ceil(totalRecords / pageSize);
 
         res.json({
@@ -802,10 +888,20 @@ exports.getMyTickets = async (req, res) => {
                 t.priority,
                 t.ticket_status as status,
                 t.created_at,
+                t.updated_at,
                 t.work_started_at,
                 t.work_paused_at,
                 t.work_duration_seconds,
                 t.assigned_to,
+                COALESCE(act.action, CASE 
+                    WHEN t.date_resolved IS NOT NULL THEN 'Resolved'
+                    WHEN t.date_escalated IS NOT NULL THEN 'Escalated'
+                    WHEN t.work_started_at IS NOT NULL THEN 'Work Started'
+                    WHEN t.date_assigned IS NOT NULL THEN 'Assigned'
+                    WHEN t.updated_at IS NOT NULL AND t.updated_at > t.created_at THEN 'Updated'
+                    ELSE 'Created'
+                END) as latest_activity,
+                COALESCE(act.timestamp, t.updated_at, t.created_at) as latest_activity_date,
                 COALESCE(t.assigned_to_name, CONCAT(u.first_name, ' ', u.last_name)) as assigned_to_name
             FROM tickets t
             LEFT JOIN facilities f ON t.facility_id = f.facility_id
@@ -816,6 +912,13 @@ exports.getMyTickets = async (req, res) => {
             LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
             LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
             LEFT JOIN users u ON t.assigned_to = u.user_id
+            LEFT JOIN LATERAL (
+                SELECT al.action, al.timestamp
+                FROM ticket_activity_log al
+                WHERE al.ticket_id = t.ticket_id
+                ORDER BY al.timestamp DESC, al.log_id DESC
+                LIMIT 1
+            ) act ON true
             WHERE t.assigned_to = $1 
             AND (t.is_deleted = false OR t.is_deleted IS NULL)
             ORDER BY 

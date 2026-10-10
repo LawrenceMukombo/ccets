@@ -355,6 +355,58 @@ function Tickets() {
         },
         { id: 'assigned_to_name', label: 'ASSIGNEE', sortable: true, defaultVisible: true },
         { 
+            id: 'latest_activity', 
+            label: 'RECENT ACTIVITY', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val, item) => {
+                const action = val || item.latest_activity || 'Created';
+                const getStyle = (a) => {
+                    const lower = (a || '').toLowerCase();
+                    if (lower.includes('work') || lower.includes('progress') || lower.includes('started')) {
+                        return { bg: '#e0f2fe', color: '#0369a1', border: '#bae6fd' };
+                    }
+                    if (lower.includes('assign')) {
+                        return { bg: '#f3e8ff', color: '#7e22ce', border: '#e9d5ff' };
+                    }
+                    if (lower.includes('escalat')) {
+                        return { bg: '#fef2f2', color: '#b91c1c', border: '#fecaca' };
+                    }
+                    if (lower.includes('resolv') || lower.includes('close')) {
+                        return { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' };
+                    }
+                    if (lower.includes('part')) {
+                        return { bg: '#fffbeb', color: '#b45309', border: '#fde68a' };
+                    }
+                    return { bg: '#f1f5f9', color: '#475569', border: '#cbd5e1' };
+                };
+                const s = getStyle(action);
+                return (
+                    <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '3px 9px',
+                        borderRadius: '9999px',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        backgroundColor: s.bg,
+                        color: s.color,
+                        border: `1px solid ${s.border}`,
+                        whiteSpace: 'nowrap'
+                    }}>
+                        {action}
+                    </span>
+                );
+            }
+        },
+        { 
+            id: 'latest_activity_date', 
+            label: 'LAST ACTIVITY DATE', 
+            sortable: true, 
+            defaultVisible: true,
+            formatter: (val, item) => formatDate(val || item.latest_activity_date || item.updated_at || item.created_at)
+        },
+        { 
             id: 'created_at', 
             label: 'CREATED', 
             sortable: true, 
