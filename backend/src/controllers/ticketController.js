@@ -79,9 +79,15 @@ exports.getAllTickets = async (req, res) => {
 
         // status filter
         if (req.query.status && req.query.status !== 'all') {
-            whereClause += ` AND t.ticket_status = $${paramIndex}`;
-            queryParams.push(req.query.status);
-            paramIndex++;
+            if (req.query.status.toLowerCase() === 'assigned') {
+                whereClause += ` AND (t.ticket_status::text = 'Assigned' OR (t.ticket_status::text = 'New' AND t.assigned_to IS NOT NULL))`;
+            } else if (req.query.status.toLowerCase() === 'new') {
+                whereClause += ` AND (t.ticket_status::text = 'New' AND t.assigned_to IS NULL)`;
+            } else {
+                whereClause += ` AND LOWER(t.ticket_status::text) = LOWER($${paramIndex})`;
+                queryParams.push(req.query.status);
+                paramIndex++;
+            }
         }
 
         // priority filter
@@ -89,6 +95,24 @@ exports.getAllTickets = async (req, res) => {
             whereClause += ` AND t.priority = $${paramIndex}`;
             queryParams.push(req.query.priority);
             paramIndex++;
+        }
+
+        // assignee filter
+        if (req.query.assignee && req.query.assignee !== 'all') {
+            const rawAssignee = req.query.assignee.trim();
+            if (rawAssignee === 'unassigned' || rawAssignee === '-') {
+                whereClause += ` AND (t.assigned_to IS NULL AND (t.assigned_to_name IS NULL OR t.assigned_to_name = '' OR t.assigned_to_name = '-'))`;
+            } else {
+                whereClause += ` AND (
+                    t.assigned_to_name ILIKE $${paramIndex}
+                    OR CONCAT(u.first_name, ' ', u.last_name) ILIKE $${paramIndex}
+                    OR u.username ILIKE $${paramIndex}
+                    OR CAST(t.assigned_to AS TEXT) = $${paramIndex + 1}
+                )`;
+                queryParams.push(`%${rawAssignee}%`);
+                queryParams.push(rawAssignee);
+                paramIndex += 2;
+            }
         }
 
         // location filters (cascading)
@@ -124,6 +148,7 @@ exports.getAllTickets = async (req, res) => {
             LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
             LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
             LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
+            LEFT JOIN users u ON t.assigned_to = u.user_id
             ${whereClause} ${locationFilter}
         `;
 
@@ -165,7 +190,10 @@ exports.getAllTickets = async (req, res) => {
                     p_facility.province_name as province_name,
                     d_facility.district_name as district_name,
                     t.priority,
-                    t.ticket_status,
+                    CASE 
+                        WHEN t.ticket_status::text = 'New' AND t.assigned_to IS NOT NULL THEN 'Assigned'
+                        ELSE t.ticket_status::text 
+                    END as ticket_status,
                     t.created_at,
                     t.updated_at,
                     COALESCE(act.action, CASE 
@@ -180,13 +208,14 @@ exports.getAllTickets = async (req, res) => {
                     t.date_resolved,
                     f.latitude,
                     f.longitude,
-                    t.assigned_to_name,
+                    COALESCE(t.assigned_to_name, CASE WHEN u.user_id IS NOT NULL THEN CONCAT(u.first_name, ' ', u.last_name) ELSE NULL END) as assigned_to_name,
                     t.fault_description as description
                 FROM tickets t
                 LEFT JOIN facilities f ON t.facility_id = f.facility_id
                 LEFT JOIN districts d_facility ON f.district_id = d_facility.district_id
                 LEFT JOIN provinces p_facility ON f.province_id = p_facility.province_id
                 LEFT JOIN regions r_facility ON p_facility.region_id = r_facility.region_id
+                LEFT JOIN users u ON t.assigned_to = u.user_id
                 LEFT JOIN LATERAL (
                     SELECT al.action, al.timestamp
                     FROM ticket_activity_log al
@@ -213,7 +242,10 @@ exports.getAllTickets = async (req, res) => {
                     COALESCE(e.manufacturer, t.equipment_manufacturer) as equipment_manufacturer,
                     e.model as equipment_model,
                     t.priority,
-                    t.ticket_status,
+                    CASE 
+                        WHEN t.ticket_status::text = 'New' AND t.assigned_to IS NOT NULL THEN 'Assigned'
+                        ELSE t.ticket_status::text 
+                    END as ticket_status,
                     t.assigned_to,
                     t.created_at,
                     t.updated_at,
@@ -976,28 +1008,53 @@ exports.assignTicket = async (req, res) => {
         let result = null;
         let updateError = null;
 
-        // Tier 1: Full update with enum cast
+        // Tier 1: Full update with public.ticket_status_enum cast
         try {
             result = await db.query(`
                 UPDATE tickets 
                 SET assigned_to = $1,
                     assigned_to_name = $2,
                     assigned_to_email = $3,
+                    assigned_to_phone = $4,
                     date_assigned = CURRENT_DATE,
                     assignment_status = 'Assigned',
                     ticket_status = CASE 
-                        WHEN ticket_status::text IN ('New', 'Open', 'Pending Assignment', 'Reopened') THEN 'Assigned'::ticket_status_enum
-                        ELSE ticket_status
+                        WHEN LOWER(TRIM(ticket_status::text)) IN ('closed', 'resolved') THEN ticket_status
+                        ELSE 'Assigned'::public.ticket_status_enum
                     END,
                     updated_at = CURRENT_TIMESTAMP
-                WHERE ticket_id = $4
+                WHERE ticket_id = $5
                 RETURNING *
-            `, [techId, fullName, technician.email || null, ticketId]);
+            `, [techId, fullName, technician.email || null, technician.phone_number || null, ticketId]);
         } catch (err1) {
             updateError = err1;
         }
 
-        // Tier 2: Full update without enum cast
+        // Tier 2: Full update with ticket_status_enum cast (without schema qualifier)
+        if (!result) {
+            try {
+                result = await db.query(`
+                    UPDATE tickets 
+                    SET assigned_to = $1,
+                        assigned_to_name = $2,
+                        assigned_to_email = $3,
+                        assigned_to_phone = $4,
+                        date_assigned = CURRENT_DATE,
+                        assignment_status = 'Assigned',
+                        ticket_status = CASE 
+                            WHEN LOWER(TRIM(ticket_status::text)) IN ('closed', 'resolved') THEN ticket_status
+                            ELSE 'Assigned'::ticket_status_enum
+                        END,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE ticket_id = $5
+                    RETURNING *
+                `, [techId, fullName, technician.email || null, technician.phone_number || null, ticketId]);
+            } catch (err2) {
+                updateError = err2;
+            }
+        }
+
+        // Tier 3: Full update without explicit enum cast
         if (!result) {
             try {
                 result = await db.query(`
@@ -1008,29 +1065,8 @@ exports.assignTicket = async (req, res) => {
                         date_assigned = CURRENT_DATE,
                         assignment_status = 'Assigned',
                         ticket_status = CASE 
-                            WHEN ticket_status::text IN ('New', 'Open', 'Pending Assignment', 'Reopened') THEN 'Assigned'
-                            ELSE ticket_status
-                        END,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE ticket_id = $4
-                    RETURNING *
-                `, [techId, fullName, technician.email || null, ticketId]);
-            } catch (err2) {
-                updateError = err2;
-            }
-        }
-
-        // Tier 3: Without date_assigned and assignment_status (in case those columns do not exist in the tenant schema)
-        if (!result) {
-            try {
-                result = await db.query(`
-                    UPDATE tickets 
-                    SET assigned_to = $1,
-                        assigned_to_name = $2,
-                        assigned_to_email = $3,
-                        ticket_status = CASE 
-                            WHEN ticket_status::text IN ('New', 'Open', 'Pending Assignment', 'Reopened') THEN 'Assigned'
-                            ELSE ticket_status
+                            WHEN LOWER(TRIM(ticket_status::text)) IN ('closed', 'resolved') THEN ticket_status
+                            ELSE 'Assigned'
                         END,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE ticket_id = $4
@@ -1041,23 +1077,58 @@ exports.assignTicket = async (req, res) => {
             }
         }
 
-        // Tier 4: Core update only (assigned_to, ticket_status, updated_at)
+        // Tier 4: Without date_assigned & assignment_status columns
         if (!result) {
             try {
                 result = await db.query(`
                     UPDATE tickets 
                     SET assigned_to = $1,
-                        ticket_status = 'Assigned',
+                        assigned_to_name = $2,
+                        assigned_to_email = $3,
+                        ticket_status = 'Assigned'::public.ticket_status_enum,
                         updated_at = CURRENT_TIMESTAMP
-                    WHERE ticket_id = $2
+                    WHERE ticket_id = $4
                     RETURNING *
-                `, [techId, ticketId]);
+                `, [techId, fullName, technician.email || null, ticketId]);
             } catch (err4) {
                 updateError = err4;
             }
         }
 
-        // Tier 5: Bare minimum update
+        // Tier 5: Direct assignment without enum cast
+        if (!result) {
+            try {
+                result = await db.query(`
+                    UPDATE tickets 
+                    SET assigned_to = $1,
+                        assigned_to_name = $2,
+                        ticket_status = 'Assigned',
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE ticket_id = $3
+                    RETURNING *
+                `, [techId, fullName, ticketId]);
+            } catch (err5) {
+                updateError = err5;
+            }
+        }
+
+        // Tier 6: Core update guaranteeing ticket_status and assigned_to_name
+        if (!result) {
+            try {
+                result = await db.query(`
+                    UPDATE tickets 
+                    SET assigned_to = $1,
+                        assigned_to_name = $2,
+                        ticket_status = 'Assigned'
+                    WHERE ticket_id = $3
+                    RETURNING *
+                `, [techId, fullName, ticketId]);
+            } catch (err6) {
+                updateError = err6;
+            }
+        }
+
+        // Tier 7: Bare minimum update
         if (!result) {
             try {
                 result = await db.query(`
@@ -1066,8 +1137,8 @@ exports.assignTicket = async (req, res) => {
                     WHERE ticket_id = $2
                     RETURNING *
                 `, [techId, ticketId]);
-            } catch (err5) {
-                updateError = err5;
+            } catch (err7) {
+                updateError = err7;
             }
         }
 
