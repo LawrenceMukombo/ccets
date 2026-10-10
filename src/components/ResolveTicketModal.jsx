@@ -3,7 +3,7 @@ import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 import './ModalExtensions.css';
 
-const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
+const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit, onSuccess }) => {
     const { tenantCode } = useTenant();
     const [resolutionNotes, setResolutionNotes] = useState('');
     const [workPerformed, setWorkPerformed] = useState('');
@@ -127,11 +127,17 @@ const ResolveTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
                 throw new Error(fullMsg);
             }
 
-            onSubmit();
+            const callback = onSuccess || onSubmit;
+            if (typeof callback === 'function') {
+                callback();
+            }
             setResolutionNotes('');
             setWorkPerformed('');
             setCloseTicket(false);
             setSelectedIssues([]);
+            if (typeof onClose === 'function') {
+                onClose();
+            }
         } catch (err) {
             setError(err.message || 'Failed to resolve ticket');
         } finally {

@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 
-const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, onAssign }) => {
+const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, selectedTicketIds, onAssign, onSuccess }) => {
     const { tenantCode } = useTenant();
     const [technicians, setTechnicians] = useState([]);
     const [selectedTechnician, setSelectedTechnician] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const targets = ticketIds && ticketIds.length > 0 ? ticketIds : (ticket ? [ticket.ticket_id] : []);
+    const rawIds = selectedTicketIds || ticketIds;
+    const arrayIds = rawIds instanceof Set ? Array.from(rawIds) : (Array.isArray(rawIds) ? rawIds : []);
+    const targets = arrayIds.length > 0 ? arrayIds : (ticket?.ticket_id ? [ticket.ticket_id] : []);
     const isBulk = targets.length > 1;
 
     useEffect(() => {
@@ -22,7 +24,7 @@ const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, onAssign }) => 
                 setSelectedTechnician('');
             }
         }
-    }, [isOpen, ticket, ticketIds, isBulk]);
+    }, [isOpen, ticket, ticketIds, selectedTicketIds, isBulk]);
 
     const fetchTechnicians = async () => {
         try {
@@ -86,7 +88,10 @@ const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, onAssign }) => 
                 }
             }
 
-            onAssign(); // Refresh list
+            const callback = onSuccess || onAssign;
+            if (typeof callback === 'function') {
+                callback();
+            }
             onClose();
         } catch (err) {
             setError(err.message || 'Failed to assign ticket(s)');

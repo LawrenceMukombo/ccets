@@ -3,7 +3,7 @@ import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 import './ModalExtensions.css';
 
-const EscalateTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
+const EscalateTicketModal = ({ isOpen, onClose, ticket, onSubmit, onSuccess }) => {
     const { tenantCode } = useTenant();
     const [reason, setReason] = useState('');
     const [description, setDescription] = useState('');
@@ -53,9 +53,15 @@ const EscalateTicketModal = ({ isOpen, onClose, ticket, onSubmit }) => {
                 throw new Error(fullMsg);
             }
 
-            onSubmit();
+            const callback = onSuccess || onSubmit;
+            if (typeof callback === 'function') {
+                callback();
+            }
             setReason('');
             setDescription('');
+            if (typeof onClose === 'function') {
+                onClose();
+            }
         } catch (err) {
             setError(err.message || 'Failed to escalate ticket');
         } finally {

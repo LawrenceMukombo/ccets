@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 
-const EditTicketModal = ({ ticket, onClose, onSuccess }) => {
+const EditTicketModal = ({ ticket, onClose, onSuccess, onSubmit }) => {
     const { tenantCode } = useTenant();
     const [formData, setFormData] = useState({
         priority: ticket.priority || 'Medium',
@@ -37,8 +37,9 @@ const EditTicketModal = ({ ticket, onClose, onSuccess }) => {
                 throw new Error(fullMsg);
             }
 
-            if (onSuccess) onSuccess();
-            onClose();
+            const callback = onSuccess || onSubmit;
+            if (typeof callback === 'function') callback();
+            if (typeof onClose === 'function') onClose();
         } catch (err) {
             setError(err.message || 'Failed to update ticket');
         } finally {
