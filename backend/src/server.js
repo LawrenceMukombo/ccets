@@ -119,6 +119,25 @@ app.use('/api/platform', platformRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
+// Global notifications route (allows /api/notifications as well as /api/:tenantCode/notifications)
+const jwt = require('jsonwebtoken');
+app.use('/api/notifications', (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    let targetCode = 'zambia';
+    if (token) {
+        try {
+            const decoded = jwt.decode(token);
+            if (decoded?.tenant_code) targetCode = decoded.tenant_code;
+        } catch (e) {
+            // Non-fatal
+        }
+    }
+    req.params.tenantCode = targetCode;
+    resolveTenant(req, res, () => {
+        notificationRoutes(req, res, next);
+    });
+});
+
 // Mount the tenant router with the resolveTenant middleware
 app.use('/api/:tenantCode', resolveTenant, tenantRouter);
 
@@ -182,9 +201,18 @@ socketService.setIO(io);
 io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
 
-    socket.on('join_user', (userId) => {
-        socket.join(`user_${userId}`);
-        console.log(`User ${userId} joined room user_${userId}`);
+    socket.on('join_user', (identifier) => {
+        const idStr = String(identifier || '').trim();
+        if (!idStr) return;
+        socket.join(idStr);
+        socket.join(`user_${idStr}`);
+        if (idStr.includes('_')) {
+            const parts = idStr.split('_');
+            const bareId = parts[parts.length - 1];
+            socket.join(bareId);
+            socket.join(`user_${bareId}`);
+        }
+        console.log(`User client ${socket.id} joined rooms for ${idStr}`);
     });
 
     socket.on('disconnect', () => {

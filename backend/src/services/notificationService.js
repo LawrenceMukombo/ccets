@@ -151,37 +151,150 @@ const sendWhatsApp = async (to, message) => {
     }
 };
 
-const sendNotification = async (app, { userId, ticketId, type, message, email, phone, emailSubject, emailHtml }) => {
-    console.log(`🔔 Sending notification to User ${userId} (${type})`);
+const VALID_EVENT_TYPES = [
+    'ticket_created',
+    'ticket_assigned',
+    'ticket_reassigned',
+    'ticket_escalated',
+    'ticket_resolved',
+    'ticket_work_started',
+    'ticket_work_paused',
+    'ticket_parts_requested',
+    'ticket_edited',
+    'ticket_deleted',
+    'admin_message',
+    'admin_test'
+];
 
-    // 0. Persist to Database
-    try {
-        await db.query(
-            `INSERT INTO notifications 
-            (recipient_user_id, ticket_id, event_type, message, notification_type, status, link, created_at, sent_on, is_read) 
-            VALUES ($1, $2, $3, $4, 'in_app', 'sent', $5, NOW(), NOW(), false)`,
-            [userId, ticketId, type, message, ticketId ? `/tickets/${ticketId}` : null]
-        );
-    } catch (dbError) {
-        console.error('Error saving notification to DB:', dbError.message);
+const normalizeEventType = (rawType) => {
+    if (!rawType) return 'admin_message';
+    const t = String(rawType).toLowerCase().trim();
+    if (VALID_EVENT_TYPES.includes(t)) return t;
+    if (t.includes('assign')) return 'ticket_assigned';
+    if (t.includes('start')) return 'ticket_work_started';
+    if (t.includes('pause')) return 'ticket_work_paused';
+    if (t.includes('part')) return 'ticket_parts_requested';
+    if (t.includes('escalat')) return 'ticket_escalated';
+    if (t.includes('resolv') || t === 'closed') return 'ticket_resolved';
+    if (t.includes('edit') || t.includes('update')) return 'ticket_edited';
+    if (t.includes('creat')) return 'ticket_created';
+    if (t.includes('delet')) return 'ticket_deleted';
+    return 'admin_message';
+};
+
+const sendNotification = async (app, { userId, ticketId, type, message, email, phone, emailSubject, emailHtml }) => {
+    console.log(`🔔 Sending notification to User ${userId} (${type}): ${message}`);
+
+    const eventType = normalizeEventType(type);
+    const parsedTicketId = ticketId ? parseInt(ticketId, 10) : null;
+    let targetUserId = parseInt(userId, 10);
+
+    // If userId was passed as string username or email, resolve to numeric user_id
+    if (isNaN(targetUserId) && userId) {
+        try {
+            const uRes = await db.query(
+                'SELECT user_id FROM users WHERE username = $1 OR email = $1 LIMIT 1',
+                [String(userId).trim()]
+            );
+            if (uRes.rows.length > 0) {
+                targetUserId = uRes.rows[0].user_id;
+            }
+        } catch (uErr) {
+            console.warn('Could not resolve username to numeric user_id:', userId);
+        }
+    }
+
+    if (!isNaN(targetUserId)) {
+        // 0. Persist to Database with multi-tier schema tolerance
+        let inserted = false;
+
+        // Tier 1: Full insert with ticket_id and event_type
+        if (parsedTicketId && !isNaN(parsedTicketId)) {
+            try {
+                await db.query(
+                    `INSERT INTO notifications 
+                    (recipient_user_id, ticket_id, event_type, message, notification_type, status, link, created_at, sent_on, is_read) 
+                    VALUES ($1, $2, $3::public.notification_event_enum, $4, 'in_app', 'sent', $5, NOW(), NOW(), false)`,
+                    [targetUserId, parsedTicketId, eventType, message, `/tickets/${parsedTicketId}`]
+                );
+                inserted = true;
+            } catch (err1) {
+                // Could be FK violation if ticket exists in tenant schema but not public
+            }
+        }
+
+        // Tier 2: Without ticket_id FK (preserves link)
+        if (!inserted) {
+            try {
+                await db.query(
+                    `INSERT INTO notifications 
+                    (recipient_user_id, event_type, message, notification_type, status, link, created_at, sent_on, is_read) 
+                    VALUES ($1, $2::public.notification_event_enum, $3, 'in_app', 'sent', $4, NOW(), NOW(), false)`,
+                    [targetUserId, eventType, message, parsedTicketId ? `/tickets/${parsedTicketId}` : null]
+                );
+                inserted = true;
+            } catch (err2) {
+                // Could be enum cast issue
+            }
+        }
+
+        // Tier 3: Without explicit enum cast
+        if (!inserted) {
+            try {
+                await db.query(
+                    `INSERT INTO notifications 
+                    (recipient_user_id, message, notification_type, status, link, created_at, sent_on, is_read) 
+                    VALUES ($1, $2, 'in_app', 'sent', $3, NOW(), NOW(), false)`,
+                    [targetUserId, message, parsedTicketId ? `/tickets/${parsedTicketId}` : null]
+                );
+                inserted = true;
+            } catch (err3) {
+                console.error('Error saving notification to DB:', err3.message);
+            }
+        }
     }
 
     // 1. In-App Notification (Socket.IO)
-    const io = app.get('io');
+    const io = (app && typeof app.get === 'function') ? app.get('io') : null;
     if (io) {
         try {
-            const tenantStore = require('../middleware/tenantStore');
-            const tenant = tenantStore.getStore();
-            const roomName = tenant && tenant.code ? `${tenant.code}_${userId}` : `user_${userId}`;
-            
-            io.to(roomName).emit('notification', {
+            let tenantCode = '';
+            try {
+                const tenantStore = require('../middleware/tenantStore');
+                const store = tenantStore.getStore();
+                tenantCode = store?.code || '';
+            } catch (tsErr) {
+                // Non-fatal
+            }
+
+            const payload = {
                 id: Date.now(),
-                ticketId,
-                type,
+                ticketId: parsedTicketId,
+                type: eventType,
                 message,
+                link: parsedTicketId ? `/tickets/${parsedTicketId}` : null,
                 timestamp: new Date()
+            };
+
+            // Broadcast to all room variants so client reliably receives it
+            const rooms = new Set();
+            if (targetUserId) {
+                rooms.add(`${targetUserId}`);
+                rooms.add(`user_${targetUserId}`);
+                if (tenantCode) {
+                    rooms.add(`${tenantCode}_${targetUserId}`);
+                    rooms.add(`user_${tenantCode}_${targetUserId}`);
+                }
+            }
+            if (userId && String(userId) !== String(targetUserId)) {
+                rooms.add(`${userId}`);
+                rooms.add(`user_${userId}`);
+            }
+
+            rooms.forEach(room => {
+                io.to(room).emit('notification', payload);
             });
-            console.log(`📡 Socket event emitted to ${roomName}`);
+            console.log(`📡 Socket event emitted to rooms: ${Array.from(rooms).join(', ')}`);
         } catch (err) {
             console.error('Failed to emit socket event:', err);
         }
@@ -189,9 +302,9 @@ const sendNotification = async (app, { userId, ticketId, type, message, email, p
 
     // 2. Email
     if (email) {
-        const subject = emailSubject || `CCETS Notification: Ticket #${ticketId} Update`;
+        const subject = emailSubject || `CCETS Notification: Ticket #${ticketId || ''} Update`;
         const baseUrl = process.env.APP_URL || 'http://localhost:5173';
-        const linkUrl = `${baseUrl}/tickets/${ticketId}`;
+        const linkUrl = parsedTicketId ? `${baseUrl}/tickets/${parsedTicketId}` : baseUrl;
         const html = emailHtml || `<p>${message}</p><p><a href="${linkUrl}">View Ticket</a></p>`;
         await sendEmail(email, subject, html);
     }

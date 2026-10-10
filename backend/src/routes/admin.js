@@ -9,5 +9,6 @@ router.post('/login', adminController.login);
 // For simplicity, we just add the endpoints here. In production, wrap these in verifyAdminToken.
 router.get('/tenants', adminController.getTenants);
 router.post('/tenants', adminController.createTenant);
+router.put('/tenants/:code', adminController.updateTenant);
 
 module.exports = router;

@@ -76,6 +76,20 @@ export const TenantProvider = ({ children }) => {
         fetchPlatformContext();
     }, []);
 
+    const refreshPlatformContext = async () => {
+        try {
+            const response = await fetch('/api/platform/context');
+            const data = await response.json();
+            if (data.success) {
+                setPlatformContext(data);
+            }
+            return data;
+        } catch (err) {
+            console.error('Error refreshing platform context:', err);
+            return null;
+        }
+    };
+
     const refreshConfig = async (code) => {
         const targetCode = code || tenantCode;
         if (!targetCode) {
@@ -165,7 +179,7 @@ export const TenantProvider = ({ children }) => {
     };
 
     return (
-        <TenantContext.Provider value={{ tenantCode, setTenant, config, loading, error, refreshConfig, platformContext }}>
+        <TenantContext.Provider value={{ tenantCode, setTenant, config, loading, error, refreshConfig, platformContext, refreshPlatformContext }}>
             {children}
         </TenantContext.Provider>
     );

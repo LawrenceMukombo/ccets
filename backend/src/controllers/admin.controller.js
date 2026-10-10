@@ -229,3 +229,101 @@ exports.createTenant = async (req, res) => {
         client.release();
     }
 };
+
+exports.updateTenant = async (req, res) => {
+    const { code } = req.params;
+    const { 
+        name, 
+        is_active, 
+        currency_code, 
+        currency_symbol, 
+        time_zone, 
+        phone_prefix, 
+        contact_email, 
+        emblem, 
+        map_center, 
+        map_zoom 
+    } = req.body;
+
+    const tenantCode = String(code || '').toLowerCase().trim();
+    if (!tenantCode) {
+        return res.status(400).json({ success: false, message: 'Country code is required' });
+    }
+
+    const client = await db.pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Check if tenant exists
+        const checkRes = await client.query('SELECT * FROM public.tenants WHERE code = $1', [tenantCode]);
+        if (checkRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ success: false, message: `Country "${tenantCode}" not found` });
+        }
+
+        // 1. Update public.tenants
+        if (name !== undefined || is_active !== undefined) {
+            await client.query(
+                `UPDATE public.tenants 
+                 SET name = COALESCE($1, name), 
+                     is_active = COALESCE($2, is_active) 
+                 WHERE code = $3`,
+                [name || null, typeof is_active === 'boolean' ? is_active : null, tenantCode]
+            );
+        }
+
+        // 2. Upsert public.tenant_config
+        const mapCenterStr = map_center ? (typeof map_center === 'string' ? map_center : JSON.stringify(map_center)) : null;
+        const mapZoomNum = map_zoom !== undefined ? parseInt(map_zoom, 10) : null;
+
+        await client.query(`
+            INSERT INTO public.tenant_config 
+            (tenant_code, name, emblem, map_center, map_zoom, contact_email, currency_code, currency_symbol, time_zone, phone_prefix)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            ON CONFLICT (tenant_code) DO UPDATE SET
+                name = COALESCE(EXCLUDED.name, public.tenant_config.name),
+                emblem = COALESCE(EXCLUDED.emblem, public.tenant_config.emblem),
+                map_center = COALESCE(EXCLUDED.map_center, public.tenant_config.map_center),
+                map_zoom = COALESCE(EXCLUDED.map_zoom, public.tenant_config.map_zoom),
+                contact_email = COALESCE(EXCLUDED.contact_email, public.tenant_config.contact_email),
+                currency_code = COALESCE(EXCLUDED.currency_code, public.tenant_config.currency_code),
+                currency_symbol = COALESCE(EXCLUDED.currency_symbol, public.tenant_config.currency_symbol),
+                time_zone = COALESCE(EXCLUDED.time_zone, public.tenant_config.time_zone),
+                phone_prefix = COALESCE(EXCLUDED.phone_prefix, public.tenant_config.phone_prefix)
+        `, [
+            tenantCode,
+            name || null,
+            emblem || null,
+            mapCenterStr,
+            mapZoomNum,
+            contact_email || null,
+            currency_code || null,
+            currency_symbol || null,
+            time_zone || null,
+            phone_prefix || null
+        ]);
+
+        await client.query('COMMIT');
+
+        const updatedRes = await db.pool.query(`
+            SELECT t.id, t.code, t.name, t.schema_name, t.is_active,
+                   COALESCE(tc.emblem, CASE WHEN t.code = 'png' THEN '/png_emblem.png' WHEN t.code = 'zambia' THEN '/zambia_emblem.png' ELSE '/default_emblem.png' END) as emblem,
+                   tc.currency_code, tc.currency_symbol, tc.time_zone, tc.phone_prefix, tc.contact_email, tc.map_center, tc.map_zoom
+            FROM public.tenants t
+            LEFT JOIN public.tenant_config tc ON t.code = tc.tenant_code
+            WHERE t.code = $1
+        `, [tenantCode]);
+
+        res.json({
+            success: true,
+            message: `Country ${name || tenantCode.toUpperCase()} configuration updated successfully`,
+            tenant: updatedRes.rows[0]
+        });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('Error updating tenant:', err);
+        res.status(500).json({ success: false, message: `Failed to update country: ${err.message}` });
+    } finally {
+        client.release();
+    }
+};

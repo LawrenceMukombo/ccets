@@ -35,7 +35,7 @@ const fileToBase64 = (file) => new Promise((resolve, reject) => {
 });
 
 const Settings = () => {
-    const { tenantCode, config: contextConfig, refreshConfig, loading: configLoading, platformContext } = useTenant();
+    const { tenantCode, config: contextConfig, refreshConfig, loading: configLoading, platformContext, refreshPlatformContext } = useTenant();
     const [activeTab, setActiveTab] = useState('account');
     const [user, setUser] = useState(null);
     const [editMode, setEditMode] = useState(false);
@@ -84,7 +84,10 @@ const Settings = () => {
     const [stagingLoading, setStagingLoading] = useState(false);
     const [selectedRunLogs, setSelectedRunLogs] = useState(null);
     const [showLogsModal, setShowLogsModal] = useState(false);
-    const [deploymentSubTab, setDeploymentSubTab] = useState('promote'); // promote, integration, staging
+    const [deploymentSubTab, setDeploymentSubTab] = useState('info'); // info, promote, integration, staging
+    const [showEditCountryModal, setShowEditCountryModal] = useState(false);
+    const [editingCountry, setEditingCountry] = useState(null);
+    const [isUpdatingCountry, setIsUpdatingCountry] = useState(false);
 
     // Country Onboarding States
     const [countries, setCountries] = useState([]);
@@ -496,10 +499,10 @@ const Settings = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 'onboarding' && canManageCountries) {
+        if ((activeTab === 'onboarding' || activeTab === 'deployment') && canManageCountries) {
             fetchCountries();
         }
-    }, [activeTab]);
+    }, [activeTab, canManageCountries]);
 
     const handleCreateCountry = async (e) => {
         e.preventDefault();
@@ -544,6 +547,7 @@ const Settings = () => {
                 setMessage({ text: 'Country onboarded and schema provisioned successfully!', type: 'success' });
                 setShowAddCountryModal(false);
                 fetchCountries();
+                if (refreshPlatformContext) refreshPlatformContext();
                 setNewCountry({
                     code: '',
                     name: '',
@@ -566,6 +570,49 @@ const Settings = () => {
             setMessage({ text: 'Server error while onboarding country.', type: 'error' });
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleUpdateCountry = async (e) => {
+        e.preventDefault();
+        if (!editingCountry) return;
+        setIsUpdatingCountry(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/platform/tenants/${editingCountry.code}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: editingCountry.name,
+                    emblem: editingCountry.emblem,
+                    is_active: editingCountry.is_active,
+                    currency_code: editingCountry.currency_code,
+                    currency_symbol: editingCountry.currency_symbol,
+                    phone_prefix: editingCountry.phone_prefix,
+                    time_zone: editingCountry.time_zone,
+                    contact_email: editingCountry.contact_email
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setMessage({ text: `Country ${editingCountry.name} updated successfully!`, type: 'success' });
+                setShowEditCountryModal(false);
+                setEditingCountry(null);
+                fetchCountries();
+                if (refreshPlatformContext) refreshPlatformContext();
+                if (refreshConfig) refreshConfig();
+            } else {
+                setMessage({ text: data.message || 'Failed to update country.', type: 'error' });
+            }
+        } catch (error) {
+            console.error('Failed to update country', error);
+            setMessage({ text: 'Server error while updating country.', type: 'error' });
+        } finally {
+            setIsUpdatingCountry(false);
         }
     };
 
@@ -740,7 +787,7 @@ const Settings = () => {
     }, [contextConfig]);
 
     const isAdmin = user?.role_name === 'Admin' || user?.role_name === 'SuperAdmin' || user?.role_name === 'Administrator' || user?.role_name === 'National Manager' || user?.is_admin;
-    const canManageCountries = user?.role_name === 'SuperAdmin' || user?.is_platform_admin === true;
+    const canManageCountries = isAdmin || user?.role_name === 'SuperAdmin' || user?.is_platform_admin === true || user?.is_national_access === true;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -1712,21 +1759,71 @@ const Settings = () => {
                         </div>
                         <div className="config-item">
                             <div className="config-label">Database Schema Status</div>
-                            <div className="config-value">Active Schemas: png, zambia</div>
+                            <div className="config-value">
+                                Active Schemas: {platformContext?.tenants?.filter(t => t.is_active !== false).map(t => t.schema_name || t.code).join(', ') || 'png, zambia'}
+                            </div>
                         </div>
                     </div>
 
                     <div className="tenant-list-section" style={{ marginTop: '2rem' }}>
-                        <h3 style={{ marginBottom: '1rem', fontSize: '1.2rem' }}>Registered Platform Tenants</h3>
-                        <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.8rem' }}>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 600 }}>Registered Platform Tenants</h3>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                    Manage onboarded country tenants, provisioned schemas, and operational settings.
+                                </p>
+                            </div>
+                            {canManageCountries && (
+                                <button 
+                                    className="btn btn-primary btn-sm"
+                                    onClick={() => setShowAddCountryModal(true)}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: 600 }}
+                                >
+                                    <span>➕</span> Onboard New Country
+                                </button>
+                            )}
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
                             {platformContext?.tenants?.map(t => (
-                                <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'var(--bg-light)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                                    <img src={t.emblem || '/png_emblem.png'} alt={`${t.name} emblem`} style={{ width: '40px', height: '40px', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
-                                    <div>
-                                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.name}</div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Code: {t.code.toUpperCase()} | Schema: {t.schema_name}</div>
+                                <div key={t.id || t.code} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: '1.2rem', background: 'var(--bg-light)', borderRadius: '12px', border: '1px solid var(--border-color)', position: 'relative' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                        <img src={t.emblem || '/png_emblem.png'} alt={`${t.name} emblem`} style={{ width: '42px', height: '42px', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1rem' }}>{t.name}</div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Code: <strong>{t.code?.toUpperCase()}</strong> | Schema: <code>{t.schema_name || t.code}</code></div>
+                                        </div>
+                                        <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: t.is_active !== false ? '#22c55e' : '#ef4444' }} title={t.is_active !== false ? 'Active' : 'Inactive'} />
                                     </div>
-                                    <span style={{ marginLeft: 'auto', display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: t.is_active ? '#22c55e' : '#ef4444' }} title={t.is_active ? 'Active' : 'Inactive'} />
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '0.75rem' }}>
+                                        {t.currency_code && <span className="badge badge-secondary">💵 {t.currency_symbol || ''} {t.currency_code}</span>}
+                                        {t.phone_prefix && <span className="badge badge-secondary">📞 {t.phone_prefix}</span>}
+                                        {t.time_zone && <span className="badge badge-secondary">🕒 {t.time_zone}</span>}
+                                    </div>
+                                    {canManageCountries && (
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.3rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.6rem' }}>
+                                            <button 
+                                                className="btn btn-secondary btn-sm"
+                                                onClick={() => {
+                                                    setEditingCountry({
+                                                        code: t.code,
+                                                        name: t.name,
+                                                        emblem: t.emblem || '',
+                                                        is_active: t.is_active !== false,
+                                                        currency_code: t.currency_code || '',
+                                                        currency_symbol: t.currency_symbol || '',
+                                                        phone_prefix: t.phone_prefix || '',
+                                                        time_zone: t.time_zone || '',
+                                                        contact_email: t.contact_email || ''
+                                                    });
+                                                    setShowEditCountryModal(true);
+                                                }}
+                                                style={{ fontSize: '0.8rem', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                            >
+                                                ✏️ Edit Country
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -3272,185 +3369,34 @@ const Settings = () => {
                                     <div style={{ marginTop: '0.4rem', padding: '0.7rem', borderRadius: '8px', background: String(c.code).toLowerCase() === String(tenantCode).toLowerCase() ? 'rgba(34, 197, 94, 0.08)' : 'rgba(59, 130, 246, 0.06)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.78rem', lineHeight: 1.4 }}>
                                         {String(c.code).toLowerCase() === String(tenantCode).toLowerCase() ? 'This is the active country. Use the reference data setup panel above to upload boundaries and manage data sources.' : 'To upload this country reference data, switch into this country and sign in with its admin account.'}
                                     </div>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.4rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.6rem' }}>
+                                        <button 
+                                            type="button"
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => {
+                                                setEditingCountry({
+                                                    code: c.code,
+                                                    name: c.name,
+                                                    emblem: c.emblem || '',
+                                                    is_active: c.is_active !== false,
+                                                    currency_code: c.currency_code || '',
+                                                    currency_symbol: c.currency_symbol || '',
+                                                    phone_prefix: c.phone_prefix || '',
+                                                    time_zone: c.time_zone || '',
+                                                    contact_email: c.contact_email || ''
+                                                });
+                                                setShowEditCountryModal(true);
+                                            }}
+                                            style={{ fontSize: '0.8rem', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            ✏️ Edit Country
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     )}
                 </div>
-
-                {/* Add Country Modal */}
-                {showAddCountryModal && (
-                    <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, overflowY: 'auto', padding: '2rem 1rem' }}>
-                        <div style={{ background: 'var(--bg-white)', width: '680px', borderRadius: '16px', padding: '2rem', border: '1px solid var(--border-color)', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    ➕ Onboard New Country
-                                </h2>
-                                <button 
-                                    style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-secondary)' }}
-                                    onClick={() => setShowAddCountryModal(false)}
-                                >
-                                    &times;
-                                </button>
-                            </div>
-
-                            <form onSubmit={handleCreateCountry} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Country Name *</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="e.g. South Sudan" 
-                                            value={newCountry.name}
-                                            onChange={e => setNewCountry({ ...newCountry, name: e.target.value })}
-                                            required
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Tenant Code * <span style={{ fontSize: '0.75rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>(lowercase, no spaces)</span></label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="e.g. south_sudan" 
-                                            value={newCountry.code}
-                                            onChange={e => setNewCountry({ ...newCountry, code: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
-                                            required
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Currency Code</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="e.g. SSP" 
-                                            value={newCountry.currency_code}
-                                            onChange={e => setNewCountry({ ...newCountry, currency_code: e.target.value })}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Currency Symbol</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="e.g. SS£" 
-                                            value={newCountry.currency_symbol}
-                                            onChange={e => setNewCountry({ ...newCountry, currency_symbol: e.target.value })}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Time Zone</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="e.g. Africa/Juba" 
-                                            value={newCountry.time_zone}
-                                            onChange={e => setNewCountry({ ...newCountry, time_zone: e.target.value })}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Phone Prefix</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="e.g. +211" 
-                                            value={newCountry.phone_prefix}
-                                            onChange={e => setNewCountry({ ...newCountry, phone_prefix: e.target.value })}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Map Center Lat *</label>
-                                        <input 
-                                            type="number" 
-                                            step="any"
-                                            placeholder="e.g. 4.85" 
-                                            value={newCountry.map_center_lat}
-                                            onChange={e => setNewCountry({ ...newCountry, map_center_lat: e.target.value })}
-                                            required
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Map Center Lng *</label>
-                                        <input 
-                                            type="number" 
-                                            step="any"
-                                            placeholder="e.g. 31.60" 
-                                            value={newCountry.map_center_lng}
-                                            onChange={e => setNewCountry({ ...newCountry, map_center_lng: e.target.value })}
-                                            required
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Map Zoom</label>
-                                        <input 
-                                            type="number" 
-                                            placeholder="e.g. 6" 
-                                            value={newCountry.map_zoom}
-                                            onChange={e => setNewCountry({ ...newCountry, map_zoom: e.target.value })}
-                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div style={{ background: 'var(--bg-light)', padding: '1.2rem', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>👤 First National Administrator Account</h4>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                        <div>
-                                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '4px' }}>Admin Email *</label>
-                                            <input 
-                                                type="email" 
-                                                placeholder="e.g. admin@moh.gov.ss" 
-                                                value={newCountry.admin_email}
-                                                onChange={e => setNewCountry({ ...newCountry, admin_email: e.target.value })}
-                                                required
-                                                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.85rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '4px' }}>Password *</label>
-                                            <input 
-                                                type="password" 
-                                                placeholder="••••••••" 
-                                                value={newCountry.admin_password}
-                                                onChange={e => setNewCountry({ ...newCountry, admin_password: e.target.value })}
-                                                required
-                                                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.85rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                                    <button 
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        onClick={() => setShowAddCountryModal(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button 
-                                        type="submit"
-                                        className="btn btn-primary"
-                                        disabled={isSaving}
-                                    >
-                                        {isSaving ? '🚀 Onboarding Country...' : '🚀 Onboard Country'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
             </div>
         );
     };
@@ -3645,6 +3591,321 @@ const Settings = () => {
                                 ✅ Validate & Import Ticket
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Country Modal */}
+            {showAddCountryModal && (
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, overflowY: 'auto', padding: '2rem 1rem' }}>
+                    <div style={{ background: 'var(--bg-white)', width: '680px', borderRadius: '16px', padding: '2rem', border: '1px solid var(--border-color)', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                ➕ Onboard New Country
+                            </h2>
+                            <button 
+                                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-secondary)' }}
+                                onClick={() => setShowAddCountryModal(false)}
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleCreateCountry} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Country Name *</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. South Sudan" 
+                                        value={newCountry.name}
+                                        onChange={e => setNewCountry({ ...newCountry, name: e.target.value })}
+                                        required
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Tenant Code * <span style={{ fontSize: '0.75rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>(lowercase, no spaces)</span></label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. south_sudan" 
+                                        value={newCountry.code}
+                                        onChange={e => setNewCountry({ ...newCountry, code: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
+                                        required
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Currency Code</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. SSP" 
+                                        value={newCountry.currency_code}
+                                        onChange={e => setNewCountry({ ...newCountry, currency_code: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Currency Symbol</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. SS£" 
+                                        value={newCountry.currency_symbol}
+                                        onChange={e => setNewCountry({ ...newCountry, currency_symbol: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Time Zone</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. Africa/Juba" 
+                                        value={newCountry.time_zone}
+                                        onChange={e => setNewCountry({ ...newCountry, time_zone: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Phone Prefix</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. +211" 
+                                        value={newCountry.phone_prefix}
+                                        onChange={e => setNewCountry({ ...newCountry, phone_prefix: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Map Center Lat *</label>
+                                    <input 
+                                        type="number" 
+                                        step="any"
+                                        placeholder="e.g. 4.85" 
+                                        value={newCountry.map_center_lat}
+                                        onChange={e => setNewCountry({ ...newCountry, map_center_lat: e.target.value })}
+                                        required
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Map Center Lng *</label>
+                                    <input 
+                                        type="number" 
+                                        step="any"
+                                        placeholder="e.g. 31.60" 
+                                        value={newCountry.map_center_lng}
+                                        onChange={e => setNewCountry({ ...newCountry, map_center_lng: e.target.value })}
+                                        required
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Map Zoom</label>
+                                    <input 
+                                        type="number" 
+                                        placeholder="e.g. 6" 
+                                        value={newCountry.map_zoom}
+                                        onChange={e => setNewCountry({ ...newCountry, map_zoom: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ background: 'var(--bg-light)', padding: '1.2rem', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>👤 First National Administrator Account</h4>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '4px' }}>Admin Email *</label>
+                                        <input 
+                                            type="email" 
+                                            placeholder="e.g. admin@moh.gov.ss" 
+                                            value={newCountry.admin_email}
+                                            onChange={e => setNewCountry({ ...newCountry, admin_email: e.target.value })}
+                                            required
+                                            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.85rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '4px' }}>Password *</label>
+                                        <input 
+                                            type="password" 
+                                            placeholder="••••••••" 
+                                            value={newCountry.admin_password}
+                                            onChange={e => setNewCountry({ ...newCountry, admin_password: e.target.value })}
+                                            required
+                                            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.85rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                                <button 
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowAddCountryModal(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={isSaving}
+                                >
+                                    {isSaving ? '🚀 Onboarding Country...' : '🚀 Onboard Country'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Country Modal */}
+            {showEditCountryModal && editingCountry && (
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, overflowY: 'auto', padding: '2rem 1rem' }}>
+                    <div style={{ background: 'var(--bg-white)', width: '640px', borderRadius: '16px', padding: '2rem', border: '1px solid var(--border-color)', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                ✏️ Edit Country: {editingCountry.name}
+                            </h2>
+                            <button 
+                                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-secondary)' }}
+                                onClick={() => { setShowEditCountryModal(false); setEditingCountry(null); }}
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleUpdateCountry} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Tenant Code (Schema)</label>
+                                    <input 
+                                        type="text" 
+                                        value={editingCountry.code?.toUpperCase()} 
+                                        disabled
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-light)', color: 'var(--text-secondary)', cursor: 'not-allowed' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Country Name *</label>
+                                    <input 
+                                        type="text" 
+                                        value={editingCountry.name} 
+                                        onChange={e => setEditingCountry({ ...editingCountry, name: e.target.value })}
+                                        required
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Active Status</label>
+                                    <select
+                                        value={editingCountry.is_active ? 'true' : 'false'}
+                                        onChange={e => setEditingCountry({ ...editingCountry, is_active: e.target.value === 'true' })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    >
+                                        <option value="true">Active (Online & Accessible)</option>
+                                        <option value="false">Inactive (Suspended / Disabled)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Emblem / Flag URL</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="/zambia_emblem.png" 
+                                        value={editingCountry.emblem || ''} 
+                                        onChange={e => setEditingCountry({ ...editingCountry, emblem: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Currency Code</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. ZMW, USD, PGK" 
+                                        value={editingCountry.currency_code || ''} 
+                                        onChange={e => setEditingCountry({ ...editingCountry, currency_code: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Currency Symbol</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. K, $, €" 
+                                        value={editingCountry.currency_symbol || ''} 
+                                        onChange={e => setEditingCountry({ ...editingCountry, currency_symbol: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Phone Prefix</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. +260, +675" 
+                                        value={editingCountry.phone_prefix || ''} 
+                                        onChange={e => setEditingCountry({ ...editingCountry, phone_prefix: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Time Zone</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. Africa/Lusaka, Pacific/Port_Moresby" 
+                                        value={editingCountry.time_zone || ''} 
+                                        onChange={e => setEditingCountry({ ...editingCountry, time_zone: e.target.value })}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Contact / Support Email</label>
+                                <input 
+                                    type="email" 
+                                    placeholder="support@ccets.gov" 
+                                    value={editingCountry.contact_email || ''} 
+                                    onChange={e => setEditingCountry({ ...editingCountry, contact_email: e.target.value })}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.9rem', background: 'var(--bg-white)', color: 'var(--text-primary)' }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                                <button 
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => { setShowEditCountryModal(false); setEditingCountry(null); }}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={isUpdatingCountry}
+                                >
+                                    {isUpdatingCountry ? 'Saving Changes...' : '💾 Save Country Changes'}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

@@ -13,17 +13,19 @@ function Notifications() {
         fetchNotifications();
     }, []);
 
+    const tenantCode = localStorage.getItem('tenantCode') || 'zambia';
+
     const fetchNotifications = async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/notifications', {
+            const res = await fetch(`/api/${tenantCode}/notifications`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (res.ok) {
                 const data = await res.json();
-                setNotifications(data);
+                setNotifications(Array.isArray(data) ? data : []);
             } else {
                 setError('Failed to load notifications');
             }
@@ -39,11 +41,11 @@ function Notifications() {
         if (e) e.stopPropagation();
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/notifications/${id}/read`, {
+            await fetch(`/api/${tenantCode}/notifications/${id}/read`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            setNotifications(prev => prev.map(n => n.id === id || n.notification_id === id ? { ...n, is_read: true } : n));
+            setNotifications(prev => prev.map(n => (n.id === id || n.notification_id === id) ? { ...n, is_read: true } : n));
         } catch (e) {
             console.error(e);
         }
@@ -52,7 +54,7 @@ function Notifications() {
     const markAllRead = async () => {
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/notifications/read-all`, {
+            await fetch(`/api/${tenantCode}/notifications/read-all`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

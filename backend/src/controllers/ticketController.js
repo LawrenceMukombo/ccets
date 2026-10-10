@@ -701,14 +701,14 @@ async function notifyTicketCreation(app, ticket, facilityId) {
         // user_scopes is the correct table (not user_location_scope)
         const [nationalQuery, regionalQuery, provincialQuery, adminQuery] = await Promise.all([
             db.query(`
-                SELECT u.user_id, u.email, u.phone
+                SELECT u.user_id, u.email, COALESCE(u.phone_number, '') as phone
                 FROM users u
                 INNER JOIN roles r ON u.role_id = r.role_id
-                WHERE r.role_name = 'National Helpdesk Officer'
+                WHERE r.role_name IN ('National Helpdesk Officer', 'Helpdesk Officer', 'National Officer')
                   AND u.is_active = true
             `),
             db.query(`
-                SELECT DISTINCT u.user_id, u.email, u.phone
+                SELECT DISTINCT u.user_id, u.email, COALESCE(u.phone_number, '') as phone
                 FROM users u
                 INNER JOIN roles r ON u.role_id = r.role_id
                 LEFT JOIN user_scopes us ON u.user_id = us.user_id
@@ -720,7 +720,7 @@ async function notifyTicketCreation(app, ticket, facilityId) {
                   )
             `, [facility.region_id]),
             db.query(`
-                SELECT DISTINCT u.user_id, u.email, u.phone
+                SELECT DISTINCT u.user_id, u.email, COALESCE(u.phone_number, '') as phone
                 FROM users u
                 INNER JOIN roles r ON u.role_id = r.role_id
                 LEFT JOIN user_scopes us ON u.user_id = us.user_id
@@ -733,10 +733,10 @@ async function notifyTicketCreation(app, ticket, facilityId) {
                   )
             `, [facility.province_id, facility.region_id]),
             db.query(`
-                SELECT u.user_id, u.email, u.phone
+                SELECT u.user_id, u.email, COALESCE(u.phone_number, '') as phone
                 FROM users u
                 INNER JOIN roles r ON u.role_id = r.role_id
-                WHERE r.role_name = 'Administrator'
+                WHERE r.role_name IN ('Administrator', 'Super Administrator')
                   AND u.is_active = true
             `)
         ]);

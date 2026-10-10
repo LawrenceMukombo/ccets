@@ -57,13 +57,43 @@ export const useSocket = (userId) => {
                 reconnectionDelay: 2000
             });
 
+            const fetchInitialNotifications = async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    if (!token) return;
+                    const code = localStorage.getItem('tenantCode') || 'zambia';
+                    const res = await fetch(`/api/${code}/notifications?filter=unread`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (Array.isArray(data)) {
+                            notificationsList = data.map(n => ({
+                                id: n.id || n.notification_id,
+                                ticketId: n.ticket_id,
+                                type: n.type || n.event_type,
+                                message: n.message,
+                                link: n.link,
+                                timestamp: n.created_at || new Date()
+                            }));
+                            globalUnreadCount = data.filter(n => !n.is_read).length;
+                            notifyAll();
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch initial notifications:', e);
+                }
+            };
+
+            fetchInitialNotifications();
+
             socket.on('connect', () => {
                 console.log('Connected to socket server');
                 if (tenantCode) {
                     socket.emit('join_user', `${tenantCode}_${userId}`);
-                } else {
-                    socket.emit('join_user', userId);
                 }
+                socket.emit('join_user', userId);
+                fetchInitialNotifications();
             });
 
             socket.on('notification', (notification) => {
