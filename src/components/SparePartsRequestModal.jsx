@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTenant } from '../context/TenantContext';
 import './Modal.css';
 import './ModalExtensions.css';
 
-const SparePartsRequestModal = ({ isOpen, onClose, ticket, onSubmit }) => {
+const SparePartsRequestModal = ({ isOpen, onClose, ticket, onSubmit, onSuccess }) => {
+    const { tenantCode } = useTenant();
     const [parts, setParts] = useState([{ sparepart_id: '', name: '', quantity: 1, category: '' }]);
     const [notes, setNotes] = useState('');
     const [loading, setLoading] = useState(false);
@@ -21,7 +23,7 @@ const SparePartsRequestModal = ({ isOpen, onClose, ticket, onSubmit }) => {
         setLoadingSpareParts(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/spare-parts', {
+            const response = await fetch(`/api/${tenantCode}/spare-parts`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -81,7 +83,7 @@ const SparePartsRequestModal = ({ isOpen, onClose, ticket, onSubmit }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/tickets/${ticket.ticket_id}/spare-parts`, {
+            const response = await fetch(`/api/${tenantCode}/tickets/${ticket.ticket_id}/spare-parts`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -93,11 +95,24 @@ const SparePartsRequestModal = ({ isOpen, onClose, ticket, onSubmit }) => {
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to submit request');
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                const detailMsg = data.detail ? ` (${data.detail})` : '';
+                const fullMsg = data.error 
+                    ? `${data.message || 'Error'}: ${data.error}${detailMsg}`
+                    : (data.message || 'Failed to submit request');
+                throw new Error(fullMsg);
+            }
 
-            onSubmit();
+            const callback = onSuccess || onSubmit;
+            if (typeof callback === 'function') {
+                callback();
+            }
             setParts([{ sparepart_id: '', name: '', quantity: 1, category: '' }]);
             setNotes('');
+            if (typeof onClose === 'function') {
+                onClose();
+            }
         } catch (err) {
             setError(err.message || 'Failed to submit spare parts request');
         } finally {
