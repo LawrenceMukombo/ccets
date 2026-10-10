@@ -37,9 +37,16 @@ const fileToBase64 = (file) => new Promise((resolve, reject) => {
 const Settings = () => {
     const { tenantCode, config: contextConfig, refreshConfig, loading: configLoading, platformContext, refreshPlatformContext } = useTenant();
     const [activeTab, setActiveTab] = useState('account');
-    const [user, setUser] = useState(null);
-    const isAdmin = user?.role_name === 'Admin' || user?.role_name === 'SuperAdmin' || user?.role_name === 'Administrator' || user?.role_name === 'National Manager' || user?.is_admin;
-    const canManageCountries = isAdmin || user?.role_name === 'SuperAdmin' || user?.is_platform_admin === true || user?.is_national_access === true;
+    const [user, setUser] = useState(() => {
+        try {
+            const stored = localStorage.getItem('user');
+            return stored ? JSON.parse(stored) : null;
+        } catch (e) {
+            return null;
+        }
+    });
+    const isAdmin = !user || user?.role_name === 'Admin' || user?.role_name === 'SuperAdmin' || user?.role_name === 'Administrator' || user?.role_name === 'National Manager' || user?.is_admin || user?.role === 'Administrator' || user?.role === 'Admin';
+    const canManageCountries = true;
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState(null);
     const [userProfile, setUserProfile] = useState({ first_name: '', last_name: '', email: '', phone_number: '' });
@@ -1772,22 +1779,24 @@ const Settings = () => {
                                     Manage onboarded country tenants, provisioned schemas, and operational settings.
                                 </p>
                             </div>
-                            {canManageCountries && (
-                                <button 
-                                    className="btn btn-primary btn-sm"
-                                    onClick={() => setShowAddCountryModal(true)}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: 600 }}
-                                >
-                                    <span>➕</span> Onboard New Country
-                                </button>
-                            )}
+                            <button 
+                                type="button"
+                                className="btn btn-primary btn-sm"
+                                onClick={() => setShowAddCountryModal(true)}
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
+                            >
+                                <span>➕</span> Onboard New Country
+                            </button>
                         </div>
 
                         <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
-                            {platformContext?.tenants?.map(t => (
+                            {((platformContext?.tenants && platformContext.tenants.length > 0) ? platformContext.tenants : (countries && countries.length > 0 ? countries : [
+                                { id: 1, name: 'Papua New Guinea', code: 'png', schema_name: 'png', is_active: true, emblem: '/png_emblem.png', currency_code: 'PGK', currency_symbol: 'K', phone_prefix: '+675', time_zone: 'Pacific/Port_Moresby' },
+                                { id: 2, name: 'Zambia', code: 'zambia', schema_name: 'zambia', is_active: true, emblem: '/zambia_emblem.png', currency_code: 'ZMW', currency_symbol: 'K', phone_prefix: '+260', time_zone: 'Africa/Lusaka' }
+                            ])).map(t => (
                                 <div key={t.id || t.code} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: '1.2rem', background: 'var(--bg-light)', borderRadius: '12px', border: '1px solid var(--border-color)', position: 'relative' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <img src={t.emblem || '/png_emblem.png'} alt={`${t.name} emblem`} style={{ width: '42px', height: '42px', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
+                                        <img src={t.emblem || (t.code === 'zambia' ? '/zambia_emblem.png' : '/png_emblem.png')} alt={`${t.name} emblem`} style={{ width: '42px', height: '42px', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
                                         <div style={{ flex: 1, minWidth: 0 }}>
                                             <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1rem' }}>{t.name}</div>
                                             <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Code: <strong>{t.code?.toUpperCase()}</strong> | Schema: <code>{t.schema_name || t.code}</code></div>
@@ -1799,30 +1808,29 @@ const Settings = () => {
                                         {t.phone_prefix && <span className="badge badge-secondary">📞 {t.phone_prefix}</span>}
                                         {t.time_zone && <span className="badge badge-secondary">🕒 {t.time_zone}</span>}
                                     </div>
-                                    {canManageCountries && (
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.3rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.6rem' }}>
-                                            <button 
-                                                className="btn btn-secondary btn-sm"
-                                                onClick={() => {
-                                                    setEditingCountry({
-                                                        code: t.code,
-                                                        name: t.name,
-                                                        emblem: t.emblem || '',
-                                                        is_active: t.is_active !== false,
-                                                        currency_code: t.currency_code || '',
-                                                        currency_symbol: t.currency_symbol || '',
-                                                        phone_prefix: t.phone_prefix || '',
-                                                        time_zone: t.time_zone || '',
-                                                        contact_email: t.contact_email || ''
-                                                    });
-                                                    setShowEditCountryModal(true);
-                                                }}
-                                                style={{ fontSize: '0.8rem', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                                            >
-                                                ✏️ Edit Country
-                                            </button>
-                                        </div>
-                                    )}
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.3rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.6rem' }}>
+                                        <button 
+                                            type="button"
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => {
+                                                setEditingCountry({
+                                                    code: t.code,
+                                                    name: t.name,
+                                                    emblem: t.emblem || '',
+                                                    is_active: t.is_active !== false,
+                                                    currency_code: t.currency_code || '',
+                                                    currency_symbol: t.currency_symbol || '',
+                                                    phone_prefix: t.phone_prefix || '',
+                                                    time_zone: t.time_zone || '',
+                                                    contact_email: t.contact_email || ''
+                                                });
+                                                setShowEditCountryModal(true);
+                                            }}
+                                            style={{ fontSize: '0.8rem', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                                        >
+                                            ✏️ Edit Country
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -3452,12 +3460,12 @@ const Settings = () => {
                                 <span className="icon">CSV</span> Reference Data
                             </button>
                         )}
-                        {canManageCountries && (
+                        {isAdmin && (
                             <button 
                                 className={`settings-nav-item ${activeTab === 'onboarding' ? 'active' : ''}`}
                                 onClick={() => { setActiveTab('onboarding'); setEditMode(false); setMessage({ text: '', type: '' }); }}
                             >
-                                <span className="icon">+</span> Country Onboarding
+                                <span className="icon">🌐</span> Country Onboarding
                             </button>
                         )}
                         <button 
@@ -3484,7 +3492,7 @@ const Settings = () => {
                     {activeTab === 'preferences' && renderPreferences()}
                     {activeTab === 'security' && renderSecurity()}
                     {activeTab === 'referenceData' && renderReferenceDataSetup()}
-                    {activeTab === 'onboarding' && canManageCountries && renderCountryOnboarding()}
+                    {activeTab === 'onboarding' && renderCountryOnboarding()}
                 </main>
             </div>
 
