@@ -638,26 +638,40 @@ exports.assignTicket = async (req, res) => {
     const { id } = req.params;
     const { assigned_to } = req.body;
 
-    if (!assigned_to) {
-        return res.status(400).json({ message: 'assigned_to is required' });
+    const ticketId = parseInt(id, 10);
+    const techId = parseInt(assigned_to, 10);
+
+    if (isNaN(ticketId) || isNaN(techId)) {
+        return res.status(400).json({ message: 'Valid ticket ID and technician ID are required' });
     }
 
     try {
-        // Get technician details
-        const userResult = await db.query(
-            'SELECT user_id, first_name, last_name, email, phone_number FROM users WHERE user_id = $1',
-            [assigned_to]
-        );
+        // Get technician details (with column fallback for users table)
+        let userResult;
+        try {
+            userResult = await db.query(
+                'SELECT user_id, first_name, last_name, email, phone_number FROM users WHERE user_id = $1',
+                [techId]
+            );
+        } catch (uErr) {
+            userResult = await db.query(
+                'SELECT user_id, first_name, last_name, email FROM users WHERE user_id = $1',
+                [techId]
+            );
+        }
 
         if (userResult.rows.length === 0) {
             return res.status(404).json({ message: 'Technician not found' });
         }
 
         const technician = userResult.rows[0];
-        const fullName = `${technician.first_name} ${technician.last_name}`;
+        const fullName = `${technician.first_name || ''} ${technician.last_name || ''}`.trim() || 'Technician';
 
-        // Update ticket with enum-safe casting and text fallback
-        let result;
+        // Update ticket with schema-tolerant fallback tiers
+        let result = null;
+        let updateError = null;
+
+        // Tier 1: Full update with enum cast
         try {
             result = await db.query(`
                 UPDATE tickets 
@@ -673,50 +687,115 @@ exports.assignTicket = async (req, res) => {
                     updated_at = CURRENT_TIMESTAMP
                 WHERE ticket_id = $4
                 RETURNING *
-            `, [assigned_to, fullName, technician.email, id]);
-        } catch (updateErr) {
-            console.warn('Enum-cast ticket assignment update failed, retrying without enum cast:', updateErr.message);
-            result = await db.query(`
-                UPDATE tickets 
-                SET assigned_to = $1,
-                    assigned_to_name = $2,
-                    assigned_to_email = $3,
-                    date_assigned = CURRENT_DATE,
-                    assignment_status = 'Assigned',
-                    ticket_status = CASE 
-                        WHEN ticket_status::text IN ('New', 'Open', 'Pending Assignment', 'Reopened') THEN 'Assigned'
-                        ELSE ticket_status
-                    END,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE ticket_id = $4
-                RETURNING *
-            `, [assigned_to, fullName, technician.email, id]);
+            `, [techId, fullName, technician.email || null, ticketId]);
+        } catch (err1) {
+            updateError = err1;
+        }
+
+        // Tier 2: Full update without enum cast
+        if (!result) {
+            try {
+                result = await db.query(`
+                    UPDATE tickets 
+                    SET assigned_to = $1,
+                        assigned_to_name = $2,
+                        assigned_to_email = $3,
+                        date_assigned = CURRENT_DATE,
+                        assignment_status = 'Assigned',
+                        ticket_status = CASE 
+                            WHEN ticket_status::text IN ('New', 'Open', 'Pending Assignment', 'Reopened') THEN 'Assigned'
+                            ELSE ticket_status
+                        END,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE ticket_id = $4
+                    RETURNING *
+                `, [techId, fullName, technician.email || null, ticketId]);
+            } catch (err2) {
+                updateError = err2;
+            }
+        }
+
+        // Tier 3: Without date_assigned and assignment_status (in case those columns do not exist in the tenant schema)
+        if (!result) {
+            try {
+                result = await db.query(`
+                    UPDATE tickets 
+                    SET assigned_to = $1,
+                        assigned_to_name = $2,
+                        assigned_to_email = $3,
+                        ticket_status = CASE 
+                            WHEN ticket_status::text IN ('New', 'Open', 'Pending Assignment', 'Reopened') THEN 'Assigned'
+                            ELSE ticket_status
+                        END,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE ticket_id = $4
+                    RETURNING *
+                `, [techId, fullName, technician.email || null, ticketId]);
+            } catch (err3) {
+                updateError = err3;
+            }
+        }
+
+        // Tier 4: Core update only (assigned_to, ticket_status, updated_at)
+        if (!result) {
+            try {
+                result = await db.query(`
+                    UPDATE tickets 
+                    SET assigned_to = $1,
+                        ticket_status = 'Assigned',
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE ticket_id = $2
+                    RETURNING *
+                `, [techId, ticketId]);
+            } catch (err4) {
+                updateError = err4;
+            }
+        }
+
+        // Tier 5: Bare minimum update
+        if (!result) {
+            try {
+                result = await db.query(`
+                    UPDATE tickets 
+                    SET assigned_to = $1
+                    WHERE ticket_id = $2
+                    RETURNING *
+                `, [techId, ticketId]);
+            } catch (err5) {
+                updateError = err5;
+            }
+        }
+
+        if (!result) {
+            throw updateError || new Error('Failed to update ticket assignment');
         }
 
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Ticket not found' });
         }
 
-        // Secondary side-effects (notifications and audit log) wrapped safely
+        const updatedTicket = result.rows[0];
+
+        // Secondary side-effects (notifications and audit log) wrapped safely so they never fail the request
         try {
             await sendNotification(req.app, {
                 userId: technician.user_id,
-                ticketId: result.rows[0].ticket_id,
+                ticketId: updatedTicket.ticket_id,
                 type: 'ticket_assigned',
-                message: `You have been assigned to Ticket #${result.rows[0].ticket_reference_number || result.rows[0].ticket_id}`,
+                message: `You have been assigned to Ticket #${updatedTicket.ticket_reference_number || updatedTicket.ticket_id}`,
                 email: technician.email,
                 phone: technician.phone_number
             });
             await logAudit(
-                req.user?.userId,
+                req.user?.userId || req.user?.user_id,
                 'Assigned',
                 'Ticket',
-                result.rows[0].ticket_id,
+                updatedTicket.ticket_id,
                 `Ticket assigned to ${fullName}`,
                 req
             );
             await logActivity(
-                result.rows[0].ticket_id,
+                updatedTicket.ticket_id,
                 req.user?.userId || req.user?.user_id,
                 'Assigned',
                 `Ticket assigned to ${fullName}`
@@ -728,7 +807,7 @@ exports.assignTicket = async (req, res) => {
         res.json({
             success: true,
             message: 'Ticket assigned successfully',
-            ticket: result.rows[0]
+            ticket: updatedTicket
         });
     } catch (error) {
         console.error('Error assigning ticket:', error);

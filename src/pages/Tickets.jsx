@@ -217,29 +217,29 @@ function Tickets() {
     const rowActions = [
         {
             label: 'View Details',
-            icon: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ËœÃ‚ÂÃƒÂ¯Ã‚Â¸Ã‚Â',
+            icon: '👁️',
             action: (ticket) => { setSelectedTicket(ticket); setShowDetailsModal(true); }
         },
         {
             label: 'Assign',
-            icon: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ËœÃ‚Â¤',
+            icon: '👤',
             action: (ticket) => { setSelectedTicket(ticket); setShowAssignModal(true); },
             disabled: (ticket) => ticket.ticket_status === 'Closed'
         },
         {
             label: 'Escalate',
-            icon: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‹â€ ',
+            icon: '⚡',
             action: (ticket) => { setSelectedTicket(ticket); setShowEscalateModal(true); },
             disabled: (ticket) => ['Resolved', 'Closed'].includes(ticket.ticket_status)
         },
         {
             label: 'Edit',
-            icon: 'ÃƒÂ¢Ã…â€œÃ‚ÂÃƒÂ¯Ã‚Â¸Ã‚Â',
+            icon: '✏️',
             action: (ticket) => { setSelectedTicket(ticket); setShowEditModal(true); }
         },
         {
             label: 'Delete',
-            icon: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬â€Ã¢â‚¬ËœÃƒÂ¯Ã‚Â¸Ã‚Â',
+            icon: '🗑️',
             action: (ticket) => { setSelectedTicket(ticket); setShowDeleteModal(true); },
             destructive: true
         }
@@ -249,7 +249,7 @@ function Tickets() {
     const bulkActions = [
         {
             label: 'Assign Selected',
-            icon: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ËœÃ‚Â¤',
+            icon: '👤',
             action: (ids) => {
                 setSelectedTicket(null); // Indicates bulk operation in modal
                 setShowAssignModal(true);
@@ -257,7 +257,7 @@ function Tickets() {
         },
         {
             label: 'Delete Selected',
-            icon: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬â€Ã¢â‚¬ËœÃƒÂ¯Ã‚Â¸Ã‚Â',
+            icon: '🗑️',
             action: (ids) => {
                 handleBulkDelete(ids);
             },

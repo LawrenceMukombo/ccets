@@ -75,9 +75,12 @@ const AssignTicketModal = ({ isOpen, onClose, ticket, ticketIds, onAssign }) => 
             );
 
             const results = await Promise.all(promises);
-            const failed = results.some(res => !res.ok);
-
-            if (failed) throw new Error('Failed to assign some tickets');
+            for (const res of results) {
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.message || errData.error || 'Failed to assign ticket(s)');
+                }
+            }
 
             onAssign(); // Refresh list
             onClose();
