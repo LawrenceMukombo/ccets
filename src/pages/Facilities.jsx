@@ -5,6 +5,8 @@ import { useLocationFilter } from '../hooks/useLocationFilter';
 import LocationFilter from '../components/LocationFilter';
 import EnterpriseDataTable from '../components/Common/EnterpriseDataTable';
 import FacilityDetailsModal from '../components/FacilityDetailsModal';
+import FacilityModal from '../components/FacilityModal';
+import ImportDataModal from '../components/Common/ImportDataModal';
 
 function Facilities() {
     const { tenantCode, config } = useTenant();
@@ -16,6 +18,12 @@ function Facilities() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
+    // CRUD & Import Modals
+    const [showFacilityModal, setShowFacilityModal] = useState(false);
+    const [facilityModalMode, setFacilityModalMode] = useState('create');
+    const [facilityToEdit, setFacilityToEdit] = useState(null);
+    const [showImportModal, setShowImportModal] = useState(false);
+
     // Pagination & Sort states
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(25);
@@ -64,24 +72,25 @@ function Facilities() {
         facilityField: 'facility_name'
     });
 
+    const fetchFacilityMetadata = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+            const response = await fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers });
+            const data = await response.json();
+            const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.facilities) ? data.facilities : (Array.isArray(data) ? data : []));
+            setAllFacilitiesForOptions(list);
+        } catch (err) {
+            console.error('Error fetching facility metadata:', err);
+        }
+    };
+
     // 1. Fetch metadata once for dropdown options
     useEffect(() => {
-        const fetchMetadata = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const headers = {
-                    'Content-Type': 'application/json',
-                    ...(token && { 'Authorization': `Bearer ${token}` })
-                };
-                const response = await fetch(`/api/${tenantCode}/facilities?limit=10000`, { headers });
-                const data = await response.json();
-                const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.facilities) ? data.facilities : (Array.isArray(data) ? data : []));
-                setAllFacilitiesForOptions(list);
-            } catch (err) {
-                console.error('Error fetching facility metadata:', err);
-            }
-        };
-        fetchMetadata();
+        fetchFacilityMetadata();
     }, [tenantCode]);
 
     // 2. Fetch active page of data whenever pagination, sorting, or filters change
@@ -161,7 +170,9 @@ function Facilities() {
             label: 'Edit',
             icon: '✏️',
             action: (facility) => {
-                alert(`Edit Facility: ${facility.facility_name}`);
+                setFacilityToEdit(facility);
+                setFacilityModalMode('edit');
+                setShowFacilityModal(true);
             }
         },
         {
@@ -180,15 +191,20 @@ function Facilities() {
         setPage(1);
     };
 
+    const handleMutationSuccess = () => {
+        fetchTableData();
+        fetchFacilityMetadata();
+    };
+
     return (
         <div className="facilities-container">
             {/* Header */}
             <div className="facilities-header">
                 <div className="header-content">
                     <div>
-                        <h1>Facilities</h1>
+                        <h1>🏥 Health Facilities</h1>
                         <p className="header-subtitle">
-                            Manage health facilities and equipment inventory
+                            View, add, manage, and audit cold chain health facilities across all provinces and districts
                         </p>
                     </div>
                 </div>
@@ -223,6 +239,7 @@ function Facilities() {
             {/* Enterprise DataTable */}
             <EnterpriseDataTable
                 tableName="facilities"
+                tableTitle="Health Facilities Inventory"
                 columns={columns}
                 data={facilities}
                 loading={loading}
@@ -257,16 +274,50 @@ function Facilities() {
                 }}
                 rowActions={rowActions}
                 rowActionKey="facility_id"
+                onAdd={() => {
+                    setFacilityModalMode('create');
+                    setFacilityToEdit(null);
+                    setShowFacilityModal(true);
+                }}
+                addLabel="+ Add Facility"
+                onImport={() => setShowImportModal(true)}
+                importLabel="📤 Import Facilities"
             />
 
+            {/* View Details Modal */}
             {selectedFacility && (
                 <FacilityDetailsModal
                     facility={selectedFacility}
                     onClose={() => setSelectedFacility(null)}
                 />
             )}
+
+            {/* Add / Edit Modal */}
+            <FacilityModal
+                isOpen={showFacilityModal}
+                mode={facilityModalMode}
+                facility={facilityToEdit}
+                tenantCode={tenantCode}
+                hierarchy={filterableLocationHierarchy}
+                onClose={() => {
+                    setShowFacilityModal(false);
+                    setFacilityToEdit(null);
+                }}
+                onSuccess={handleMutationSuccess}
+            />
+
+            {/* Bulk Import Modal */}
+            <ImportDataModal
+                isOpen={showImportModal}
+                entityType="facilities"
+                entityTitle="Health Facilities"
+                tenantCode={tenantCode}
+                onClose={() => setShowImportModal(false)}
+                onSuccess={handleMutationSuccess}
+            />
         </div>
     );
 }
 
 export default Facilities;
+

@@ -204,7 +204,150 @@ const getEquipmentStats = async (req, res) => {
     }
 };
 
+const createEquipment = async (req, res) => {
+    try {
+        const {
+            facility_id,
+            item_class,
+            item_type,
+            manufacturer,
+            model,
+            serial_number,
+            asset_code,
+            year_installed,
+            energy_source,
+            is_functioning
+        } = req.body;
+
+        if (!facility_id) {
+            return res.status(400).json({ success: false, message: 'Facility is required.' });
+        }
+
+        if (serial_number && serial_number.trim()) {
+            const dup = await db.query('SELECT equipment_id FROM equipment WHERE serial_number = $1 AND (is_del IS NOT TRUE) LIMIT 1', [serial_number.trim()]);
+            if (dup.rows.length > 0) {
+                return res.status(400).json({ success: false, message: `Equipment with serial number '${serial_number}' already exists.` });
+            }
+        }
+
+        const functioning = is_functioning !== false;
+
+        const result = await db.query(`
+            INSERT INTO equipment (
+                facility_id, item_class, item_type, manufacturer, model,
+                serial_number, asset_code, year_installed, energy_source, is_functioning
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            RETURNING *
+        `, [
+            parseInt(facility_id, 10),
+            item_class ? item_class.trim() : 'Cold Chain',
+            item_type ? item_type.trim() : null,
+            manufacturer ? manufacturer.trim() : null,
+            model ? model.trim() : null,
+            serial_number ? serial_number.trim() : null,
+            asset_code ? asset_code.trim() : null,
+            year_installed ? parseInt(year_installed, 10) : null,
+            energy_source ? energy_source.trim() : null,
+            functioning
+        ]);
+
+        res.status(201).json({
+            success: true,
+            message: 'Equipment registered successfully.',
+            equipment: result.rows[0],
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Error creating equipment:', error);
+        res.status(500).json({ success: false, message: 'Failed to create equipment', error: error.message });
+    }
+};
+
+const updateEquipment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            facility_id,
+            item_class,
+            item_type,
+            manufacturer,
+            model,
+            serial_number,
+            asset_code,
+            year_installed,
+            energy_source,
+            is_functioning
+        } = req.body;
+
+        if (serial_number && serial_number.trim()) {
+            const dup = await db.query('SELECT equipment_id FROM equipment WHERE serial_number = $1 AND equipment_id != $2 AND (is_del IS NOT TRUE) LIMIT 1', [serial_number.trim(), id]);
+            if (dup.rows.length > 0) {
+                return res.status(400).json({ success: false, message: `Serial number '${serial_number}' is already assigned to another equipment.` });
+            }
+        }
+
+        const functioning = is_functioning !== false;
+
+        const result = await db.query(`
+            UPDATE equipment SET
+                facility_id = COALESCE($1, facility_id),
+                item_class = $2,
+                item_type = $3,
+                manufacturer = $4,
+                model = $5,
+                serial_number = $6,
+                asset_code = $7,
+                year_installed = $8,
+                energy_source = $9,
+                is_functioning = $10
+            WHERE equipment_id = $11
+            RETURNING *
+        `, [
+            facility_id ? parseInt(facility_id, 10) : null,
+            item_class ? item_class.trim() : 'Cold Chain',
+            item_type ? item_type.trim() : null,
+            manufacturer ? manufacturer.trim() : null,
+            model ? model.trim() : null,
+            serial_number ? serial_number.trim() : null,
+            asset_code ? asset_code.trim() : null,
+            year_installed ? parseInt(year_installed, 10) : null,
+            energy_source ? energy_source.trim() : null,
+            functioning,
+            id
+        ]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Equipment not found.' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Equipment updated successfully.',
+            equipment: result.rows[0],
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Error updating equipment:', error);
+        res.status(500).json({ success: false, message: 'Failed to update equipment', error: error.message });
+    }
+};
+
+const deleteEquipment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.query('UPDATE equipment SET is_del = true WHERE equipment_id = $1', [id]);
+        res.json({ success: true, message: 'Equipment removed successfully.' });
+    } catch (error) {
+        console.error('Error deleting equipment:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete equipment', error: error.message });
+    }
+};
+
 module.exports = {
     getEquipment,
-    getEquipmentStats
+    getEquipmentStats,
+    createEquipment,
+    updateEquipment,
+    deleteEquipment
 };
+

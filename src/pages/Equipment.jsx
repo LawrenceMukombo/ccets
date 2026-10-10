@@ -6,6 +6,8 @@ import LocationFilter from '../components/LocationFilter';
 import EquipmentDetailsModal from '../components/EquipmentDetailsModal';
 import ReportFaultModal from '../components/ReportFaultModal';
 import EnterpriseDataTable from '../components/Common/EnterpriseDataTable';
+import EquipmentModal from '../components/EquipmentModal';
+import ImportDataModal from '../components/Common/ImportDataModal';
 
 function Equipment() {
     const { tenantCode, config } = useTenant();
@@ -13,9 +15,16 @@ function Equipment() {
     // Table states
     const [equipment, setEquipment] = useState([]);
     const [allEquipmentForOptions, setAllEquipmentForOptions] = useState([]);
+    const [facilitiesList, setFacilitiesList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
+    // CRUD & Import Modals
+    const [showEquipmentModal, setShowEquipmentModal] = useState(false);
+    const [equipmentModalMode, setEquipmentModalMode] = useState('create');
+    const [equipmentToEdit, setEquipmentToEdit] = useState(null);
+    const [showImportModal, setShowImportModal] = useState(false);
+
     // Pagination & Sort states
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(50);
@@ -67,24 +76,43 @@ function Equipment() {
         facilityField: 'facility_name'
     });
 
+    const fetchEquipmentMetadata = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+            const response = await fetch(`/api/${tenantCode}/equipment?limit=10000`, { headers });
+            const data = await response.json();
+            const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.equipment) ? data.equipment : (Array.isArray(data) ? data : []));
+            setAllEquipmentForOptions(list);
+        } catch (err) {
+            console.error('Error fetching equipment metadata:', err);
+        }
+    };
+
+    // Load Facilities list for EquipmentModal dropdown
+    const fetchFacilities = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/${tenantCode}/facilities?limit=10000`, {
+                headers: { ...(token && { 'Authorization': `Bearer ${token}` }) }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.facilities) ? data.facilities : []);
+                setFacilitiesList(list);
+            }
+        } catch (err) {
+            console.error('Error fetching facilities for equipment picker:', err);
+        }
+    };
+
     // 1. Fetch metadata once for dropdown options
     useEffect(() => {
-        const fetchMetadata = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const headers = {
-                    'Content-Type': 'application/json',
-                    ...(token && { 'Authorization': `Bearer ${token}` })
-                };
-                const response = await fetch(`/api/${tenantCode}/equipment?limit=10000`, { headers });
-                const data = await response.json();
-                const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data?.equipment) ? data.equipment : (Array.isArray(data) ? data : []));
-                setAllEquipmentForOptions(list);
-            } catch (err) {
-                console.error('Error fetching equipment metadata:', err);
-            }
-        };
-        fetchMetadata();
+        fetchEquipmentMetadata();
+        fetchFacilities();
     }, [tenantCode]);
 
     // 2. Fetch active page of data whenever pagination, sorting, or filters change
@@ -177,6 +205,15 @@ function Equipment() {
             }
         },
         {
+            label: 'Edit Equipment',
+            icon: '✏️',
+            action: (item) => {
+                setEquipmentToEdit(item);
+                setEquipmentModalMode('edit');
+                setShowEquipmentModal(true);
+            }
+        },
+        {
             label: 'Report Fault',
             icon: '⚠️',
             action: (item) => {
@@ -193,6 +230,11 @@ function Equipment() {
         setPage(1);
     };
 
+    const handleMutationSuccess = () => {
+        fetchTableData();
+        fetchEquipmentMetadata();
+    };
+
     return (
         <div className="equipment-container">
             {/* Header */}
@@ -201,7 +243,7 @@ function Equipment() {
                     <div>
                         <h1>📦 Equipment Inventory</h1>
                         <p className="header-subtitle">
-                            View and manage cold chain equipment across all health facilities
+                            View, add, manage, and audit cold chain equipment across all health facilities
                         </p>
                     </div>
                 </div>
@@ -236,6 +278,7 @@ function Equipment() {
             {/* Enterprise DataTable */}
             <EnterpriseDataTable
                 tableName="equipment"
+                tableTitle="Cold Chain Equipment Inventory"
                 columns={columns}
                 data={equipment}
                 loading={loading}
@@ -273,9 +316,17 @@ function Equipment() {
                 emptyTitle="No equipment found"
                 emptyMessage="No cold chain equipment matching your active filters was found."
                 onRowClick={(item) => setSelectedItem(item)}
+                onAdd={() => {
+                    setEquipmentModalMode('create');
+                    setEquipmentToEdit(null);
+                    setShowEquipmentModal(true);
+                }}
+                addLabel="+ Add Equipment"
+                onImport={() => setShowImportModal(true)}
+                importLabel="📤 Import Equipment"
             />
 
-            {/* Modals */}
+            {/* Details Modal */}
             <EquipmentDetailsModal
                 equipment={selectedItem}
                 onClose={(action) => {
@@ -287,16 +338,40 @@ function Equipment() {
                 }}
             />
 
+            {/* Report Fault Modal */}
             <ReportFaultModal
                 isOpen={reportModalOpen}
                 onClose={() => setReportModalOpen(false)}
                 equipment={selectedEquipmentForReport}
-                onSuccess={() => {
-                    fetchTableData();
+                onSuccess={fetchTableData}
+            />
+
+            {/* Add / Edit Equipment Modal */}
+            <EquipmentModal
+                isOpen={showEquipmentModal}
+                mode={equipmentModalMode}
+                equipment={equipmentToEdit}
+                facilities={facilitiesList}
+                tenantCode={tenantCode}
+                onClose={() => {
+                    setShowEquipmentModal(false);
+                    setEquipmentToEdit(null);
                 }}
+                onSuccess={handleMutationSuccess}
+            />
+
+            {/* Bulk Import Modal */}
+            <ImportDataModal
+                isOpen={showImportModal}
+                entityType="equipment"
+                entityTitle="Cold Chain Equipment"
+                tenantCode={tenantCode}
+                onClose={() => setShowImportModal(false)}
+                onSuccess={handleMutationSuccess}
             />
         </div>
     );
 }
 
 export default Equipment;
+

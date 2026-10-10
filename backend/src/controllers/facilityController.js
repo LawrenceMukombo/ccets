@@ -377,3 +377,168 @@ exports.getFacilitiesByDistrict = async (req, res) => {
         });
     }
 };
+
+exports.createFacility = async (req, res) => {
+    try {
+        const {
+            facility_name,
+            facility_code,
+            type,
+            region_id,
+            province_id,
+            district_id,
+            latitude,
+            longitude,
+            gps_coordinates,
+            is_functioning
+        } = req.body;
+
+        if (!facility_name || !facility_name.trim()) {
+            return res.status(400).json({ success: false, message: 'Facility name is required.' });
+        }
+
+        if (facility_code && facility_code.trim()) {
+            const dup = await db.query('SELECT facility_id FROM facilities WHERE facility_code = $1 LIMIT 1', [facility_code.trim()]);
+            if (dup.rows.length > 0) {
+                return res.status(400).json({ success: false, message: `Facility code '${facility_code}' already exists.` });
+            }
+        }
+
+        const coords = gps_coordinates || (latitude && longitude ? `${latitude},${longitude}` : null);
+        const lat = latitude !== undefined && latitude !== '' ? Number(latitude) : null;
+        const lng = longitude !== undefined && longitude !== '' ? Number(longitude) : null;
+        const functioning = is_functioning !== false;
+
+        const result = await db.query(`
+            INSERT INTO facilities (
+                facility_name, facility_code, type, region_id, province_id, district_id,
+                latitude, longitude, gps_coordinates, is_functioning
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            RETURNING *
+        `, [
+            facility_name.trim(),
+            facility_code ? facility_code.trim() : null,
+            type ? type.trim() : null,
+            region_id ? parseInt(region_id, 10) : null,
+            province_id ? parseInt(province_id, 10) : null,
+            district_id ? parseInt(district_id, 10) : null,
+            lat,
+            lng,
+            coords,
+            functioning
+        ]);
+
+        res.status(201).json({
+            success: true,
+            message: 'Facility created successfully.',
+            facility: result.rows[0],
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Error creating facility:', error);
+        res.status(500).json({ success: false, message: 'Failed to create facility', error: error.message });
+    }
+};
+
+exports.updateFacility = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            facility_name,
+            facility_code,
+            type,
+            region_id,
+            province_id,
+            district_id,
+            latitude,
+            longitude,
+            gps_coordinates,
+            is_functioning
+        } = req.body;
+
+        if (!facility_name || !facility_name.trim()) {
+            return res.status(400).json({ success: false, message: 'Facility name is required.' });
+        }
+
+        if (facility_code && facility_code.trim()) {
+            const dup = await db.query('SELECT facility_id FROM facilities WHERE facility_code = $1 AND facility_id != $2 LIMIT 1', [facility_code.trim(), id]);
+            if (dup.rows.length > 0) {
+                return res.status(400).json({ success: false, message: `Facility code '${facility_code}' is already assigned to another facility.` });
+            }
+        }
+
+        const coords = gps_coordinates || (latitude && longitude ? `${latitude},${longitude}` : null);
+        const lat = latitude !== undefined && latitude !== '' ? Number(latitude) : null;
+        const lng = longitude !== undefined && longitude !== '' ? Number(longitude) : null;
+        const functioning = is_functioning !== false;
+
+        const result = await db.query(`
+            UPDATE facilities SET
+                facility_name = $1,
+                facility_code = $2,
+                type = $3,
+                region_id = $4,
+                province_id = $5,
+                district_id = $6,
+                latitude = $7,
+                longitude = $8,
+                gps_coordinates = $9,
+                is_functioning = $10
+            WHERE facility_id = $11
+            RETURNING *
+        `, [
+            facility_name.trim(),
+            facility_code ? facility_code.trim() : null,
+            type ? type.trim() : null,
+            region_id ? parseInt(region_id, 10) : null,
+            province_id ? parseInt(province_id, 10) : null,
+            district_id ? parseInt(district_id, 10) : null,
+            lat,
+            lng,
+            coords,
+            functioning,
+            id
+        ]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Facility not found.' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Facility updated successfully.',
+            facility: result.rows[0],
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Error updating facility:', error);
+        res.status(500).json({ success: false, message: 'Failed to update facility', error: error.message });
+    }
+};
+
+exports.deleteFacility = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const equipCheck = await db.query('SELECT COUNT(*) FROM equipment WHERE facility_id = $1 AND (is_del IS NOT TRUE)', [id]);
+        if (parseInt(equipCheck.rows[0].count, 10) > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot delete facility: it has ${equipCheck.rows[0].count} active equipment items assigned to it.`
+            });
+        }
+        const ticketCheck = await db.query('SELECT COUNT(*) FROM tickets WHERE facility_id = $1', [id]);
+        if (parseInt(ticketCheck.rows[0].count, 10) > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot delete facility: it has ${ticketCheck.rows[0].count} tickets linked to it.`
+            });
+        }
+
+        await db.query('DELETE FROM facilities WHERE facility_id = $1', [id]);
+        res.json({ success: true, message: 'Facility deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting facility:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete facility', error: error.message });
+    }
+};
+

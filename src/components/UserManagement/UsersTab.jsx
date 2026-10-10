@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import './UsersTab.css';
 import EnterpriseDataTable from '../Common/EnterpriseDataTable';
+import ImportDataModal from '../Common/ImportDataModal';
 
 const UsersTab = () => {
     const { tenantCode } = useTenant();
@@ -28,6 +29,8 @@ const UsersTab = () => {
     const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
+    const [showImportModal, setShowImportModal] = useState(false);
+
 
     const [error, setError] = useState('');
 
@@ -279,6 +282,7 @@ const UsersTab = () => {
             {/* Enterprise DataTable */}
             <EnterpriseDataTable
                 tableName="users"
+                tableTitle="User Accounts & Permissions Registry"
                 columns={columns}
                 data={users}
                 loading={loading}
@@ -313,6 +317,10 @@ const UsersTab = () => {
                 rowActionKey="user_id"
                 emptyTitle="No users found"
                 emptyMessage="No user accounts match your selected filter criteria."
+                onAdd={() => openModal('create')}
+                addLabel="+ Create User"
+                onImport={() => setShowImportModal(true)}
+                importLabel="📤 Import Users"
             />
 
             {/* UNIFIED USER MODAL */}
@@ -347,9 +355,11 @@ const UsersTab = () => {
                 </div>
             )}
 
+            {/* RESET PASSWORD MODAL */}
             {showResetPasswordModal && (
                 <ResetPasswordModal
                     user={selectedUser}
+                    tenantCode={tenantCode}
                     onClose={() => {
                         setShowResetPasswordModal(false);
                         setSelectedUser(null);
@@ -357,6 +367,16 @@ const UsersTab = () => {
                     onSuccess={fetchUsers}
                 />
             )}
+
+            {/* Bulk Import Modal */}
+            <ImportDataModal
+                isOpen={showImportModal}
+                entityType="users"
+                entityTitle="Users"
+                tenantCode={tenantCode}
+                onClose={() => setShowImportModal(false)}
+                onSuccess={fetchUsersTableData}
+            />
         </div>
     );
 };
@@ -850,7 +870,7 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
 };
 
 // Reset Password Modal Component
-const ResetPasswordModal = ({ user, onClose, onSuccess }) => {
+const ResetPasswordModal = ({ user, tenantCode, onClose, onSuccess }) => {
     // ... Same as before
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -875,7 +895,11 @@ const ResetPasswordModal = ({ user, onClose, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/users/${user.user_id}/reset-password`, {
+            const targetUrl = tenantCode 
+                ? `/api/${tenantCode}/users/${user.user_id}/reset-password`
+                : `/api/users/${user.user_id}/reset-password`;
+
+            const response = await fetch(targetUrl, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -883,6 +907,7 @@ const ResetPasswordModal = ({ user, onClose, onSuccess }) => {
                 },
                 body: JSON.stringify({ new_password: newPassword })
             });
+
 
             if (!response.ok) throw new Error('Failed to reset password');
 

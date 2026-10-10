@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { TableLoadingState, TableEmptyState, TableNoResultsState, TableErrorState } from './TableStates';
+import { exportToCsv, exportToExcel, exportToDocx, exportToPdf } from '../../utils/exportUtils';
 import './EnterpriseDataTable.css';
 
 /**
@@ -43,7 +44,15 @@ const EnterpriseDataTable = ({
     emptyMessage = 'No records found.',
     emptyTitle = 'No data',
     onEmptyAction = null,
-    emptyActionLabel = null
+    emptyActionLabel = null,
+
+    // Enterprise Actions: Add, Import, Export
+    onAdd = null,
+    addLabel = '+ Add New',
+    onImport = null,
+    importLabel = '📥 Import',
+    onExport = null,
+    exportTitle = null
 }) => {
     // Local Table State
     const [density, setDensity] = useState(() => {
@@ -58,11 +67,13 @@ const EnterpriseDataTable = ({
     });
     const [showColumnMenu, setShowColumnMenu] = useState(false);
     const [showDensityMenu, setShowDensityMenu] = useState(false);
+    const [showExportMenu, setShowExportMenu] = useState(false);
     const [localSearch, setLocalSearch] = useState(searchValue);
     
     // References
     const columnMenuRef = useRef(null);
     const densityMenuRef = useRef(null);
+    const exportMenuRef = useRef(null);
 
     // Persist density choice
     const handleDensityChange = (newDensity) => {
@@ -80,10 +91,14 @@ const EnterpriseDataTable = ({
             if (densityMenuRef.current && !densityMenuRef.current.contains(event.target)) {
                 setShowDensityMenu(false);
             }
+            if (exportMenuRef.current && !exportMenuRef.current.contains(event.target)) {
+                setShowExportMenu(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
 
     // Sync search input with parent value if controlled
     useEffect(() => {
@@ -157,6 +172,33 @@ const EnterpriseDataTable = ({
     const displayColumns = useMemo(() => {
         return columns.filter(col => visibleColumns[col.id]);
     }, [columns, visibleColumns]);
+
+    // Handle Export execution
+    const handleExportFormat = (format) => {
+        setShowExportMenu(false);
+        if (onExport) {
+            onExport(format);
+            return;
+        }
+
+        const exportData = selectedIds.size > 0 
+            ? data.filter(item => selectedIds.has(item[rowActionKey]))
+            : data;
+
+        const title = exportTitle || `${tableName.replace(/_/g, ' ').toUpperCase()} Report`;
+        const baseFilename = `${tableName}_export_${new Date().toISOString().slice(0, 10)}`;
+
+        if (format === 'csv') {
+            exportToCsv({ filename: `${baseFilename}.csv`, columns: displayColumns, data: exportData });
+        } else if (format === 'xlsx') {
+            exportToExcel({ filename: `${baseFilename}.xlsx`, title, columns: displayColumns, data: exportData });
+        } else if (format === 'docx') {
+            exportToDocx({ filename: `${baseFilename}.docx`, title, columns: displayColumns, data: exportData });
+        } else if (format === 'pdf') {
+            exportToPdf({ title, columns: displayColumns, data: exportData });
+        }
+    };
+
 
     // Pagination helper properties
     const page = pagination?.page || 1;
@@ -279,6 +321,61 @@ const EnterpriseDataTable = ({
                             </div>
                         )}
                     </div>
+
+                    {/* Export Menu Dropdown */}
+                    <div className="menu-container" ref={exportMenuRef}>
+                        <button 
+                            className={`toolbar-btn ${showExportMenu ? 'active' : ''}`}
+                            onClick={() => setShowExportMenu(!showExportMenu)}
+                            title="Export data in multiple formats"
+                        >
+                            📥 Export ▾
+                        </button>
+                        {showExportMenu && (
+                            <div className="toolbar-dropdown export-dropdown" style={{ minWidth: '190px' }}>
+                                <div style={{ padding: '6px 12px', fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Export Format {selectedIds.size > 0 ? `(${selectedIds.size} selected)` : `(${data.length})`}
+                                </div>
+                                <div className="dropdown-divider"></div>
+                                <button onClick={() => handleExportFormat('csv')}>
+                                    📄 CSV Spreadsheet (.csv)
+                                </button>
+                                <button onClick={() => handleExportFormat('xlsx')}>
+                                    📊 Microsoft Excel (.xlsx)
+                                </button>
+                                <button onClick={() => handleExportFormat('docx')}>
+                                    📝 Microsoft Word (.docx)
+                                </button>
+                                <button onClick={() => handleExportFormat('pdf')}>
+                                    📑 PDF Document (.pdf)
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Optional Import Trigger */}
+                    {onImport && (
+                        <button 
+                            className="toolbar-btn"
+                            onClick={onImport}
+                            style={{ background: '#f8fafc', color: '#1e293b', fontWeight: '600' }}
+                            title="Import data from CSV or spreadsheet"
+                        >
+                            {importLabel}
+                        </button>
+                    )}
+
+                    {/* Optional Add Trigger */}
+                    {onAdd && (
+                        <button 
+                            className="toolbar-btn"
+                            onClick={onAdd}
+                            style={{ background: '#1e3a8a', color: '#ffffff', fontWeight: '600', borderColor: '#1e3a8a' }}
+                            title="Add new record"
+                        >
+                            {addLabel}
+                        </button>
+                    )}
                 </div>
             </div>
 
