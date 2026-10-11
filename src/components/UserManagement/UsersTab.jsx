@@ -386,6 +386,7 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
     const isView = mode === 'view';
     const isEdit = mode === 'edit';
     const isCreate = mode === 'create';
+    const { tenantCode } = useTenant();
 
     // Title mapping
     const titles = {
@@ -412,16 +413,28 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
         provinces: []
     });
 
+    // Cascading & Location Assignment States
+    const [locationLevel, setLocationLevel] = useState('national');
+    const [selectedRegionId, setSelectedRegionId] = useState('');
+    const [selectedProvinceId, setSelectedProvinceId] = useState('');
+    const [selectedDistrictId, setSelectedDistrictId] = useState('');
+    const [selectedFacilityId, setSelectedFacilityId] = useState('');
+    const [selectedBlockProvinceIds, setSelectedBlockProvinceIds] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [facilities, setFacilities] = useState([]);
+    const [facilitySearch, setFacilitySearch] = useState('');
+    const [loadingDistricts, setLoadingDistricts] = useState(false);
+    const [loadingFacilities, setLoadingFacilities] = useState(false);
+
     // History State
     const [userHistory, setUserHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
 
     const [loading, setLoading] = useState(false);
     const [fetchingDetails, setFetchingDetails] = useState(false);
-    const [locationLevel, setLocationLevel] = useState('national');
     const [error, setError] = useState('');
 
-    // Fetch locations once
+    // Fetch regions & provinces once
     useEffect(() => {
         fetchLocations();
     }, []);
@@ -433,6 +446,74 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
             if (isView) fetchUserHistory(user.user_id);
         }
     }, [mode, user]);
+
+    const fetchLocations = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const [resRegions, resProvinces] = await Promise.all([
+                fetch(`/api/${tenantCode}/facilities/regions`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`/api/${tenantCode}/facilities/provinces`, { headers: { 'Authorization': `Bearer ${token}` } })
+            ]);
+
+            const regions = await resRegions.json();
+            const provinces = await resProvinces.json();
+
+            setLocations({
+                regions: Array.isArray(regions) ? regions : [],
+                provinces: Array.isArray(provinces) ? provinces : []
+            });
+        } catch (err) {
+            console.error('Failed to fetch locations', err);
+        }
+    };
+
+    const fetchDistrictsForProvince = async (provId) => {
+        if (!provId) {
+            setDistricts([]);
+            setSelectedDistrictId('');
+            setFacilities([]);
+            setSelectedFacilityId('');
+            return;
+        }
+        setLoadingDistricts(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/${tenantCode}/facilities/districts/${provId}`, {
+                headers: { ...(token && { 'Authorization': `Bearer ${token}` }) }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setDistricts(Array.isArray(data) ? data : []);
+            }
+        } catch (err) {
+            console.error('Failed to load districts:', err);
+        } finally {
+            setLoadingDistricts(false);
+        }
+    };
+
+    const fetchFacilitiesForDistrict = async (distId) => {
+        if (!distId) {
+            setFacilities([]);
+            setSelectedFacilityId('');
+            return;
+        }
+        setLoadingFacilities(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/${tenantCode}/facilities/district/${distId}`, {
+                headers: { ...(token && { 'Authorization': `Bearer ${token}` }) }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setFacilities(Array.isArray(data) ? data : []);
+            }
+        } catch (err) {
+            console.error('Failed to load facilities:', err);
+        } finally {
+            setLoadingFacilities(false);
+        }
+    };
 
     const fetchUserDetails = async (id) => {
         setFetchingDetails(true);
@@ -449,7 +530,7 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
             setFormData({
                 username: data.username,
                 email: data.email || '',
-                password: '', // Should be empty/ignored
+                password: '',
                 first_name: data.first_name || '',
                 last_name: data.last_name || '',
                 phone_number: data.phone_number || '',
@@ -458,14 +539,42 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
                 scopes: data.scopes || []
             });
 
-            // Determine location level from data
+            // Determine location level and pre-populate selectors
             if (data.is_national_access) {
                 setLocationLevel('national');
+            } else if (data.assigned_facility_id) {
+                setLocationLevel('facility');
+                const provId = data.assigned_province_id ? String(data.assigned_province_id) : '';
+                const distId = data.assigned_district_id ? String(data.assigned_district_id) : '';
+                setSelectedProvinceId(provId);
+                setSelectedDistrictId(distId);
+                setSelectedFacilityId(String(data.assigned_facility_id));
+                if (provId) fetchDistrictsForProvince(provId);
+                if (distId) fetchFacilitiesForDistrict(distId);
+            } else if (data.assigned_district_id) {
+                setLocationLevel('district');
+                const provId = data.assigned_province_id ? String(data.assigned_province_id) : '';
+                setSelectedProvinceId(provId);
+                setSelectedDistrictId(String(data.assigned_district_id));
+                if (provId) fetchDistrictsForProvince(provId);
+            } else if (data.accessible_provinces && data.accessible_provinces.length > 1) {
+                setLocationLevel('region');
+                setSelectedBlockProvinceIds(data.accessible_provinces.map(Number));
+            } else if (data.assigned_province_id || (data.accessible_provinces && data.accessible_provinces.length === 1)) {
+                setLocationLevel('province');
+                const pId = data.assigned_province_id || data.accessible_provinces[0];
+                setSelectedProvinceId(String(pId));
+            } else if (data.assigned_region_id) {
+                setLocationLevel('region');
+                setSelectedRegionId(String(data.assigned_region_id));
             } else if (data.scopes && data.scopes.length > 0) {
-                // Determine level from first scope (assuming strict one-level policy)
-                setLocationLevel(data.scopes[0].level);
+                const firstScope = data.scopes[0];
+                setLocationLevel(firstScope.level || 'national');
+                if (firstScope.level === 'province') setSelectedProvinceId(String(firstScope.id));
+                if (firstScope.level === 'district') setSelectedDistrictId(String(firstScope.id));
+                if (firstScope.level === 'facility') setSelectedFacilityId(String(firstScope.id));
             } else {
-                setLocationLevel('national'); // Default fallback
+                setLocationLevel('national');
             }
 
         } catch (err) {
@@ -491,25 +600,82 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
         }
     };
 
-    const fetchLocations = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const [resRegions, resProvinces] = await Promise.all([
-                fetch(`/api/${tenantCode}/facilities/regions`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`/api/${tenantCode}/facilities/provinces`, { headers: { 'Authorization': `Bearer ${token}` } })
-            ]);
-
-            const regions = await resRegions.json();
-            const provinces = await resProvinces.json();
-
-            setLocations({
-                regions: Array.isArray(regions) ? regions : [],
-                provinces: Array.isArray(provinces) ? provinces : []
-            });
-        } catch (err) {
-            console.error('Failed to fetch locations', err);
+    // Auto-suggest Access Level when Role is selected
+    const handleRoleChange = (roleId) => {
+        setFormData(prev => ({ ...prev, role_id: roleId }));
+        const roleObj = roles.find(r => String(r.role_id) === String(roleId));
+        if (roleObj) {
+            const rName = (roleObj.role_name || '').toLowerCase();
+            if (rName.includes('national') || rName.includes('admin')) {
+                setLocationLevel('national');
+            } else if (rName.includes('region')) {
+                setLocationLevel('region');
+            } else if (rName.includes('provinc')) {
+                setLocationLevel('province');
+            } else if (rName.includes('district')) {
+                setLocationLevel('district');
+            } else if (rName.includes('facility') || rName.includes('technician') || rName.includes('post') || rName.includes('clinic')) {
+                setLocationLevel('facility');
+            }
         }
     };
+
+    const handleLocationLevelChange = (newLevel) => {
+        setLocationLevel(newLevel);
+        if (newLevel === 'national') {
+            // no location needed
+        } else if (newLevel === 'province') {
+            setSelectedDistrictId('');
+            setSelectedFacilityId('');
+        } else if (newLevel === 'district') {
+            setSelectedFacilityId('');
+        }
+    };
+
+    const handleProvinceChange = (e) => {
+        const provId = e.target.value;
+        setSelectedProvinceId(provId);
+        setSelectedDistrictId('');
+        setSelectedFacilityId('');
+        setFacilities([]);
+        fetchDistrictsForProvince(provId);
+    };
+
+    const handleDistrictChange = (e) => {
+        const distId = e.target.value;
+        setSelectedDistrictId(distId);
+        setSelectedFacilityId('');
+        if (locationLevel === 'facility') {
+            fetchFacilitiesForDistrict(distId);
+        }
+    };
+
+    const handleToggleBlockProvince = (provId) => {
+        if (isView) return;
+        const pNum = Number(provId);
+        setSelectedBlockProvinceIds(prev =>
+            prev.includes(pNum) ? prev.filter(id => id !== pNum) : [...prev, pNum]
+        );
+    };
+
+    const handleSelectAllProvinces = () => {
+        if (isView) return;
+        setSelectedBlockProvinceIds(locations.provinces.map(p => p.province_id));
+    };
+
+    const handleClearAllProvinces = () => {
+        if (isView) return;
+        setSelectedBlockProvinceIds([]);
+    };
+
+    const filteredFacilities = useMemo(() => {
+        if (!facilitySearch.trim()) return facilities;
+        const q = facilitySearch.toLowerCase().trim();
+        return facilities.filter(f =>
+            (f.facility_name || '').toLowerCase().includes(q) ||
+            (f.facility_code || '').toLowerCase().includes(q)
+        );
+    }, [facilities, facilitySearch]);
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -517,18 +683,68 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
 
         try {
             const token = localStorage.getItem('token');
+            const isNational = locationLevel === 'national';
+
+            let assignedRegion = null;
+            let assignedProvince = null;
+            let assignedDistrict = null;
+            let assignedFacility = null;
+            let accRegions = null;
+            let accProvinces = null;
+            let accDistricts = null;
+            let accFacilities = null;
+            let scopes = [];
+
+            if (!isNational) {
+                if (locationLevel === 'region') {
+                    assignedRegion = selectedRegionId ? parseInt(selectedRegionId, 10) : null;
+                    accProvinces = selectedBlockProvinceIds.length > 0 ? selectedBlockProvinceIds.map(Number) : null;
+                    if (accProvinces) {
+                        scopes = accProvinces.map(id => ({ level: 'province', id }));
+                    } else if (assignedRegion) {
+                        scopes = [{ level: 'region', id: assignedRegion }];
+                    }
+                } else if (locationLevel === 'province') {
+                    assignedProvince = parseInt(selectedProvinceId, 10);
+                    accProvinces = [assignedProvince];
+                    scopes = [{ level: 'province', id: assignedProvince }];
+                } else if (locationLevel === 'district') {
+                    assignedProvince = parseInt(selectedProvinceId, 10);
+                    assignedDistrict = parseInt(selectedDistrictId, 10);
+                    accProvinces = [assignedProvince];
+                    accDistricts = [assignedDistrict];
+                    scopes = [{ level: 'district', id: assignedDistrict }];
+                } else if (locationLevel === 'facility') {
+                    assignedProvince = parseInt(selectedProvinceId, 10);
+                    assignedDistrict = parseInt(selectedDistrictId, 10);
+                    assignedFacility = parseInt(selectedFacilityId, 10);
+                    accProvinces = [assignedProvince];
+                    accDistricts = [assignedDistrict];
+                    accFacilities = [assignedFacility];
+                    scopes = [{ level: 'facility', id: assignedFacility }];
+                }
+            }
+
             const payload = {
                 ...formData,
-                is_national_access: locationLevel === 'national',
-                scopes: locationLevel === 'national' ? [] : formData.scopes
+                is_national_access: isNational,
+                location_level: locationLevel,
+                assigned_region_id: assignedRegion,
+                assigned_province_id: assignedProvince,
+                assigned_district_id: assignedDistrict,
+                assigned_facility_id: assignedFacility,
+                accessible_regions: accRegions,
+                accessible_provinces: accProvinces,
+                accessible_districts: accDistricts,
+                accessible_facilities: accFacilities,
+                scopes
             };
 
-            // API URL and Method differ for Create vs Update
             const url = isCreate ? `/api/${tenantCode}/users` : `/api/${tenantCode}/users/${user.user_id}`;
             const method = isCreate ? 'POST' : 'PUT';
 
             const response = await fetch(url, {
-                method: method,
+                method,
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -550,32 +766,31 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
         }
     };
 
-    const handleScopeChange = (level, id, checked) => {
-        if (isView) return;
-        setFormData(prev => {
-            let newScopes = [...prev.scopes];
-            if (checked) {
-                newScopes.push({ level, id });
-            } else {
-                newScopes = newScopes.filter(s => !(s.level === level && s.id === id));
-            }
-            return { ...prev, scopes: newScopes };
-        });
-    };
-
     // Validations
     const isStep1Valid = () => {
         if (isView) return true;
         const basic = formData.username && formData.email && formData.first_name &&
             formData.last_name && formData.phone_number;
-        return isCreate ? (basic && formData.password) : basic; // Password only required on create
+        return isCreate ? (basic && formData.password) : basic;
     };
 
     const isStep2Valid = () => {
         if (isView) return true;
         if (!formData.role_id) return false;
         if (locationLevel === 'national') return true;
-        return formData.scopes.length > 0;
+        if (locationLevel === 'region') {
+            return selectedBlockProvinceIds.length > 0 || Boolean(selectedRegionId);
+        }
+        if (locationLevel === 'province') {
+            return Boolean(selectedProvinceId);
+        }
+        if (locationLevel === 'district') {
+            return Boolean(selectedProvinceId && selectedDistrictId);
+        }
+        if (locationLevel === 'facility') {
+            return Boolean(selectedProvinceId && selectedDistrictId && selectedFacilityId);
+        }
+        return false;
     };
 
     const renderHistory = () => {
@@ -690,7 +905,7 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
                     <label>Role {isCreate && '*'}</label>
                     <select
                         value={formData.role_id}
-                        onChange={e => setFormData({ ...formData, role_id: e.target.value })}
+                        onChange={e => handleRoleChange(e.target.value)}
                         required
                         className="full-width-select"
                         disabled={isView}
@@ -711,71 +926,239 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
                 </div>
 
                 <div className="form-group">
-                    <label>Access Level</label>
+                    <label>Access Level <span className="req">*</span></label>
                     <select
                         value={locationLevel}
-                        onChange={e => {
-                            setLocationLevel(e.target.value);
-                            setFormData(prev => ({ ...prev, scopes: [] }));
-                        }}
+                        onChange={e => handleLocationLevelChange(e.target.value)}
                         className="full-width-select"
                         disabled={isView}
                     >
-                        <option value="national">National (All Access)</option>
-                        <option value="region">Regional (Select Regions)</option>
-                        <option value="province">Provincial (Select Provinces)</option>
+                        <option value="national">National (Oversees all provinces)</option>
+                        <option value="region">Regional (Oversees a block of provinces)</option>
+                        <option value="province">Provincial (Oversees a province)</option>
+                        <option value="district">District (Oversees a district in a province)</option>
+                        <option value="facility">Facility (Oversees a health facility)</option>
                     </select>
                 </div>
 
-                {locationLevel !== 'national' && (
-                    <div className="location-selector">
-                        <h4>
-                            Locations
-                            {!isView && formData.scopes.length === 0 && <span style={{ color: 'red' }}> *</span>}
-                        </h4>
-                        {locationLevel === 'region' && (
+                {/* DYNAMIC LOCATION ASSIGNMENT */}
+                <div className="location-assignment-panel">
+                    {locationLevel === 'national' && (
+                        <div className="location-info-banner national-banner">
+                            <span className="banner-icon">🌐</span>
+                            <div>
+                                <strong>National Oversight Scope</strong>
+                                <p>This user oversees all provinces, districts, and health facilities across the nation with full country-wide visibility.</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {locationLevel === 'region' && (
+                        <div className="location-selector">
+                            <div className="location-level-header">
+                                <div>
+                                    <h4>
+                                        Assigned Block of Provinces
+                                        {!isView && selectedBlockProvinceIds.length === 0 && <span className="req"> *</span>}
+                                    </h4>
+                                    <p className="location-level-sub">
+                                        Select the block of provinces this Regional user oversees:
+                                    </p>
+                                </div>
+                                {!isView && (
+                                    <div className="block-selection-actions">
+                                        <span className="block-counter-badge">
+                                            {selectedBlockProvinceIds.length} of {locations.provinces.length} selected
+                                        </span>
+                                        <button type="button" className="btn-link-action" onClick={handleSelectAllProvinces}>Select All</button>
+                                        <span className="sep">|</span>
+                                        <button type="button" className="btn-link-action" onClick={handleClearAllProvinces}>Clear</button>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="checkbox-grid">
-                                {locations.regions.map(reg => (
-                                    <label key={reg.region_id} className="checkbox-item">
+                                {locations.provinces.map(prov => (
+                                    <label key={prov.province_id} className={`checkbox-item ${selectedBlockProvinceIds.includes(prov.province_id) ? 'selected' : ''}`}>
                                         <input
                                             type="checkbox"
-                                            checked={formData.scopes.some(s => s.id === reg.region_id && s.level === 'region')}
-                                            onChange={e => handleScopeChange('region', reg.region_id, e.target.checked)}
+                                            checked={selectedBlockProvinceIds.includes(prov.province_id)}
+                                            onChange={() => handleToggleBlockProvince(prov.province_id)}
                                             disabled={isView}
                                         />
-                                        {reg.region_name}
+                                        <span>{prov.province_name}</span>
                                     </label>
                                 ))}
                             </div>
-                        )}
-                        {locationLevel === 'province' && (
-                            <div className="grouped-list">
-                                {locations.regions.map(reg => {
-                                    const provs = locations.provinces.filter(p => p.region_id === reg.region_id);
-                                    if (provs.length === 0) return null;
-                                    return (
-                                        <div key={reg.region_id} className="group-section">
-                                            <h5>{reg.region_name}</h5>
-                                            <div className="checkbox-grid">
-                                                {provs.map(prov => (
-                                                    <label key={prov.province_id} className="checkbox-item">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={formData.scopes.some(s => s.id === prov.province_id && s.level === 'province')}
-                                                            onChange={e => handleScopeChange('province', prov.province_id, e.target.checked)}
-                                                            disabled={isView}
-                                                        />
-                                                        {prov.province_name}
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                        </div>
+                    )}
+
+                    {locationLevel === 'province' && (
+                        <div className="location-selector">
+                            <h4>
+                                Assigned Province
+                                {!isView && !selectedProvinceId && <span className="req"> *</span>}
+                            </h4>
+                            <p className="location-level-sub">Select the single province this user oversees:</p>
+                            <div className="form-group" style={{ marginTop: '10px' }}>
+                                <select
+                                    value={selectedProvinceId}
+                                    onChange={e => setSelectedProvinceId(e.target.value)}
+                                    className="full-width-select"
+                                    disabled={isView}
+                                    required
+                                >
+                                    <option value="">-- Select Province --</option>
+                                    {locations.provinces.map(prov => (
+                                        <option key={prov.province_id} value={prov.province_id}>
+                                            {prov.province_name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-                        )}
-                    </div>
-                )}
+                        </div>
+                    )}
+
+                    {locationLevel === 'district' && (
+                        <div className="location-selector">
+                            <h4>
+                                Assigned District in Province
+                                {!isView && (!selectedProvinceId || !selectedDistrictId) && <span className="req"> *</span>}
+                            </h4>
+                            <p className="location-level-sub">Select the province and district this user oversees:</p>
+                            
+                            <div className="cascade-grid-2" style={{ marginTop: '10px' }}>
+                                <div className="form-group">
+                                    <label>Province <span className="req">*</span></label>
+                                    <select
+                                        value={selectedProvinceId}
+                                        onChange={handleProvinceChange}
+                                        className="full-width-select"
+                                        disabled={isView}
+                                        required
+                                    >
+                                        <option value="">-- Select Province --</option>
+                                        {locations.provinces.map(p => (
+                                            <option key={p.province_id} value={p.province_id}>{p.province_name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Assigned District <span className="req">*</span></label>
+                                    <select
+                                        value={selectedDistrictId}
+                                        onChange={handleDistrictChange}
+                                        className="full-width-select"
+                                        disabled={isView || !selectedProvinceId || loadingDistricts}
+                                        required
+                                    >
+                                        <option value="">
+                                            {loadingDistricts ? 'Loading districts...' : (selectedProvinceId ? '-- Select District --' : '-- Choose Province First --')}
+                                        </option>
+                                        {districts.map(d => (
+                                            <option key={d.district_id} value={d.district_id}>{d.district_name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {locationLevel === 'facility' && (
+                        <div className="location-selector">
+                            <h4>
+                                Assigned Health Facility
+                                {!isView && (!selectedProvinceId || !selectedDistrictId || !selectedFacilityId) && <span className="req"> *</span>}
+                            </h4>
+                            <p className="location-level-sub">Select the province, district, and health facility this user oversees:</p>
+
+                            <div className="cascade-grid-2" style={{ marginTop: '10px' }}>
+                                <div className="form-group">
+                                    <label>Province <span className="req">*</span></label>
+                                    <select
+                                        value={selectedProvinceId}
+                                        onChange={handleProvinceChange}
+                                        className="full-width-select"
+                                        disabled={isView}
+                                        required
+                                    >
+                                        <option value="">-- Select Province --</option>
+                                        {locations.provinces.map(p => (
+                                            <option key={p.province_id} value={p.province_id}>{p.province_name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>District <span className="req">*</span></label>
+                                    <select
+                                        value={selectedDistrictId}
+                                        onChange={handleDistrictChange}
+                                        className="full-width-select"
+                                        disabled={isView || !selectedProvinceId || loadingDistricts}
+                                        required
+                                    >
+                                        <option value="">
+                                            {loadingDistricts ? 'Loading districts...' : (selectedProvinceId ? '-- Select District --' : '-- Choose Province First --')}
+                                        </option>
+                                        {districts.map(d => (
+                                            <option key={d.district_id} value={d.district_id}>{d.district_name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-group" style={{ marginTop: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <label>Health Facility <span className="req">*</span></label>
+                                    {selectedDistrictId && (
+                                        <span className="block-counter-badge">
+                                            {filteredFacilities.length} facilities in district
+                                        </span>
+                                    )}
+                                </div>
+
+                                {selectedDistrictId && facilities.length > 5 && !isView && (
+                                    <input
+                                        type="text"
+                                        className="facility-quick-search"
+                                        placeholder="🔍 Type facility name or code to filter..."
+                                        value={facilitySearch}
+                                        onChange={e => setFacilitySearch(e.target.value)}
+                                        style={{ marginBottom: '8px' }}
+                                    />
+                                )}
+
+                                <select
+                                    value={selectedFacilityId}
+                                    onChange={e => setSelectedFacilityId(e.target.value)}
+                                    className="full-width-select"
+                                    disabled={isView || !selectedDistrictId || loadingFacilities}
+                                    required
+                                >
+                                    <option value="">
+                                        {loadingFacilities ? 'Loading facilities...' : (selectedDistrictId ? `-- Select Health Facility (${filteredFacilities.length}) --` : '-- Choose District First --')}
+                                    </option>
+                                    {filteredFacilities.map(f => (
+                                        <option key={f.facility_id} value={f.facility_id}>
+                                            {f.facility_name} {f.facility_code ? `(${f.facility_code})` : ''}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {selectedFacilityId && (
+                                    <div className="facility-selected-chip">
+                                        <span>✓</span>
+                                        <span>
+                                            Assigned: <strong>{facilities.find(f => String(f.facility_id) === String(selectedFacilityId))?.facility_name || 'Selected Facility'}</strong>
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     };

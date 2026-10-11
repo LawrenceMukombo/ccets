@@ -105,6 +105,8 @@ router.post('/', authMiddleware, async (req, res) => {
         const {
             username, email, password, first_name, last_name,
             phone_number, role_id, is_national_access,
+            location_level,
+            assigned_region_id, assigned_province_id, assigned_district_id, assigned_facility_id,
             accessible_regions, accessible_provinces, accessible_districts, accessible_facilities
         } = req.body;
 
@@ -125,15 +127,58 @@ router.post('/', authMiddleware, async (req, res) => {
         const bcrypt = require('bcryptjs');
         const password_hash = await bcrypt.hash(password, 10);
 
+        const isNational = Boolean(is_national_access || location_level === 'national');
+
+        let finalRegion = null;
+        let finalProvince = null;
+        let finalDistrict = null;
+        let finalFacility = null;
+        let accRegions = null;
+        let accProvinces = null;
+        let accDistricts = null;
+        let accFacilities = null;
+
+        if (!isNational) {
+            finalRegion = assigned_region_id ? parseInt(assigned_region_id, 10) : null;
+            finalProvince = assigned_province_id ? parseInt(assigned_province_id, 10) : null;
+            finalDistrict = assigned_district_id ? parseInt(assigned_district_id, 10) : null;
+            finalFacility = assigned_facility_id ? parseInt(assigned_facility_id, 10) : null;
+
+            if (Array.isArray(accessible_regions) && accessible_regions.length > 0) {
+                accRegions = accessible_regions.map(Number);
+            } else if (finalRegion) {
+                accRegions = [finalRegion];
+            }
+
+            if (Array.isArray(accessible_provinces) && accessible_provinces.length > 0) {
+                accProvinces = accessible_provinces.map(Number);
+            } else if (finalProvince) {
+                accProvinces = [finalProvince];
+            }
+
+            if (Array.isArray(accessible_districts) && accessible_districts.length > 0) {
+                accDistricts = accessible_districts.map(Number);
+            } else if (finalDistrict) {
+                accDistricts = [finalDistrict];
+            }
+
+            if (Array.isArray(accessible_facilities) && accessible_facilities.length > 0) {
+                accFacilities = accessible_facilities.map(Number);
+            } else if (finalFacility) {
+                accFacilities = [finalFacility];
+            }
+        }
+
         await db.query('BEGIN');
 
-        // Insert User with location access
+        // Insert User with assigned location columns and accessible arrays
         const userResult = await db.query(`
             INSERT INTO users (
                 username, email, password_hash, first_name, last_name, 
                 phone_number, role_id, is_active, is_national_access, must_change_password,
+                assigned_region_id, assigned_province_id, assigned_district_id, assigned_facility_id,
                 accessible_regions, accessible_provinces, accessible_districts, accessible_facilities
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, $8, true, $9, $10, $11, $12)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, $8, true, $9, $10, $11, $12, $13, $14, $15, $16)
             RETURNING user_id, username
         `, [
             username,
@@ -143,14 +188,51 @@ router.post('/', authMiddleware, async (req, res) => {
             last_name,
             phone_number,
             role_id,
-            is_national_access || false,
-            accessible_regions || null,
-            accessible_provinces || null,
-            accessible_districts || null,
-            accessible_facilities || null
+            isNational,
+            finalRegion,
+            finalProvince,
+            finalDistrict,
+            finalFacility,
+            accRegions,
+            accProvinces,
+            accDistricts,
+            accFacilities
         ]);
 
         const newUser = userResult.rows[0];
+
+        // Synchronize user_scopes table
+        if (!isNational) {
+            if (accFacilities && accFacilities.length > 0) {
+                for (const facId of accFacilities) {
+                    await db.query(
+                        `INSERT INTO user_scopes (user_id, region_id, province_id, district_id, facility_id) VALUES ($1, $2, $3, $4, $5)`,
+                        [newUser.user_id, finalRegion, finalProvince, finalDistrict, facId]
+                    );
+                }
+            } else if (accDistricts && accDistricts.length > 0) {
+                for (const distId of accDistricts) {
+                    await db.query(
+                        `INSERT INTO user_scopes (user_id, region_id, province_id, district_id, facility_id) VALUES ($1, $2, $3, $4, null)`,
+                        [newUser.user_id, finalRegion, finalProvince, distId]
+                    );
+                }
+            } else if (accProvinces && accProvinces.length > 0) {
+                for (const provId of accProvinces) {
+                    await db.query(
+                        `INSERT INTO user_scopes (user_id, region_id, province_id, district_id, facility_id) VALUES ($1, $2, $3, null, null)`,
+                        [newUser.user_id, finalRegion, provId]
+                    );
+                }
+            } else if (accRegions && accRegions.length > 0) {
+                for (const regId of accRegions) {
+                    await db.query(
+                        `INSERT INTO user_scopes (user_id, region_id, province_id, district_id, facility_id) VALUES ($1, $2, null, null, null)`,
+                        [newUser.user_id, regId]
+                    );
+                }
+            }
+        }
 
         await db.query('COMMIT');
         res.status(201).json({ message: 'User created successfully', user: newUser });
@@ -166,16 +248,20 @@ router.get('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Fetch User Details with location access
-        // Added last_login
         const userResult = await db.query(`
             SELECT
                 u.user_id, u.username, u.email, u.first_name, u.last_name, 
                 u.phone_number, u.role_id, u.is_active, u.is_national_access,
                 u.last_login,
+                u.assigned_region_id, u.assigned_province_id,
+                u.assigned_district_id, u.assigned_facility_id,
                 u.accessible_regions, u.accessible_provinces, 
                 u.accessible_districts, u.accessible_facilities,
-                r.role_name as role
+                r.role_name as role,
+                ARRAY(SELECT region_id FROM user_scopes WHERE user_id = u.user_id AND region_id IS NOT NULL) as scope_regions,
+                ARRAY(SELECT province_id FROM user_scopes WHERE user_id = u.user_id AND province_id IS NOT NULL) as scope_provinces,
+                ARRAY(SELECT district_id FROM user_scopes WHERE user_id = u.user_id AND district_id IS NOT NULL) as scope_districts,
+                ARRAY(SELECT facility_id FROM user_scopes WHERE user_id = u.user_id AND facility_id IS NOT NULL) as scope_facilities
             FROM users u
             LEFT JOIN roles r ON u.role_id = r.role_id
             WHERE u.user_id = $1
@@ -186,7 +272,6 @@ router.get('/:id', authMiddleware, async (req, res) => {
         }
 
         const user = userResult.rows[0];
-
         res.json(user);
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -201,33 +286,116 @@ router.put('/:id', authMiddleware, async (req, res) => {
         const {
             email, first_name, last_name, phone_number,
             role_id, is_national_access,
+            location_level,
+            assigned_region_id, assigned_province_id, assigned_district_id, assigned_facility_id,
             accessible_regions, accessible_provinces, accessible_districts, accessible_facilities
         } = req.body;
 
+        const isNational = Boolean(is_national_access || location_level === 'national');
+
+        let finalRegion = null;
+        let finalProvince = null;
+        let finalDistrict = null;
+        let finalFacility = null;
+        let accRegions = null;
+        let accProvinces = null;
+        let accDistricts = null;
+        let accFacilities = null;
+
+        if (!isNational) {
+            finalRegion = assigned_region_id ? parseInt(assigned_region_id, 10) : null;
+            finalProvince = assigned_province_id ? parseInt(assigned_province_id, 10) : null;
+            finalDistrict = assigned_district_id ? parseInt(assigned_district_id, 10) : null;
+            finalFacility = assigned_facility_id ? parseInt(assigned_facility_id, 10) : null;
+
+            if (Array.isArray(accessible_regions) && accessible_regions.length > 0) {
+                accRegions = accessible_regions.map(Number);
+            } else if (finalRegion) {
+                accRegions = [finalRegion];
+            }
+
+            if (Array.isArray(accessible_provinces) && accessible_provinces.length > 0) {
+                accProvinces = accessible_provinces.map(Number);
+            } else if (finalProvince) {
+                accProvinces = [finalProvince];
+            }
+
+            if (Array.isArray(accessible_districts) && accessible_districts.length > 0) {
+                accDistricts = accessible_districts.map(Number);
+            } else if (finalDistrict) {
+                accDistricts = [finalDistrict];
+            }
+
+            if (Array.isArray(accessible_facilities) && accessible_facilities.length > 0) {
+                accFacilities = accessible_facilities.map(Number);
+            } else if (finalFacility) {
+                accFacilities = [finalFacility];
+            }
+        }
+
         await db.query('BEGIN');
 
-        // Update User Details including location access
+        // Update User Details including assigned location and accessible arrays
         const updateQuery = `
             UPDATE users SET
                 email = $1, first_name = $2, last_name = $3, 
                 phone_number = $4, role_id = $5, is_national_access = $6,
-                accessible_regions = $7, accessible_provinces = $8,
-                accessible_districts = $9, accessible_facilities = $10
-            WHERE user_id = $11
+                assigned_region_id = $7, assigned_province_id = $8,
+                assigned_district_id = $9, assigned_facility_id = $10,
+                accessible_regions = $11, accessible_provinces = $12,
+                accessible_districts = $13, accessible_facilities = $14
+            WHERE user_id = $15
             RETURNING user_id, username
         `;
 
         const result = await db.query(updateQuery, [
             email, first_name, last_name, phone_number,
-            role_id, is_national_access,
-            accessible_regions || null, accessible_provinces || null,
-            accessible_districts || null, accessible_facilities || null,
+            role_id, isNational,
+            finalRegion, finalProvince,
+            finalDistrict, finalFacility,
+            accRegions, accProvinces,
+            accDistricts, accFacilities,
             id
         ]);
 
         if (result.rows.length === 0) {
             await db.query('ROLLBACK');
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Re-synchronize user_scopes
+        await db.query('DELETE FROM user_scopes WHERE user_id = $1', [id]);
+
+        if (!isNational) {
+            if (accFacilities && accFacilities.length > 0) {
+                for (const facId of accFacilities) {
+                    await db.query(
+                        `INSERT INTO user_scopes (user_id, region_id, province_id, district_id, facility_id) VALUES ($1, $2, $3, $4, $5)`,
+                        [id, finalRegion, finalProvince, finalDistrict, facId]
+                    );
+                }
+            } else if (accDistricts && accDistricts.length > 0) {
+                for (const distId of accDistricts) {
+                    await db.query(
+                        `INSERT INTO user_scopes (user_id, region_id, province_id, district_id, facility_id) VALUES ($1, $2, $3, $4, null)`,
+                        [id, finalRegion, finalProvince, distId]
+                    );
+                }
+            } else if (accProvinces && accProvinces.length > 0) {
+                for (const provId of accProvinces) {
+                    await db.query(
+                        `INSERT INTO user_scopes (user_id, region_id, province_id, district_id, facility_id) VALUES ($1, $2, $3, null, null)`,
+                        [id, finalRegion, provId]
+                    );
+                }
+            } else if (accRegions && accRegions.length > 0) {
+                for (const regId of accRegions) {
+                    await db.query(
+                        `INSERT INTO user_scopes (user_id, region_id, province_id, district_id, facility_id) VALUES ($1, $2, null, null, null)`,
+                        [id, regId]
+                    );
+                }
+            }
         }
 
         await db.query('COMMIT');
