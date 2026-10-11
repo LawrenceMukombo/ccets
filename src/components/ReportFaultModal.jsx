@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTenant } from '../context/TenantContext';
 import './ReportFaultModal.css';
+import { validatePhoneNumber, validateDate } from '../utils/validation';
 
 function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
     const { tenantCode } = useTenant();
@@ -9,6 +10,7 @@ function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedIssue, setSelectedIssue] = useState('');
     const [priority, setPriority] = useState('Medium');
+    const [incidentDate, setIncidentDate] = useState(() => new Date().toISOString().split('T')[0]);
     const [description, setDescription] = useState('');
     const [additionalDetails, setAdditionalDetails] = useState('');
 
@@ -59,6 +61,22 @@ function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
             return;
         }
 
+        // Validate event date (cannot be future)
+        const dateCheck = validateDate(incidentDate, { allowFuture: false, label: 'Incident date' });
+        if (!dateCheck.isValid) {
+            setError(dateCheck.message);
+            return;
+        }
+
+        // Validate phone if provided
+        if (reporterPhone && reporterPhone.trim()) {
+            const phoneCheck = validatePhoneNumber(reporterPhone);
+            if (!phoneCheck.isValid) {
+                setError(phoneCheck.message);
+                return;
+            }
+        }
+
         try {
             setSubmitting(true);
             setError(null);
@@ -73,8 +91,9 @@ function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
                 facilityId: equipment.facility_id,
                 equipmentId: equipment.equipment_id,
                 priority: priority,
-                // Construct a detailed description
-                description: `${category?.category_name} - ${issue?.issue_name}\n\n${description}`,
+                incidentDate: incidentDate,
+                // Construct a detailed description with event date
+                description: `Event Date: ${incidentDate}\nCategory: ${category?.category_name} - ${issue?.issue_name}\n\n${description}`,
 
                 // Reporter details
                 reportedByName: reporterName || user.full_name,
@@ -222,6 +241,16 @@ function ReportFaultModal({ isOpen, onClose, equipment, onSuccess }) {
                                         <option value="High">High</option>
                                         <option value="Critical">Critical</option>
                                     </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Incident / Event Date <span style={{ color: '#ef4444' }}>*</span></label>
+                                    <input
+                                        type="date"
+                                        value={incidentDate}
+                                        max={new Date().toISOString().split('T')[0]}
+                                        onChange={(e) => setIncidentDate(e.target.value)}
+                                        required
+                                    />
                                 </div>
                             </div>
 

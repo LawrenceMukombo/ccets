@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { useOffline } from '../../context/OfflineContext';
 import './CreateTicketModal.css';
+import { validateEmail, validatePhoneNumber, validateDate } from '../../utils/validation';
 
 const CreateTicketModal = ({ onClose, onSuccess }) => {
     const { tenantCode, config } = useTenant();
@@ -36,6 +37,7 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
         facilityId: '',
         equipmentId: '',
         priority: 'Medium', // Default
+        incidentDate: new Date().toISOString().split('T')[0],
         description: '',
 
         // Reporter
@@ -269,6 +271,37 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
             return;
         }
 
+        // Validate Incident / Event Date (cannot be future)
+        const dateCheck = validateDate(formData.incidentDate, { allowFuture: false, label: 'Incident date' });
+        if (!dateCheck.isValid) {
+            setError(dateCheck.message);
+            if (activeTab !== 'details') setActiveTab('details');
+            setLoading(false);
+            return;
+        }
+
+        // Validate Reporter Phone
+        if (formData.reportedByPhone && formData.reportedByPhone.trim()) {
+            const phoneCheck = validatePhoneNumber(formData.reportedByPhone);
+            if (!phoneCheck.isValid) {
+                setError(phoneCheck.message);
+                if (activeTab !== 'reporter') setActiveTab('reporter');
+                setLoading(false);
+                return;
+            }
+        }
+
+        // Validate Reporter Email
+        if (formData.reportedByEmail && formData.reportedByEmail.trim()) {
+            const emailCheck = validateEmail(formData.reportedByEmail);
+            if (!emailCheck.isValid) {
+                setError(emailCheck.message);
+                if (activeTab !== 'reporter') setActiveTab('reporter');
+                setLoading(false);
+                return;
+            }
+        }
+
         // Offline storage fallback
         if (!isOnline) {
             try {
@@ -500,6 +533,17 @@ const CreateTicketModal = ({ onClose, onSuccess }) => {
                                         </label>
                                     ))}
                                 </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Incident / Event Occurrence Date <span className="required">*</span></label>
+                                <input
+                                    type="date"
+                                    value={formData.incidentDate}
+                                    max={new Date().toISOString().split('T')[0]}
+                                    onChange={(e) => setFormData({ ...formData, incidentDate: e.target.value })}
+                                    required
+                                />
                             </div>
 
                              <div className="form-group">

@@ -110,15 +110,46 @@ router.post('/', authMiddleware, async (req, res) => {
             accessible_regions, accessible_provinces, accessible_districts, accessible_facilities
         } = req.body;
 
-        // Basic validation
-        if (!username || !password || !role_id) {
-            return res.status(400).json({ message: 'Username, password and role are required' });
+        // Rigorous field validation
+        if (!username || !/^[a-zA-Z0-9._-]{3,50}$/.test(String(username).trim())) {
+            return res.status(400).json({ message: 'Username must be 3-50 characters and contain only letters, numbers, dots, dashes, or underscores' });
+        }
+
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+        if (!email || !emailRegex.test(String(email).trim())) {
+            return res.status(400).json({ message: 'Please provide a valid email address (e.g. user@domain.com)' });
+        }
+
+        if (!role_id) {
+            return res.status(400).json({ message: 'Role selection is required' });
+        }
+
+        // Password strength enforcement (min 8 chars, mixed case, number, special char)
+        if (!password || String(password).length < 8) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+        }
+        if (!/[a-z]/.test(password) || !/[A-Z]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain both uppercase and lowercase letters' });
+        }
+        if (!/[0-9]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain at least one digit (0-9)' });
+        }
+        if (!/[^A-Za-z0-9]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain at least one special character (!@#$%^&*...)' });
+        }
+
+        // Phone number validation (7 to 15 digits)
+        if (phone_number) {
+            const digitsOnly = String(phone_number).replace(/\D/g, '');
+            if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+                return res.status(400).json({ message: 'Phone number must contain between 7 and 15 digits' });
+            }
         }
 
         // Check availability
         const check = await db.query(
             'SELECT 1 FROM users WHERE username = $1 OR email = $2',
-            [username, email]
+            [username.trim(), email.trim()]
         );
         if (check.rows.length > 0) {
             return res.status(400).json({ message: 'Username or Email already exists' });
@@ -290,6 +321,20 @@ router.put('/:id', authMiddleware, async (req, res) => {
             assigned_region_id, assigned_province_id, assigned_district_id, assigned_facility_id,
             accessible_regions, accessible_provinces, accessible_districts, accessible_facilities
         } = req.body;
+
+        if (email) {
+            const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+            if (!emailRegex.test(String(email).trim())) {
+                return res.status(400).json({ message: 'Please provide a valid email address (e.g. user@domain.com)' });
+            }
+        }
+
+        if (phone_number) {
+            const digitsOnly = String(phone_number).replace(/\D/g, '');
+            if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+                return res.status(400).json({ message: 'Phone number must contain between 7 and 15 digits' });
+            }
+        }
 
         const isNational = Boolean(is_national_access || location_level === 'national');
 

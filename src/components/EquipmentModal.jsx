@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTenant } from '../context/TenantContext';
 import './EquipmentModal.css';
+import { validateYear } from '../utils/validation';
 
 const EquipmentModal = ({
     isOpen,
@@ -256,6 +257,14 @@ const EquipmentModal = ({
         if (!formData.item_type) {
             setError('Equipment Type is required.');
             return;
+        }
+
+        if (formData.year_installed) {
+            const yearCheck = validateYear(formData.year_installed, { min: 1970, max: new Date().getFullYear() + 1, label: 'Year installed' });
+            if (!yearCheck.isValid) {
+                setError(yearCheck.message);
+                return;
+            }
         }
 
         setLoading(true);

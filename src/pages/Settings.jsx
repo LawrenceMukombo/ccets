@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Settings.css';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
 import { useTenant } from '../context/TenantContext';
+import { validatePassword, validateEmail } from '../utils/validation';
 
 const ADMIN_LEVEL_PRESETS = [
     { id: 'level_0', name: 'National', color: '#1d4ed8' },
@@ -528,6 +529,20 @@ const Settings = () => {
                 return;
             }
 
+            const emailCheck = validateEmail(newCountry.admin_email);
+            if (!emailCheck.isValid) {
+                setMessage({ text: emailCheck.message, type: 'error' });
+                setIsSaving(false);
+                return;
+            }
+
+            const pwdCheck = validatePassword(newCountry.admin_password);
+            if (!pwdCheck.isValid) {
+                setMessage({ text: pwdCheck.message, type: 'error' });
+                setIsSaving(false);
+                return;
+            }
+
             const payload = {
                 code: newCountry.code,
                 name: newCountry.name,
@@ -1031,8 +1046,12 @@ const Settings = () => {
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
+        const pwdCheck = validatePassword(securityData.newPassword);
+        if (!pwdCheck.isValid) {
+            return setMessage({ text: pwdCheck.message, type: 'error' });
+        }
         if (securityData.newPassword !== securityData.confirmPassword) {
-            return setMessage({ text: 'Passwords do not match', type: 'error' });
+            return setMessage({ text: 'New password and confirm password do not match', type: 'error' });
         }
 
         setIsSaving(true);
@@ -1686,6 +1705,25 @@ const Settings = () => {
                         onChange={(e) => setSecurityData({...securityData, newPassword: e.target.value})}
                         required
                     />
+                    {securityData.newPassword && (() => {
+                        const evalResult = validatePassword(securityData.newPassword);
+                        return (
+                            <div style={{ marginTop: '8px', padding: '8px 10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                <div style={{ height: '4px', background: '#e2e8f0', borderRadius: '2px', overflow: 'hidden', marginBottom: '4px' }}>
+                                    <div style={{ height: '100%', width: `${evalResult.percent}%`, backgroundColor: evalResult.color, transition: 'all 0.3s' }} />
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
+                                    <span>Strength: <strong style={{ color: evalResult.color }}>{evalResult.label}</strong></span>
+                                    <span>{evalResult.score} / 4</span>
+                                </div>
+                                {!evalResult.isValid && (
+                                    <div style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px' }}>
+                                        ⚠️ {evalResult.message}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
                 <div className="form-group">
                     <label>Confirm New Password</label>

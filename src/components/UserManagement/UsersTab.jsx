@@ -3,6 +3,12 @@ import { useTenant } from '../../context/TenantContext';
 import './UsersTab.css';
 import EnterpriseDataTable from '../Common/EnterpriseDataTable';
 import ImportDataModal from '../Common/ImportDataModal';
+import {
+    validatePassword,
+    validateEmail,
+    validatePhoneNumber,
+    validateUsername
+} from '../../utils/validation';
 
 const UsersTab = () => {
     const { tenantCode } = useTenant();
@@ -430,6 +436,21 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
     const [userHistory, setUserHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
 
+    // Validation & Security States
+    const [showPassword, setShowPassword] = useState(false);
+    const [touchedFields, setTouchedFields] = useState({});
+
+    const passwordEval = useMemo(() => validatePassword(formData.password), [formData.password]);
+    const emailEval = useMemo(() => validateEmail(formData.email), [formData.email]);
+    const phoneEval = useMemo(() => validatePhoneNumber(formData.phone_number), [formData.phone_number]);
+    const usernameEval = useMemo(() => validateUsername(formData.username), [formData.username]);
+    const firstNameValid = Boolean(formData.first_name && formData.first_name.trim().length > 0);
+    const lastNameValid = Boolean(formData.last_name && formData.last_name.trim().length > 0);
+
+    const markTouched = (field) => {
+        setTouchedFields(prev => ({ ...prev, [field]: true }));
+    };
+
     const [loading, setLoading] = useState(false);
     const [fetchingDetails, setFetchingDetails] = useState(false);
     const [error, setError] = useState('');
@@ -769,9 +790,11 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
     // Validations
     const isStep1Valid = () => {
         if (isView) return true;
-        const basic = formData.username && formData.email && formData.first_name &&
-            formData.last_name && formData.phone_number;
-        return isCreate ? (basic && formData.password) : basic;
+        const basic = emailEval.isValid && phoneEval.isValid && firstNameValid && lastNameValid;
+        if (isCreate) {
+            return basic && usernameEval.isValid && passwordEval.isValid;
+        }
+        return basic;
     };
 
     const isStep2Valid = () => {
@@ -826,66 +849,186 @@ const UserModal = ({ mode, user, roles, permissionsMatrix, onClose, onSuccess })
     const renderStep1 = () => (
         <div className="form-grid">
             <div className="form-group">
-                <label>Username {isCreate && '*'}</label>
-                <input
-                    type="text"
-                    value={formData.username}
-                    onChange={e => setFormData({ ...formData, username: e.target.value })}
-                    required
-                    disabled={isView || isEdit}
-                    style={(isView || isEdit) ? { background: '#f1f5f9' } : {}}
-                />
-            </div>
-            <div className="form-group">
-                <label>Email {isCreate && '*'}</label>
-                <input
-                    type="email"
-                    value={formData.email}
-                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                    required
-                    disabled={isView}
-                />
-            </div>
-            {isCreate && (
-                <div className="form-group">
-                    <label>Default Password *</label>
+                <label>Username {isCreate && <span className="req">*</span>}</label>
+                <div className="input-with-feedback">
                     <input
-                        type="password"
-                        value={formData.password}
-                        onChange={e => setFormData({ ...formData, password: e.target.value })}
+                        type="text"
+                        value={formData.username}
+                        onChange={e => {
+                            setFormData({ ...formData, username: e.target.value });
+                            markTouched('username');
+                        }}
+                        onBlur={() => markTouched('username')}
                         required
+                        disabled={isView || isEdit}
+                        style={(isView || isEdit) ? { background: '#f1f5f9' } : {}}
+                        placeholder="e.g. john.doe"
+                        className={`form-input ${touchedFields.username ? (usernameEval.isValid ? 'is-valid' : 'is-invalid') : ''}`}
                     />
+                    {isCreate && touchedFields.username && usernameEval.isValid && <span className="valid-badge">✓</span>}
+                </div>
+                {isCreate && touchedFields.username && !usernameEval.isValid && (
+                    <span className="field-error-text">⚠️ {usernameEval.message}</span>
+                )}
+            </div>
+
+            <div className="form-group">
+                <label>Email {isCreate && <span className="req">*</span>}</label>
+                <div className="input-with-feedback">
+                    <input
+                        type="email"
+                        value={formData.email}
+                        onChange={e => {
+                            setFormData({ ...formData, email: e.target.value });
+                            markTouched('email');
+                        }}
+                        onBlur={() => markTouched('email')}
+                        required
+                        disabled={isView}
+                        placeholder="e.g. user@ccets.org"
+                        className={`form-input ${touchedFields.email ? (emailEval.isValid ? 'is-valid' : 'is-invalid') : ''}`}
+                    />
+                    {touchedFields.email && emailEval.isValid && <span className="valid-badge">✓</span>}
+                </div>
+                {touchedFields.email && !emailEval.isValid && (
+                    <span className="field-error-text">⚠️ {emailEval.message}</span>
+                )}
+            </div>
+
+            {isCreate && (
+                <div className="form-group password-strength-group">
+                    <div className="password-header-row">
+                        <label>Default Password <span className="req">*</span></label>
+                        <button
+                            type="button"
+                            className="btn-toggle-password-visibility"
+                            onClick={() => setShowPassword(!showPassword)}
+                            tabIndex="-1"
+                        >
+                            {showPassword ? '👁️ Hide' : '👁️ Show'}
+                        </button>
+                    </div>
+                    <div className="password-input-wrapper">
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            value={formData.password}
+                            onChange={e => {
+                                setFormData({ ...formData, password: e.target.value });
+                                markTouched('password');
+                            }}
+                            onBlur={() => markTouched('password')}
+                            placeholder="Min 8 chars, uppercase, lowercase, number & symbol"
+                            className={`form-input ${touchedFields.password ? (passwordEval.isValid ? 'is-valid' : 'is-invalid') : ''}`}
+                            required
+                        />
+                    </div>
+
+                    {/* Interactive Real-time Password Strength Meter */}
+                    {formData.password && (
+                        <div className="password-strength-container">
+                            <div className="strength-meter-bar-track">
+                                <div
+                                    className="strength-meter-bar-fill"
+                                    style={{
+                                        width: `${passwordEval.percent}%`,
+                                        backgroundColor: passwordEval.color
+                                    }}
+                                />
+                            </div>
+                            <div className="strength-label-row">
+                                <span className="strength-text">
+                                    Strength: <strong style={{ color: passwordEval.color }}>{passwordEval.label}</strong>
+                                </span>
+                                <span className="strength-score">{passwordEval.score} / 4</span>
+                            </div>
+
+                            <div className="password-checklist-grid">
+                                <div className={`checklist-item ${passwordEval.rules.minLength ? 'passed' : 'pending'}`}>
+                                    <span className="checklist-icon">{passwordEval.rules.minLength ? '✓' : '•'}</span>
+                                    <span>8+ Characters</span>
+                                </div>
+                                <div className={`checklist-item ${passwordEval.rules.hasLower && passwordEval.rules.hasUpper ? 'passed' : 'pending'}`}>
+                                    <span className="checklist-icon">{passwordEval.rules.hasLower && passwordEval.rules.hasUpper ? '✓' : '•'}</span>
+                                    <span>Upper & Lowercase</span>
+                                </div>
+                                <div className={`checklist-item ${passwordEval.rules.hasNumber ? 'passed' : 'pending'}`}>
+                                    <span className="checklist-icon">{passwordEval.rules.hasNumber ? '✓' : '•'}</span>
+                                    <span>At least 1 Number</span>
+                                </div>
+                                <div className={`checklist-item ${passwordEval.rules.hasSpecial ? 'passed' : 'pending'}`}>
+                                    <span className="checklist-icon">{passwordEval.rules.hasSpecial ? '✓' : '•'}</span>
+                                    <span>Special Symbol (!@#$)</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {touchedFields.password && !passwordEval.isValid && (
+                        <span className="field-error-text">⚠️ {passwordEval.message}</span>
+                    )}
                 </div>
             )}
+
             <div className="form-group">
-                <label>First Name {isCreate && '*'}</label>
+                <label>First Name {isCreate && <span className="req">*</span>}</label>
                 <input
                     type="text"
                     value={formData.first_name}
-                    onChange={e => setFormData({ ...formData, first_name: e.target.value })}
+                    onChange={e => {
+                        setFormData({ ...formData, first_name: e.target.value });
+                        markTouched('first_name');
+                    }}
+                    onBlur={() => markTouched('first_name')}
+                    placeholder="e.g. Grace"
                     required
                     disabled={isView}
+                    className={`form-input ${touchedFields.first_name ? (firstNameValid ? 'is-valid' : 'is-invalid') : ''}`}
                 />
+                {touchedFields.first_name && !firstNameValid && (
+                    <span className="field-error-text">⚠️ First name is required.</span>
+                )}
             </div>
+
             <div className="form-group">
-                <label>Last Name {isCreate && '*'}</label>
+                <label>Last Name {isCreate && <span className="req">*</span>}</label>
                 <input
                     type="text"
                     value={formData.last_name}
-                    onChange={e => setFormData({ ...formData, last_name: e.target.value })}
+                    onChange={e => {
+                        setFormData({ ...formData, last_name: e.target.value });
+                        markTouched('last_name');
+                    }}
+                    onBlur={() => markTouched('last_name')}
+                    placeholder="e.g. Mwansa"
                     required
                     disabled={isView}
+                    className={`form-input ${touchedFields.last_name ? (lastNameValid ? 'is-valid' : 'is-invalid') : ''}`}
                 />
+                {touchedFields.last_name && !lastNameValid && (
+                    <span className="field-error-text">⚠️ Last name is required.</span>
+                )}
             </div>
+
             <div className="form-group">
-                <label>Phone {isCreate && '*'}</label>
-                <input
-                    type="tel"
-                    value={formData.phone_number}
-                    onChange={e => setFormData({ ...formData, phone_number: e.target.value })}
-                    required
-                    disabled={isView}
-                />
+                <label>Phone Number {isCreate && <span className="req">*</span>}</label>
+                <div className="input-with-feedback">
+                    <input
+                        type="tel"
+                        value={formData.phone_number}
+                        onChange={e => {
+                            setFormData({ ...formData, phone_number: e.target.value });
+                            markTouched('phone_number');
+                        }}
+                        onBlur={() => markTouched('phone_number')}
+                        placeholder="e.g. +260 97 1234567"
+                        required
+                        disabled={isView}
+                        className={`form-input ${touchedFields.phone_number ? (phoneEval.isValid ? 'is-valid' : 'is-invalid') : ''}`}
+                    />
+                    {touchedFields.phone_number && phoneEval.isValid && <span className="valid-badge">✓</span>}
+                </div>
+                {touchedFields.phone_number && !phoneEval.isValid && (
+                    <span className="field-error-text">⚠️ {phoneEval.message}</span>
+                )}
             </div>
         </div>
     );

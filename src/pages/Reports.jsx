@@ -13,6 +13,7 @@ import './Reports.css';
 import { useLocationFilter } from '../hooks/useLocationFilter';
 import LocationFilter from '../components/LocationFilter';
 import { getCachedData, setCachedData } from '../utils/cache';
+import { validateDateRange } from '../utils/validation';
 
 // Chart Colors matching the platform theme
 const CHART_COLORS = [
@@ -441,23 +442,35 @@ function Reports() {
                             <option value="custom">Custom Range</option>
                         </select>
 
-                        {dateRange === 'custom' && (
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <input
-                                    type="date"
-                                    value={customStartDate}
-                                    onChange={(e) => setCustomStartDate(e.target.value)}
-                                    className="date-input-custom"
-                                />
-                                <span style={{ display: 'flex', alignItems: 'center', color: 'white', fontWeight: 'bold' }}>-</span>
-                                <input
-                                    type="date"
-                                    value={customEndDate}
-                                    onChange={(e) => setCustomEndDate(e.target.value)}
-                                    className="date-input-custom"
-                                />
-                            </div>
-                        )}
+                        {dateRange === 'custom' && (() => {
+                            const rangeCheck = validateDateRange(customStartDate, customEndDate);
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <input
+                                            type="date"
+                                            value={customStartDate}
+                                            onChange={(e) => setCustomStartDate(e.target.value)}
+                                            className="date-input-custom"
+                                            style={!rangeCheck.isValid ? { borderColor: '#ef4444' } : {}}
+                                        />
+                                        <span style={{ display: 'flex', alignItems: 'center', color: 'white', fontWeight: 'bold' }}>-</span>
+                                        <input
+                                            type="date"
+                                            value={customEndDate}
+                                            onChange={(e) => setCustomEndDate(e.target.value)}
+                                            className="date-input-custom"
+                                            style={!rangeCheck.isValid ? { borderColor: '#ef4444' } : {}}
+                                        />
+                                    </div>
+                                    {!rangeCheck.isValid && (
+                                        <span style={{ fontSize: '11px', color: '#fca5a5', fontWeight: 500 }}>
+                                            ⚠️ {rangeCheck.message}
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })()}
                         <button className="export-button" onClick={handleExport}>
                             <span>📥</span> Export
                         </button>
